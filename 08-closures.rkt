@@ -72,10 +72,10 @@ we can use `let` to bind identifiers to lambdas. E.g.,
 
     ;; arithmetic expressions
     [(list '+ lhs rhs)
-     (arith-exp "PLUS" (parse lhs) (parse rhs))] 
+     (arith-exp "PLUS" (parse lhs) (parse rhs))]
     [(list '* lhs rhs)
      (arith-exp "TIMES" (parse lhs) (parse rhs))]
-    
+
     ;; identifiers (variables)
     [(? symbol?)
      (var-exp sexp)]
@@ -83,7 +83,7 @@ we can use `let` to bind identifiers to lambdas. E.g.,
     ;; let expressions
     [(list 'let (list (list id val) ...) body)
      (let-exp id (map parse val) (parse body))]
-    
+
     ;; lambda expressions
     [_ (void)]
 
@@ -100,30 +100,30 @@ we can use `let` to bind identifiers to lambdas. E.g.,
     ;; int literals
     [(int-exp val) val]
 
-    ;; arithmetic expressions    
+    ;; arithmetic expressions
     [(arith-exp "PLUS" lhs rhs)
-      (+ (eval lhs env) (eval rhs env))]
+     (+ (eval lhs env) (eval rhs env))]
     [(arith-exp "TIMES" lhs rhs)
-      (* (eval lhs env) (eval rhs env))]         
+     (* (eval lhs env) (eval rhs env))]
 
     ;; variable binding
     [(var-exp id)
-      (let ([pair (assoc id env)])
-        (if pair
-            (cdr pair)
-            (error (format "~a not bound!" id))))]
+     (let ([pair (assoc id env)])
+       (if pair
+           (cdr pair)
+           (error (format "~a not bound!" id))))]
 
     ;; let expression with multiple variables
     [(let-exp (list id ...) (list val ...) body)
-      (let ([vars (map cons id
+     (let ([vars (map cons id
                       (map (lambda (v)
-                              (eval v env))
-                            val))])
-        (eval body (append vars env)))]
+                             (eval v env))
+                           val))])
+       (eval body (append vars env)))]
 
     ;; lambda expression
     [_ (void)]
-    
+
     ;; function application
     [_ (void)]
 
