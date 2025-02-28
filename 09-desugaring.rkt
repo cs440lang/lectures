@@ -85,10 +85,10 @@ e.g., support for lambda and function application with > 1 params/args
 
     ;; arithmetic expression
     [(list '+ lhs rhs)
-     (arith-exp "PLUS" (parse lhs) (parse rhs))] 
+     (arith-exp "PLUS" (parse lhs) (parse rhs))]
     [(list '* lhs rhs)
      (arith-exp "TIMES" (parse lhs) (parse rhs))]
-    
+
     ;; identifier (variable)
     [(? symbol?)
      (var-exp sexp)]
@@ -96,7 +96,7 @@ e.g., support for lambda and function application with > 1 params/args
     ;; let expressions
     [(list 'let (list (list id val) ...) body)
      (let-exp (map parse id) (map parse val) (parse body))]
-    
+
     ;; lambda expression -- modified for > 1 params
     [(list 'lambda (list ids ...) body)
      (lambda-exp ids (parse body))]
@@ -117,22 +117,30 @@ e.g., support for lambda and function application with > 1 params/args
 
     ((let-exp ids vals body)
      (let-exp ids (map desugar vals) (desugar body)))
-    
+
+    ;; try:
+    ; (foldr (lambda (id body) `(lambda (,id) ,body))
+    ;        'body
+    ;        '(x y z))
     ((lambda-exp ids body)
      (foldr (lambda (id body) (lambda-exp id body))
             (desugar body)
             ids))
-    
+
+    ;; try:
+    ; (foldl (lambda (id fn) `(,fn ,id))
+    ;        'fn
+    ;        '(a b c))
     ((app-exp fn args)
      (foldl (lambda (id fn) (app-exp fn id))
             (desugar fn)
             (map desugar args)))
-    
+
     (_ exp)))
 
 
 ;; function value + closure
-(struct fun-val (id body env) #:transparent)
+(struct closure (id body env) #:transparent)
 
 
 ;; Interpreter
@@ -147,8 +155,8 @@ e.g., support for lambda and function application with > 1 params/args
       [(arith-exp "PLUS" lhs rhs)
        (+ (eval-env lhs env) (eval-env rhs env))]
       [(arith-exp "TIMES" lhs rhs)
-       (* (eval-env lhs env) (eval-env rhs env))]         
-      
+       (* (eval-env lhs env) (eval-env rhs env))]
+
       ;; variable binding
       [(var-exp id)
        (let ([pair (assoc id env)])
@@ -162,11 +170,11 @@ e.g., support for lambda and function application with > 1 params/args
 
       ;; lambda expression
       [(lambda-exp id body)
-       (fun-val id body env)]
-      
+       (closure id body env)]
+
       ;; function application
       [(app-exp f arg)
-       (match-let ([(fun-val id body clenv) (eval-env f env)]
+       (match-let ([(closure id body clenv) (eval-env f env)]
                    [arg-val (eval-env arg env)])
          (eval-env body (cons (cons id arg-val) clenv)))]
 
