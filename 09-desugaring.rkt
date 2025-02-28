@@ -80,10 +80,10 @@ e.g., how might we desugar a function application with more than 1 argument?
 
     ;; arithmetic expressions
     [(list '+ lhs rhs)
-     (arith-exp "PLUS" (parse lhs) (parse rhs))] 
+     (arith-exp "PLUS" (parse lhs) (parse rhs))]
     [(list '* lhs rhs)
      (arith-exp "TIMES" (parse lhs) (parse rhs))]
-    
+
     ;; identifiers (variables)
     [(? symbol?)
      (var-exp sexp)]
@@ -91,7 +91,7 @@ e.g., how might we desugar a function application with more than 1 argument?
     ;; let expressions
     [(list 'let (list (list id val) ...) body)
      (let-exp (map parse id) (map parse val) (parse body))]
-    
+
     ;; lambda expressions -- modified for > 1 params
     [(list 'lambda (list ids ...) body)
      (lambda-exp ids (parse body))]
@@ -111,7 +111,7 @@ e.g., how might we desugar a function application with more than 1 argument?
 
 
 ;; function value + closure
-(struct fun-val (id body env) #:transparent)
+(struct closure (id body env) #:transparent)
 
 
 ;; Interpreter
@@ -126,8 +126,8 @@ e.g., how might we desugar a function application with more than 1 argument?
       [(arith-exp "PLUS" lhs rhs)
        (+ (eval-env lhs env) (eval-env rhs env))]
       [(arith-exp "TIMES" lhs rhs)
-       (* (eval-env lhs env) (eval-env rhs env))]         
-      
+       (* (eval-env lhs env) (eval-env rhs env))]
+
       ;; variable binding
       [(var-exp id)
        (let ([pair (assoc id env)])
@@ -141,11 +141,11 @@ e.g., how might we desugar a function application with more than 1 argument?
 
       ;; lambda expression
       [(lambda-exp id body)
-       (fun-val id body env)]
-      
+       (closure id body env)]
+
       ;; function application
       [(app-exp f arg)
-       (match-let ([(fun-val id body clenv) (eval-env f env)]
+       (match-let ([(closure id body clenv) (eval-env f env)]
                    [arg-val (eval-env arg env)])
          (eval-env body (cons (cons id arg-val) clenv)))]
 
