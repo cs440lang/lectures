@@ -80,17 +80,20 @@ let rec fib' n = match n with
 let rec sum n = if n = 0 then 0
                 else n + sum (n-1)
 
-let rec sum' n acc = if n = 0 then acc
-                     else sum' (n-1) (acc+n)
+let rec sum' n acc =
+  if n = 0 then acc
+  else sum' (n-1) (n+acc)
 
-                   
 let sum'' n =
-  let rec aux k acc = if k = 0 then acc
-                      else aux (k-1) (acc+k) 
+  let rec aux n acc =
+    if n = 0 then acc
+    else aux (n-1) (n+acc)
   in aux n 0
 
-(* fibonacci using tail recursion *)
 
 let fib''' n =
-  let rec aux i j k = if k = n then i else aux j (i+j) (k+1)
-  in aux 1 1 0
+  let rec aux i j k =
+    if k = 0 then i
+    else aux j (i+j) (k-1)
+  in aux 1 1 n
+

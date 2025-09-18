@@ -5,10 +5,10 @@ author: "Michael Lee"
 
 # Agenda
 
-- Functions: definitions and applications
+- Functions: definition and application
   - Anonymous functions
   - Function types
-  - Currying and partial application
+  - Currying and Partial application
   - Polymorphic functions
 - Recursive functions
 - Tracing function calls
@@ -16,14 +16,13 @@ author: "Michael Lee"
   - Equivalance to `fun`
 - Operators as functions
 - Application operators: `|>`, `@@`
-- Pattern matching
 - Tail recursion
 
 ---
 
 # Functions: definition and application
 
-## Anonymous functions
+## "Anonymous" functions
 
 Functions in OCaml are values we can create with the `fun` keyword:
 
@@ -33,8 +32,8 @@ let inc = fun x -> x + 1
 let foo = fun x y z -> (2*x + y) * z
 ```
 
-- Note that these functions are inherently anonymous -- they only have "names"
-  because we bind variables to them.
+- Note that these functions are *anonymous* -- they only have "names" because we
+  bind variables to them.
 
 - What are the function types? How do we interpret them?
 
@@ -58,6 +57,8 @@ let foo = fun x y z -> (2*x + y) * z
 ---
 
 # Functions: definition and application
+
+## Currying
 
 Note the equivalence of the types of:
 
@@ -333,56 +334,6 @@ What are their types? Can you figure out how to use them?
 
 ---
 
-# Pattern matching
-
-Consider the following definition of the Fibonacci series generator:
-
-```ocaml
-let rec fib n = if n = 0 then 1
-                else if n = 1 then 1
-                else fib (n-1) + fib (n-2)
-```
-
-We can write this much more clearly using a language feature known as *pattern
-matching*.
-
----
-
-# Pattern matching
-
-Here's the pattern match version:
-
-```ocaml
-let rec fib' n = match n with
-  | 0 -> 1
-  | 1 -> 1
-  | _ -> fib' (n-1) + fib' (n-2)
-```
-
-Note that `n` is *matched* against all the values (patterns), and the first one
-that succeeds has its corresponding body evaluated. The `_` serves as a
-catch-all pattern.
-
----
-
-# Pattern matching
-
-Pattern matching is such a common idiom that there's special syntax for writing
-a function which pattern-matches its argument:
-
-```ocaml
-let rec fib'' = function 
-  | 0 -> 1
-  | 1 -> 1
-  | n -> fib'' (n-1) + fib'' (n-2)
-```
-
-Here, if the `0` and `1` patterns don't match the argument to the function, the
-variable `n` is bound to the argument, which can then be used in the body
-expression.
-
----
-
 # Tail recursion
 
 Check out another recursive function.
@@ -419,24 +370,53 @@ let rec sum' n acc = if n = 0 then acc
                      else sum' (n-1) (acc+n)
 ```
 
-- we say that the recursive call above is in the "tail position" --- i.e., it is
-  the *last thing* done in the function body
+We say that the recursive call above is in the "tail position" --- i.e., it is
+the *last thing* done in the function body
 
-- when this is the case, OCaml can perform *tail-call optimization*, which
+- When this is the case, OCaml can perform *tail-call optimization*, which
   prevents additional stack frames from being allocated on recursive calls
 
 ---
 
 # Tail recursion
 
+But this implementation is ugly -- it exposes the accumulator (which can be
+misused):
+
+```ocaml
+let rec sum' n acc = if n = 0 then acc
+                     else sum' (n-1) (acc+n)
+```
+
+How can we clean it up?
+
+---
+
+# Tail recursion
+
+## Auxiliary "helper" function
+
 A cleaner implementation "hides" the accumulator by introducing an auxiliary
 recursive function:
 
 ```ocaml
-let sum' n =
+let sum'' n =
   let rec aux k acc = if k = 0 then acc
                       else aux (k-1) (acc+k) 
   in aux n 0
 ```
 
-- Can you write an efficient, tail-recursive version of the Fibonacci generator?
+---
+
+# Tail recursion
+
+## Exercise
+
+Can you write an efficient, tail-recursive version of the following Fibonacci
+generator?
+
+```ocaml
+let rec fib n = if n = 0 then 1
+                else if n = 1 then 1
+                else fib (n-1) + fib (n-2)
+```
