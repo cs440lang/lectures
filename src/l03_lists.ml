@@ -1,18 +1,22 @@
 (* basic pattern matching *)
 
-let first = function
-  | x :: _ -> x
+let first l = match l with
   | [] -> failwith "List is empty"
+  | x :: _ -> x
+
+let first' = function
+  | [] -> failwith "List is empty"
+  | x :: _ -> x
 
 let rest = function
+  | [] -> failwith "List is empty"
   | _ :: xs -> xs
-  | _ -> failwith "List is empty"
 
 (* processing lists *)
 
-let rec index lst n =
-  if n = 0 then first lst
-  else index (rest lst) (n-1)
+let rec sum = function
+  | [] -> 0
+  | x :: xs -> x + sum xs
 
 let rec length = function
   | [] -> 0
@@ -55,7 +59,17 @@ let rec repeat n x = if n = 0 then []
                      else x :: repeat (n-1) x
 
 let fibs n =
-  let rec aux i j k acc =
+  let rec fib = function
+    | 0 -> 1
+    | 1 -> 1
+    | i -> fib (i-1) + fib (i-2)
+  and gen j = if j=n
+              then []
+              else fib j :: gen (j+1)
+  in gen 0
+
+let fibs' n =
+  let rec gen i j k acc =
     if k = n then reverse acc
-    else aux j (i+j) (k+1) (i :: acc) 
-  in aux 1 1 0 []
+    else gen j (i+j) (k+1) (i :: acc) 
+  in gen 1 1 0 []
