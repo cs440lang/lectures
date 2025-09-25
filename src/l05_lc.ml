@@ -54,36 +54,12 @@ let pp t =
   in aux 0 t
 
 (* subst x v t = [v/x]t *)
-let rec subst v x t = match t with
-  | Var y -> if x = y then v else t
-  | App (t1, t2) -> App (subst v x t1, subst v x t2)
-  (* Broken! Need to consider variable capture. *)
-  | Abs (y, body) -> if x = y
-                     then t
-                     else Abs (y, subst v x body) 
+let rec subst v x t = failwith "unimplemented"
   
 (* normal-order (leftmost-outermost) step function
- * - if a redex exists, perform it and return Some t'
+ * - if a redex exists in t, perform it and return Some t'
  * - else return None *)
-let rec step_normal = function
-  | App (Abs (x, t), u) ->
-      Some (subst u x t)                   (* beta reduction *)
-  | App (t, u) ->
-      (match step_normal t with
-      | Some t' -> Some (App (t', u))      (* reduce left first *)
-      | None ->
-          (match step_normal u with
-          | Some u' -> Some (App (t, u'))  (* then reduce right *)
-          | None -> None))
-  | Abs (x, t) ->
-      (match step_normal t with
-       | Some t' -> Some (Abs (x, t'))
-       | None -> None)
-  | Var _ -> None
+let rec step_normal t = failwith "unimplemented"
 
 (* normal-order multi-step eval *)
-let rec eval_normal t =
-  print_endline @@ pp t ;
-  match step_normal t with
-  | Some t' -> eval_normal t'
-  | None -> t
+let rec eval_normal t = failwith "unimplemented"
