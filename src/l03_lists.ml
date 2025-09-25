@@ -1,55 +1,50 @@
-(* list processing *)
-
 (* basic pattern matching *)
 
-let first lst = match lst with
-  | [] -> failwith "Empty list!"
+let first = function
   | x :: _ -> x
+  | [] -> failwith "List is empty"
 
-let rest lst = match lst with
-  | [] -> failwith "Empty list!"
+let rest = function
   | _ :: xs -> xs
+  | _ -> failwith "List is empty"
 
-(* list processing functions *)
-
-let rec length = function
-  | [] -> 0 
-  | _ :: xs -> 1 + length xs
+(* processing lists *)
 
 let rec index lst n =
   if n = 0 then first lst
   else index (rest lst) (n-1)
 
-let index' lst n =
-  let rec aux i = function
-    | [] -> failwith "Empty list!"
-    | x :: xs -> if i = n then x
-                 else aux (i+1) xs
+let rec length = function
+  | [] -> 0
+  | _ :: xs -> 1 + length xs
+
+(* tail recursive version *)
+let length' lst =
+  let rec aux acc = function 
+    | [] -> acc
+    | _ :: xs -> aux (1 + acc) xs
   in aux 0 lst
+
+let rec index n = function
+  | [] -> failwith "Index out of range"
+  | x :: xs -> if n = 0 then x
+               else index (n-1) xs
 
 let rec append lst1 lst2 = match lst1 with
   | [] -> lst2
   | x :: xs -> x :: append xs lst2
-
-let rec sum_list = function
-  | [] -> 0
-  | n :: ns -> n + sum_list ns
-
-let sum_list' lst =
-  let rec aux acc = function
-    | [] -> acc
-    | n :: ns -> aux (n + acc) ns 
-  in aux 0 lst
-
+ 
+(* poor runtime complexity -- O(n^2) *)
 let rec reverse = function
   | [] -> []
   | x :: xs -> append (reverse xs) [x]
 
+(* much more efficient with an accumulator *)
 let reverse' lst =
   let rec aux acc = function
-    | [] -> acc
-    | x :: xs -> aux (x :: acc) xs
-  in aux [] lst 
+     | [] -> acc
+     | x :: xs -> aux (x :: acc) xs
+  in aux [] lst
 
 (* list generating functions *)
 
