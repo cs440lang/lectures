@@ -1,5 +1,6 @@
 (* Lambda Calculus interpreter *) 
 
+(* type for L.C. terms & syntax trees *)
 type term = Var of string
           | Abs of string * term
           | App of term * term
@@ -57,13 +58,39 @@ let pp t =
         if ctx = 2 then "(" ^ s ^ ")" else s
   in aux 0 t
 
-(* subst x v t = [v/x]t *)
-let rec subst v x t = failwith "unimplemented"
+(* subst v x t = [v/x] t
+ * e.g.,
+ * - subst id "z" (Var "z") = id
+ * - subst id "z" (Var "y") = Var "y" 
+ * - subst id "z" (App (Var "w", Var "z")) = App (Var "w", id);
+ * - subst id "z" (App (Var "z", Var "z")) = App (id, id);
+ * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
+ * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
+ *)
+let rec subst v x t = failwith "undefined"
   
 (* normal-order (leftmost-outermost) step function
- * - if a redex exists in t, perform it and return Some t'
- * - else return None *)
-let rec step_normal t = failwith "unimplemented"
+ * - if a redex exists, perform it and return Some t'
+ * - else return None 
+ *
+ * e.g.,
+ * - step_normal @@ App (id, Var "x")
+ *                = Some (Var "x")
+ * - step_normal @@ App (App (id, id), App (id, id))
+ *                = Some (App (id, App (id, id)))
+ * - step_normal @@ App (Var "x", App (id, id))
+ *                = Some (App (Var "x", id))
+ * - step_normal @@ Abs ("x", App (id, Var "x"))
+ *                = Some (Abs ("x", Var "x"))
+ * - step_normal @@ Var "x"
+ *                = None
+ * - step_normal @@ App (Var "x", Var "y")
+ *                = None
+ * - step_normal @@ Abs ("x", App(Var "x", Var "y"))
+ *                = None
+ *)
+let rec step_normal = failwith "undefined"
 
-(* normal-order multi-step eval *)
-let rec eval_normal t = failwith "unimplemented"
+(* normal-order multi-step eval
+ * - step until no more redexes remain, return resulting term *)
+let rec eval_normal t = failwith "undefined"
