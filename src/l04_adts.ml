@@ -1,14 +1,41 @@
+(* tuples *)
+
+let pt : float * float = (2.17, 3.14)
+
+let weird : (int * string) * int list = ((42, "hi"), [1;2;3])
+
+let dist (x1,y1) (x2,y2) = sqrt ((x1-.x2)**2. +. (y1-.y2)**2.)
+
+(* records *)
+
+type student = { name : string; id : int; gpa : float; }
+
+let michael : student = { name="Michael"; id=1234567; gpa=3.5 }
+
+type 'a list_node = { data : 'a; next : 'a list_node }
+
+let rec ll : string list_node = { data="lions";
+                                  next={ data="tigers";
+                                         next={ data="bears";
+                                                next=ll }}}
+
 (* type synonyms *)
 
 type point2d = float * float
 
 let foo ((x,y) : point2d) = x *. y
 
-type matrix = (int list) list 
+type int_matrix = (int list) list 
 
-let m : matrix = [[1;2;3];
-                  [4;5;6];
-                  [7;8;9]]
+let m : int_matrix = [[1;2;3];
+                      [4;5;6];
+                      [7;8;9]]
+
+type 'a matrix = ('a list) list
+
+let m' : float matrix = [[1.;2.;3.];
+                         [4.;5.;6.];
+                         [7.;8.;9.]]
 
 (* Algebraic Data Types - ADTs *)
 
@@ -52,18 +79,18 @@ let count_dolls d =
   in aux 0 d
 
 (* a data structure *)
-type int_list = INull
-              | ICons of int * int_list
+type int_list = Null
+              | Cons of int * int_list
 
-let l = ICons (1, ICons (2, ICons (3, INull)))
+let l = Cons (1, Cons (2, Cons (3, Null)))
 
 let rec sum_int_list = function
-  | INull -> 0
-  | ICons (x, l) -> x + sum_int_list l 
+  | Null -> 0
+  | Cons (x, l) -> x + sum_int_list l 
 
 let rec int_list_from_range m n =
-  if m = n then INull
-  else ICons (m, int_list_from_range (m+1) n) 
+  if m = n then Null
+  else Cons (m, int_list_from_range (m+1) n) 
 
 (* Polymorphic types *) 
 
@@ -93,8 +120,8 @@ let k2f t = if t < 0.
             else Right (t -. 272.15)
 
 (* our version of the built-in list *)
-type 'a my_list = Null
-                | Cons of 'a * 'a my_list
+type 'a my_list = Null'
+                | Cons' of 'a * 'a my_list
 
 (* a binary tree *)
 type ('k,'v) bin_tree = Nil
@@ -119,4 +146,3 @@ let t = Nil
 let rec inorder_list = function
   | Nil -> []
   | Node (k,v,l,r) -> inorder_list l @ [(k,v)] @ inorder_list r
-
