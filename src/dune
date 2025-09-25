@@ -1,3 +1,5 @@
 (library
  (name lectures)
- (wrapped false))
+ (wrapped false)
+ (flags
+  (:standard -w -27-39)))
