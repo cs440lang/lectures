@@ -43,6 +43,10 @@ let t_eager = App (Abs ("x", App (Var "x", Var "x")), id2)
 (* pretty printer *)
 let pp t =
   let rec aux ctx = function
+    (* ctx indicates context/precedence, used to parenthesize
+     * - if ctx = 0, at top-level, no parens needed
+     * - if ctx = 1, inside function application on left side
+     * - if ctx = 2, inside function application on right side *)
     | Var x -> x
     | Abs (x, t) ->
         let body = aux 0 t in
