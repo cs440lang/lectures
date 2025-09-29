@@ -42,20 +42,6 @@ let snd _ y = y
 
 let id' x : int = x
 
-
-(* using let expressions for local vars *)
-
-let quadratic_roots a b c =
-  let disc = (b *. b) -. (4. *. a *. c) in
-  if disc < 0.0 then
-    failwith "No real roots"
-  else
-    let sqrt_disc = sqrt disc in
-    let r1 = (-.b +. sqrt_disc) /. (2. *. a) in
-    let r2 = (-.b -. sqrt_disc) /. (2. *. a) in
-    (r1, r2)
-
-
 (* classic fibonacci generator *) 
 
 let rec fib n = if n = 0 then 1
@@ -96,4 +82,3 @@ let fib''' n =
     if k = 0 then i
     else aux j (i+j) (k-1)
   in aux 1 1 n
-
