@@ -5,168 +5,73 @@ author: "Michael Lee"
 
 # Agenda
 
-- OCaml toplevel/playground
-- High-level language features
 - Sample code and lecture workflow
+- OCaml toplevel/playground
+- Notable language features
 - OCaml basics
-  - Expressions, Values, and Types
-  - Errors and Exceptions
-  - Built-in types and operators
-  - Let expressions and Variable bindings
+
+---
+
+# Sample code and Lecture workflow
+
+Code repository: <https://github.com/cs440lang/lectures>
+
+- Slides in `slides/`, Source code in `src/`
+
+- Completed versions in `main` branch, Starter in `starter` branch
+
+<!-- pause -->
+
+Load starter code in OCaml toplevel during code demos to follow along
+
+- Pull new changes from GitHub regularly!
 
 ---
 
 # OCaml toplevel: `utop`
 
-- REPL for OCaml
-  - Handy for evaluating small expressions and "live" interactions with
-    functions defined in source files
+REPL for OCaml
+
 - Typical workflow: edit source file, (re)load in `utop`, interact/test
 - Syntax and semantics between top-level and "normal" OCaml are slightly
   different!
-- If you don't have OCaml installed, you can use the
-  [OCaml playground](https://ocaml.org/play)
+
+If you don't have OCaml installed, you can use the
+[OCaml playground](https://ocaml.org/play)
 
 ---
 
-# Some notable Language Features
+# Notable Language Features
 
-- *Static-typing* and *Type-safety*
-- *Type-inference*
-- *First-class functions*
-- *Algebraic data types*
-- *Pattern matching*
-- *Parametric polymorphism*
-- *Garbage collection*
+<!-- incremental_lists: true -->
 
----
+1. *Static-typing* and *Type-safety*: every expression has a type, determined
+   and enforced at compile time
 
-## Static-typing and Type-safety
+2. *Type-inference*: the compiler can deduce types automatically
 
-- Every expression has a type, determined at compile time
-- Many errors are caught before running the program
-- Prevents operations on incompatible types
+3. *First-class functions*: functions are treated like any other value
 
-```ocaml
-let x = 5 + 2
+4. *Algebraic data types*: custome types are defined as "sums" and "products" of
+   other types
 
-let y = "hello" + 3   (* compile-time error *)
-```
+5. *Pattern matching*: concise and expressive way of deconstructing values
 
----
-
-## Type-inference
-
-- Compiler deduces types automatically
-- No need to annotate unless desired
-
-```ocaml
-let square x = x * x
-(* inferred type: int -> int *)
-```
-
----
-
-## First-class functions
-
-- Functions are treated like any other value:
-  - Can be assigned to variables
-  - Passed as arguments
-  - Returned from other functions
-
-```ocaml
-let inc x = x + 1
-
-let apply_twice f x = f (f x)
-
-apply_twice inc 3   (* evaluates to 5 *)
-```
-
----
-
-## Algebraic data types
-
-- Custom types built from simpler ones
-  - Simple, but powerful paradigm for defining types
-
-```ocaml
-type color =
-  | Red
-  | Green
-  | Blue
-
-type shape = Circle of color | Square of color;; 
-
-let s : shape = Circle Blue
-```
-
-<!-- pause -->
-
-```ocaml
-type point = float * float
-
-let p : point = (2.0, -3.5)
-```
-
----
-
-## Pattern matching
-
-- Case analysis on data values
-- Concise and expressive way to deconstruct values
-
-```ocaml
-let describe c =
-  match c with
-  | Red -> "warm"
-  | Green -> "fuzzy"
-  | Blue -> "cool"
-
-describe Red   (* "warm" *)
-```
-
----
-
-## Parametric polymorphism
-
-- Functions work uniformly on values of many types
-- Represented with type variables (`'a`, `'b`, etc.)
-
-```ocaml
-let id x = x
-(* type: 'a -> 'a *)
-
-let swap (x, y) = (y, x)
-(* type: 'a * 'b -> 'b * 'a *)
-```
-
----
-
-## Garbage collection
-
-- Automatic memory management
-- Frees unused memory so programmers don’t have to
-- Safer than manual memory management
-
-```ocaml
-let make_big_list n =
-  Array.init n (fun i -> i)
-
-(* Memory is reclaimed when list is no longer reachable *)
-```
+6. *Parametric polymorphism*: functions can extend to disparate, unrelated types
 
 ---
 
 # OCaml basics
 
-- Expressions, Values, and Types
-- Syntax errors, Type errors, and Exceptions
+- Defs: Expressions, Values, and Types
+- Errors and Exceptions
 - Some built-in types
-- Let expressions and Variable bindings
+- Variable bindings
+- Conditionals
 
 ---
 
-## Expressions, Values, and Types
+## Defs: Expressions, Values, and Types
 
 - *Expression*: any valid piece of OCaml code that produces a value
 - *Value*: a fully evaluated result (cannot be reduced further)
@@ -180,8 +85,11 @@ let make_big_list n =
 "hi" ^ "!"  (* expression of type string, value "hi!" *)
 ```
 
+<!-- pause -->
+
 - *Evaluating* an expression may:
   - Produce a value
+    - In `utop`, evaluating a value also prints out its type
   - Produce an error
 
 ---
@@ -202,6 +110,8 @@ Illegal/Malformed code
 
 - Caught by the parser
 
+E.g.,
+
 ```ocaml
 let x = 1 +   (* Error: unexpected end of input *)
 ```
@@ -214,8 +124,12 @@ Operations on incompatible types
 
 - Caught by compiler statically (compile-time)
 
+E.g.,
+
 ```ocaml
-1 + "hello"   (* Error: int expected, string found *)
+1 + "hello"
+
+2 * 2.0
 ```
 
 ---
@@ -224,19 +138,26 @@ Operations on incompatible types
 
 Dynamic / Run-time
 
-- should (some of these) be type errors?
+- type system guarantees no type-related errors!
+
+E.g., pre-defined exceptions
 
 ```ocaml
-1 / 0          (* Exception: Division_by_zero *)
+1 / 0  (* Division_by_zero *)
+
+assert (delta < 0.0001)
+
+failwith "Some error description ..."
 ```
 
-- infinite loops/recursion
+<!-- pause -->
+
+E.g., infinite loops/recursion
 
 ```ocaml
-let rec forever () =
-  forever ()
+let rec loop () = loop ()
 
-forever ()   (* never terminates *)
+loop ()
 ```
 
 ---
@@ -246,42 +167,130 @@ forever ()   (* never terminates *)
 - `int`, `float`, `bool`, `char`, `string`
 - Tuples: `(1, "hi", true)`
 - Lists: `[1; 2; 3]`
-- Options: `Some 42` or `None`
 - Unit: `()`
 
 ---
 
-### Some operators
+## Some built-in types
+
+### And their operators
 
 - Integers: `+`, `-`, `*`, `/`
 - Floats: `+.`, `-.`, `*.`, `/.`
 - Booleans: `&&`, `||`, `not`
+- Relational: `<`, `<=`, `>`, `>=`, `=`, `<>` (polymorphic)
 - Strings: `^` (concatenation)
+- Lists: `@` (concatenation)
 
 ```ocaml
-3 + 4       (* int addition *)
-3.0 +. 4.0  (* float addition *)
-"hi" ^ "!"  (* string concatenation *)
+3 + 4 
+
+3.0 +. 4.0
+
+"hi" ^ "!"
+
+[1;2;3] @ [4;5;6]
 ```
 
 ---
 
-## Let expressions
+## Variable bindings
 
-- Bind a name to a value
-- Must be defined before use
+`let` *binds* a name to a value
+
+- Names must be defined before use
 
 ```ocaml
 let x = 10
-let y = x + 5   (* y = 15 *)
 
-let add a b = a + b
-add 2 3         (* 5 *)
+let y = x + 5   (* y = 15 *)
 ```
 
-- *Shadowing*: new binding can reuse the same name, hiding the old one
+<!-- pause -->
+
+A new binding can *shadow* an existing name:
 
 ```ocaml
 let x = 1
+
 let x = x + 2   (* now x = 3 *)
+```
+
+- this is *not* the same thing as mutating a variable!
+
+---
+
+## Variable bindings
+
+### Type annotations
+
+We can attach explicit type annotations to variables:
+
+```ocaml
+let x : int = 44
+
+let y : int = 9 + 1
+
+let z : int = x * y
+```
+
+- but we typically don't, because the compiler *infers* the correct types for
+  us!
+  - (how can it do so in the examples above?)
+
+---
+
+## Variable bindings
+
+`let` can also be used with `in` to create a *scoped binding*:
+
+```ocaml
+let x = 44 in x * 10
+```
+
+- `x * 10` is the *body* of the `let`, and `x` is only valid in that scope.
+
+<!-- pause -->
+
+The entire `let-in` construct is itself an expression!
+
+```ocaml
+2 * (let x = 44 in x * 5)
+```
+
+<!-- pause -->
+
+Nested `let`s are used to introduce multiple "local" variables:
+
+```ocaml
+let x = 44 in
+  let y = 5 in
+    2 * x * y
+```
+
+---
+
+## Conditionals
+
+`if-then-else` constructs a conditional expression:
+
+```ocaml
+if a*a + b*b = c*c then "square" else "not square"
+```
+
+<!-- pause -->
+
+The entire `if-then-else` expression has some fixed type *t*, which means that
+both `then` and `else` branches must evaluate to the same type *t*!
+
+```ocaml
+if foo < 10 then 10 else "bar" (* type error! *)
+```
+
+<!-- pause -->
+
+It can be used anywhere an expression is legal!
+
+```ocaml
+let abs_x = x * (if x < 0 then -1 else 1)
 ```
