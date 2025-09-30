@@ -62,8 +62,8 @@ let pp t =
  * e.g.,
  * - subst id "z" (Var "z") = id
  * - subst id "z" (Var "y") = Var "y" 
- * - subst id "z" (App (Var "w", Var "z")) = App (Var "w", id);
- * - subst id "z" (App (Var "z", Var "z")) = App (id, id);
+ * - subst id "z" (App (Var "w", Var "z")) = App (Var "w", id)
+ * - subst id "z" (App (Var "z", Var "z")) = App (id, id)
  * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
  * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
  *)
@@ -86,7 +86,7 @@ let rec subst v x t = failwith "undefined"
  *                = None
  * - step_normal @@ App (Var "x", Var "y")
  *                = None
- * - step_normal @@ Abs ("x", App(Var "x", Var "y"))
+ * - step_normal @@ Abs ("x", App (Var "x", Var "y"))
  *                = None
  *)
 let rec step_normal = failwith "undefined"
