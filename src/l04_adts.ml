@@ -112,6 +112,11 @@ let quadratic_roots a b c =
     let r2 = (-.b -. sqrt_disc) /. (2. *. a) in
     Some (r1, r2)
 
+let rec assoc_opt k = function
+  | [] -> None
+  | (k',v) :: xs when k = k' -> Some v
+  | _ :: xs -> assoc_opt k xs 
+
 (* polymorphic type with multiple type vars *)
 type ('a, 'b) either = Left of 'a | Right of 'b
 

@@ -73,3 +73,10 @@ let fibs' n =
     if k = n then reverse acc
     else gen j (i+j) (k+1) (i :: acc) 
   in gen 1 1 0 []
+
+(* associative lists *)
+
+let rec assoc k = function
+  | [] -> raise Not_found
+  | (k',v) :: xs when k = k' -> v
+  | _ :: xs -> assoc k xs 
