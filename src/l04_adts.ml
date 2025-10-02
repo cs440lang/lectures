@@ -75,8 +75,8 @@ type russian_doll = EmptyDoll
 let count_dolls d =
   let rec aux acc = function
     | EmptyDoll -> acc
-    | Doll d' -> aux (acc + 1) d'
-  in aux 0 d
+    | Doll d' -> aux (acc + 1) d' in
+  aux 0 d
 
 (* a data structure *)
 type int_list = Null
@@ -104,8 +104,7 @@ type 'a option = None | Some of 'a
 (* we use the option type to support well-typed "null" *)
 let quadratic_roots a b c =
   let disc = (b *. b) -. (4. *. a *. c) in
-  if disc < 0.0 then
-    None
+  if disc < 0.0 then None
   else
     let sqrt_disc = sqrt disc in
     let r1 = (-.b +. sqrt_disc) /. (2. *. a) in
@@ -120,8 +119,7 @@ let rec assoc_opt k = function
 (* polymorphic type with multiple type vars *)
 type ('a, 'b) either = Left of 'a | Right of 'b
 
-let k2f t = if t < 0.
-            then Left "Invalid temp"
+let k2f t = if t < 0. then Left "Invalid temp"
             else Right (t -. 272.15)
 
 (* our version of the built-in list *)
@@ -137,8 +135,7 @@ type ('k,'v) bin_tree = Nil
 let rec tree_insert k v = function
   | Nil -> Node (k, v, Nil, Nil)
   | Node (k',v',l,r) ->
-    if k < k'
-    then Node (k',v',tree_insert k v l,r)
+    if k < k' then Node (k',v',tree_insert k v l,r)
     else Node (k',v',l,tree_insert k v r )
 
 let t = Nil

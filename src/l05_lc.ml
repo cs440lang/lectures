@@ -71,8 +71,7 @@ let rec subst v x t = match t with
   | Var y -> if x = y then v else t
   | App (t1, t2) -> App (subst v x t1, subst v x t2)
   (* Broken! Need to consider variable capture. *)
-  | Abs (y, body) -> if x = y
-                     then t
+  | Abs (y, body) -> if x = y then t
                      else Abs (y, subst v x body) 
   
 (* normal-order (leftmost-outermost) step function

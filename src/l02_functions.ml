@@ -73,12 +73,12 @@ let rec sum' n acc =
 let sum'' n =
   let rec aux n acc =
     if n = 0 then acc
-    else aux (n-1) (n+acc)
-  in aux n 0
+    else aux (n-1) (n+acc) in
+  aux n 0
 
 
 let fib''' n =
   let rec aux i j k =
     if k = 0 then i
-    else aux j (i+j) (k-1)
-  in aux 1 1 n
+    else aux j (i+j) (k-1) in
+  aux 1 1 n

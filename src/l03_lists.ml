@@ -26,13 +26,18 @@ let rec length = function
 let length' lst =
   let rec aux acc = function 
     | [] -> acc
-    | _ :: xs -> aux (1 + acc) xs
-  in aux 0 lst
+    | _ :: xs -> aux (1 + acc) xs in
+  aux 0 lst
 
 let rec index n = function
   | [] -> failwith "Index out of range"
   | x :: xs -> if n = 0 then x
                else index (n-1) xs
+
+let rec index' n = function
+  | [] -> failwith "Index out of range"
+  | x :: xs when n = 0 -> x
+  | _ :: xs -> index (n-1) xs
 
 let rec append lst1 lst2 = match lst1 with
   | [] -> lst2
@@ -47,8 +52,8 @@ let rec reverse = function
 let reverse' lst =
   let rec aux acc = function
      | [] -> acc
-     | x :: xs -> aux (x :: acc) xs
-  in aux [] lst
+     | x :: xs -> aux (x :: acc) xs in
+  aux [] lst
 
 (* list generating functions *)
 
@@ -66,13 +71,14 @@ let fibs n =
   and gen j = if j=n
               then []
               else fib j :: gen (j+1)
-  in gen 0
+  in
+  gen 0
 
 let fibs' n =
   let rec gen i j k acc =
     if k = n then reverse acc
-    else gen j (i+j) (k+1) (i :: acc) 
-  in gen 1 1 0 []
+    else gen j (i+j) (k+1) (i :: acc) in
+  gen 1 1 0 []
 
 (* associative lists *)
 
