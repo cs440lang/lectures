@@ -8,12 +8,11 @@ author: "Michael Lee"
 - Functions: definition and application
   - Anonymous functions
   - Function types
+  - Equivalence to `let-in`
   - Currying and Partial application
   - Polymorphic functions
 - Recursive functions
 - Tracing function calls
-- `let-in` expressions
-  - Equivalance to `fun`
 - Operators as functions
 - Application operators: `|>`, `@@`
 - Tail recursion
@@ -53,6 +52,25 @@ let foo = fun x y z -> (2*x + y) * z
 
   - I.e., the `->` operator is right associative --- so `t1 -> t2 -> t3` is the
     same thing as `t1 -> (t2 -> t3)`
+
+---
+
+# Functions: definition and application
+
+## Equivalance to `let-in`
+
+Note that `let-in` is really just *syntactic sugar* for the application of a
+corresponding anonymous function to the binding expression:
+
+```ocaml
+let x = 10 in 2 * x
+
+(* is equivalent to *)
+
+(fun x -> 2 * x) 10
+```
+
+- More evidence of the primacy of the function!
 
 ---
 
@@ -237,61 +255,8 @@ We can *trace* function calls with the `#trace` top-level command.
 
 - E.g., try `#trace foo`, then calling the function. Interpret the results.
 
----
-
-# `let-in` expressions
-
-- `let` can be used to create (or shadow) a top-level binding.
-
-- The alternate `let-in` form is used to create a binding that is valid in a
-  particular scope
-
-```ocaml
-let x = 21 (* binding expression *)
-in x*2 (* body *)
-```
-
-- The entire `let-in` expression evaluates to the value of its body
-
-- `let-in` is how we can introduce "local variables" in the implementation of a
-  function
-
----
-
-# `let-in` expressions
-
-E.g., quadratic formula:
-
-```ocaml
-let quadratic_roots a b c =
-  let disc = (b *. b) -. (4. *. a *. c) in
-  if disc < 0.0 then
-    failwith "No real roots"
-  else
-    let sqrt_disc = sqrt disc in
-    let r1 = (-.b +. sqrt_disc) /. (2. *. a) in
-    let r2 = (-.b -. sqrt_disc) /. (2. *. a) in
-    (r1, r2)
-```
-
----
-
-# `let-in` expressions
-
-## Equivalance to `fun`
-
-Note that `let-in` is really just syntactic sugar for the application of a
-corresponding anonymous function to the binding expression:
-
-```ocaml
-let x = 10 in 2 * x
-
-(* is equivalent to *)
-
-(fun x -> 2 * x) 10
-```
-
-- More evidence of the primacy of the function!
+Note that sometimes `#trace` can cause undesired side-effects in functions being
+traced!
 
 ---
 

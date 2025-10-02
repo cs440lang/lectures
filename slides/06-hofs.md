@@ -40,7 +40,7 @@ Compose:
 let compose f g = fun x -> f (g x)
 
 (* or, equivalently *)
-let compose' f g x = f (g x)
+let compose f g x = f (g x)
 ```
 
 <!-- pause -->
