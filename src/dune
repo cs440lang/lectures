@@ -2,4 +2,4 @@
  (name lectures)
  (wrapped false)
  (flags
-  (:standard -w -27-39)))
+  (:standard -w -20-27-39)))
