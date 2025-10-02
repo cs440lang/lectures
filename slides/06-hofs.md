@@ -39,7 +39,8 @@ Compose:
 ```ocaml
 let compose f g = fun x -> f (g x)
 
-let even = compose ((=) 0) ((mod) 2)
+(* or, equivalently *)
+let compose f g x = f (g x)
 ```
 
 <!-- pause -->
@@ -60,7 +61,7 @@ val map : ('a -> 'b) -> 'a list -> 'b list
 <!-- pause -->
 
 `filter` accepts a predicate `p` and a list `l`, and returns a list containing
-only those elements on which `p` tests `true`
+only those elements for which `p` tests `true`
 
 ```ocaml
 val filter : ('a -> bool) -> 'a list -> 'a list

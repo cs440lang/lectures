@@ -2,8 +2,6 @@ let apply f x = f x
 
 let compose f g = fun x -> f (g x) 
 
-let even = compose ((=) 0) ((mod) 2)
-
 (* map a function over a list, producing a new list *)
 let rec map f = function
   | [] -> []
