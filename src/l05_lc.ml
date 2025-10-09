@@ -1,9 +1,9 @@
 (* Lambda Calculus interpreter *) 
 
-(* type for L.C. terms & syntax trees *)
-type term = Var of string
-          | Abs of string * term
-          | App of term * term
+(* type for L.C. exprs & syntax trees *)
+type expr = Var of string
+          | Abs of string * expr
+          | App of expr * expr
 
 (* identity *)
 let id = Abs ("x", (Var "x"))
@@ -52,23 +52,23 @@ let t_lazy  = App (Abs ("x", Var "y"), c3)
 let t_eager = App (Abs ("x", App (Var "x", Var "x")), id2)
        
 (* pretty printer *)
-let pp t =
+let pp e =
   let rec aux ctx = function
     (* ctx indicates context/precedence, used to parenthesize
      * - if ctx = 0, at top-level, no parens needed
      * - if ctx = 1, inside function application on left side
      * - if ctx = 2, inside function application on right side *)
     | Var x -> x
-    | Abs (x, t) ->
-        let body = aux 0 t in
+    | Abs (x, e) ->
+        let body = aux 0 e in
         let s = Printf.sprintf "λ%s.%s" x body in
         if ctx > 0 then "(" ^ s ^ ")" else s
-    | App (t1, t2) ->
-        let s = Printf.sprintf "%s %s" (aux 1 t1) (aux 2 t2) in
+    | App (e1, e2) ->
+        let s = Printf.sprintf "%s %s" (aux 1 e1) (aux 2 e2) in
         if ctx = 2 then "(" ^ s ^ ")" else s
-  in aux 0 t
+  in aux 0 e
 
-(* subst v x t = [v/x] t
+(* subst v x e = [v/x] e
  * e.g.,
  * - subst id "z" (Var "z") = id
  * - subst id "z" (Var "y") = Var "y" 
@@ -77,10 +77,10 @@ let pp t =
  * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
  * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
  *)
-let rec subst v x t = failwith "undefined"
+let rec subst v x e = failwith "undefined"
   
 (* normal-order (leftmost-outermost) step function
- * - if a redex exists, perform it and return Some t'
+ * - if a redex exists in arg e, perform it and return Some e'
  * - else return None 
  *
  * e.g.,
@@ -102,5 +102,5 @@ let rec subst v x t = failwith "undefined"
 let rec step_normal = failwith "undefined"
 
 (* normal-order multi-step eval
- * - step until no more redexes remain, return resulting term *)
-let rec eval_normal t = failwith "undefined"
+ * - step until no more redexes remain, return resulting expr *)
+let rec eval_normal e = failwith "undefined"
