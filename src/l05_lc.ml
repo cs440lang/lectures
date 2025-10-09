@@ -1,9 +1,9 @@
 (* Lambda Calculus interpreter *) 
 
-(* type for L.C. terms & syntax trees *)
-type term = Var of string
-          | Abs of string * term
-          | App of term * term
+(* type for L.C. exprs & syntax trees *)
+type expr = Var of string
+          | Abs of string * expr
+          | App of expr * expr
 
 (* identity *)
 let id = Abs ("x", (Var "x"))
@@ -42,23 +42,23 @@ let t_lazy  = App (Abs ("x", Var "y"), c3)
 let t_eager = App (Abs ("x", App (Var "x", Var "x")), id2)
        
 (* pretty printer *)
-let pp t =
+let pp e =
   let rec aux ctx = function
     (* ctx indicates context/precedence, used to parenthesize
      * - if ctx = 0, at top-level, no parens needed
      * - if ctx = 1, inside function application on left side
      * - if ctx = 2, inside function application on right side *)
     | Var x -> x
-    | Abs (x, t) ->
-        let body = aux 0 t in
+    | Abs (x, e) ->
+        let body = aux 0 e in
         let s = Printf.sprintf "λ%s.%s" x body in
         if ctx > 0 then "(" ^ s ^ ")" else s
-    | App (t1, t2) ->
-        let s = Printf.sprintf "%s %s" (aux 1 t1) (aux 2 t2) in
+    | App (e1, e2) ->
+        let s = Printf.sprintf "%s %s" (aux 1 e1) (aux 2 e2) in
         if ctx = 2 then "(" ^ s ^ ")" else s
-  in aux 0 t
+  in aux 0 e
 
-(* subst v x t = [v/x] t
+(* subst v x e = [v/x] e
  * e.g.,
  * - subst id "z" (Var "z") = id
  * - subst id "z" (Var "y") = Var "y" 
@@ -67,15 +67,15 @@ let pp t =
  * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
  * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
  *)
-let rec subst v x t = match t with
-  | Var y -> if x = y then v else t
-  | App (t1, t2) -> App (subst v x t1, subst v x t2)
+let rec subst v x e = match e with
+  | Var y -> if x = y then v else e
+  | App (e1, e2) -> App (subst v x e1, subst v x e2)
   (* Broken! Need to consider variable capture. *)
-  | Abs (y, body) -> if x = y then t
+  | Abs (y, body) -> if x = y then e
                      else Abs (y, subst v x body) 
   
 (* normal-order (leftmost-outermost) step function
- * - if a redex exists, perform it and return Some t'
+ * - if a redex exists in arg e, perform it and return Some e'
  * - else return None 
  *
  * e.g.,
@@ -95,25 +95,25 @@ let rec subst v x t = match t with
  *                = None
  *)
 let rec step_normal = function
-  | App (Abs (x, t), u) ->
-      Some (subst u x t)                   (* beta reduction *)
-  | App (t, u) ->
-      (match step_normal t with
-      | Some t' -> Some (App (t', u))      (* reduce left first *)
+  | App (Abs (x, e1), e2) ->
+      Some (subst e2 x e1)                   (* beta reduction *)
+  | App (e1, e2) ->
+      (match step_normal e1 with
+      | Some e1' -> Some (App (e1', e2))      (* reduce left first *)
       | None ->
-          (match step_normal u with
-          | Some u' -> Some (App (t, u'))  (* then reduce right *)
+          (match step_normal e2 with
+          | Some e2' -> Some (App (e1, e2'))  (* then reduce right *)
           | None -> None))
-  | Abs (x, t) ->
-      (match step_normal t with
-       | Some t' -> Some (Abs (x, t'))
+  | Abs (x, e) ->
+      (match step_normal e with
+       | Some e' -> Some (Abs (x, e'))
        | None -> None)
   | Var _ -> None
 
 (* normal-order multi-step eval
- * - step until no more redexes remain, return resulting term *)
-let rec eval_normal t =
-  print_endline @@ pp t ;
-  match step_normal t with
-  | Some t' -> eval_normal t'
-  | None -> t
+ * - step until no more redexes remain, return resulting expr *)
+let rec eval_normal e =
+  print_endline @@ pp e ;
+  match step_normal e with
+  | Some e' -> eval_normal e'
+  | None -> e
