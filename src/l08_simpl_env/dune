@@ -1,5 +1,5 @@
 (library
- (name l08_simpl_interp))
+ (name demos_simplenv))
 
 (menhir
  (modules parser))

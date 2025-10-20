@@ -1,5 +1,6 @@
 (library
- (name lectures)
+ (name demos)
+ (libraries demos_lc demos_simpl demos_simplenv)
  (wrapped false)
  (flags
   (:standard -w -27-39)))

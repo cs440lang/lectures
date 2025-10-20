@@ -12,13 +12,22 @@ To load all the lecture source files as modules in the toplevel, do:
 
 ```bash
 dune build
-dune utop src
+dune utop
 ```
 
-Now you can do:
+At the toplevel you can now do:
 
 ```ocaml
-# L01_intro.x;;
+# L01_basics.class_name;;
+- : string = "CS 440: Programming Languages"
+```
+
+or
+
+```ocaml
+# open L01_basics;;
+# class_name;;
+- : string = "CS 440: Programming Languages"
 ```
 
 -- Michael Lee <lee@iit.edu>

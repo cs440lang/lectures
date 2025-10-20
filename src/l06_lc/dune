@@ -1,5 +1,5 @@
 (library
- (name l06_lc_interp))
+ (name demos_lc))
 
 (menhir
  (modules parser))
