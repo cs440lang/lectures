@@ -82,7 +82,7 @@ let rec eval' (e : expr) : expr =
       | Bool true -> eval' e2
       | Bool false -> eval' e3
       | _ -> failwith "Invalid guard")
-  | Let (x, e1, e2) -> subst (eval' e1) x e2 |> eval'
+  | Let (x, e1, e2) -> eval' (subst (eval' e1) x e2)
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,
