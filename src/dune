@@ -1,6 +1,6 @@
 (library
  (name demos)
- (libraries demos_lc demos_simpl demos_simplenv)
+ (libraries demos_lc demos_simpl demos_simplenv demos_closures)
  (wrapped false)
  (flags
   (:standard -w -27-39)))
