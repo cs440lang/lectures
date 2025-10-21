@@ -42,22 +42,13 @@ let rec eval (e : expr) (env: env) : value =
       | _ -> failwith "Invalid guard")
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
 
-  (* evaluating a function gives us a closure *)
-  | Fun (x, body) -> Closure (x, body, env)
+  (* evaluating a function should give us a closure *)
+  | Fun (x, body) -> failwith "undefined"
 
   (* application requires a closure on the left,
      whose body is evaluated with its variable
      bound to the argument in the environment *)
-  | App (e1, e2) -> (
-      match eval e1 env with
-      | Closure (x, body, defenv) -> (
-          let arg = eval e2 env in
-          let base_env = match scope with
-            | Lexical -> defenv
-            | Dynamic -> env in
-          let cenv = (x, arg) :: base_env in
-          eval body cenv)
-      | _ -> failwith "Invalid application")
+  | App (e1, e2) -> failwith "undefined"
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,

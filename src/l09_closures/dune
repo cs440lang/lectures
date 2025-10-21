@@ -1,5 +1,7 @@
 (library
- (name demos_closures))
+ (name demos_closures)
+ (flags
+  (:standard -w -20-27-39)))
 
 (menhir
  (modules parser))

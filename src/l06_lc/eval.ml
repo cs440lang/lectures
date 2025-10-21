@@ -30,12 +30,7 @@ let string_of_expr (e : expr) : string =
  * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
  * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
  *)
-let rec subst v x e = match e with
-  | Var y -> if x = y then v else e
-  | App (e1, e2) -> App (subst v x e1, subst v x e2)
-  (* Broken! Need to consider variable capture. *)
-  | Abs (y, body) -> if x = y then e
-                     else Abs (y, subst v x body) 
+let rec subst v x e = failwith "undefined"
   
 (* normal-order (leftmost-outermost) step function
  * - if a redex exists in arg e, perform it and return Some e'
@@ -57,29 +52,11 @@ let rec subst v x e = match e with
  * - step_normal @@ Abs ("x", App (Var "x", Var "y"))
  *                = None
  *)
-let rec step_normal = function
-  | App (Abs (x, e1), e2) ->
-      Some (subst e2 x e1)                   (* beta reduction *)
-  | App (e1, e2) -> (
-      match step_normal e1 with
-      | Some e1' -> Some (App (e1', e2))      (* reduce left first *)
-      | None -> (
-          match step_normal e2 with
-          | Some e2' -> Some (App (e1, e2'))  (* then reduce right *)
-          | None -> None))
-  | Abs (x, e) -> (
-       match step_normal e with
-       | Some e' -> Some (Abs (x, e'))
-       | None -> None)
-  | Var _ -> None
+let rec step_normal = failwith "undefined"
 
 (* normal-order multi-step eval
  * - step until no more redexes remain, return resulting expr *)
-let rec eval_normal e =
-  print_endline (string_of_expr e) ;
-  match step_normal e with
-  | Some e' -> eval_normal e'
-  | None -> e
+let rec eval_normal e = failwith "undefined"
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,

@@ -1,5 +1,7 @@
 (library
- (name demos_lc))
+ (name demos_lc)
+ (flags
+  (:standard -w -20-27-39)))
 
 (menhir
  (modules parser))

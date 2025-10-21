@@ -22,15 +22,7 @@ let rec string_of_expr : expr -> string = function
 
 (* subst v x e = [v/x] e *)
 let rec subst (v : expr) (x : string) (e : expr) : expr =
-  match e with
-  | Bool _ -> e
-  | Int _ -> e
-  | Var y -> if x = y then v else e
-  | Binop (bop, e1, e2) -> Binop (bop, subst v x e1, subst v x e2)
-  | If (e1, e2, e3) -> If (subst v x e1, subst v x e2, subst v x e3)
-  | Let (y, e1, e2) ->
-      let e1' = subst v x e1 in
-      if x = y then Let (y, e1', e2) else Let (y, e1', subst v x e2)
+  failwith "undefined"
 
 (* small-step reduction of a given expression e;
    returns Some e' if a redex exists, None otherwise *)
@@ -48,18 +40,8 @@ let rec step : expr -> expr option = function
               | Mult, Int a, Int b -> Some (Int (a * b))
               | Leq, Int a, Int b -> Some (Bool (a <= b))
               | _ -> failwith "Invalid bop")))
-  | If (b, e1, e2) -> (
-      match step b with
-      | Some b' -> Some (If (b', e1, e2))
-      | None -> (
-          match b with
-          | Bool true -> Some e1
-          | Bool false -> Some e2
-          | _ -> failwith "Invalid guard"))
-  | Let (x, e1, e2) -> (
-      match step e1 with
-      | Some e1' -> Some (Let (x, e1', e2))
-      | None -> Some (subst e1 x e2))
+  | If (b, e1, e2) -> failwith "undefined"
+  | Let (x, e1, e2) -> failwith "undefined"
 
 (* single-step reduce until we get a value *)
 let rec eval (e : expr) : expr =
@@ -77,12 +59,8 @@ let rec eval' (e : expr) : expr =
       | Mult, Int a, Int b -> Int (a * b)
       | Leq, Int a, Int b -> Bool (a <= b)
       | _ -> failwith "Invalid bop")
-  | If (e1, e2, e3) -> (
-      match eval' e1 with
-      | Bool true -> eval' e2
-      | Bool false -> eval' e3
-      | _ -> failwith "Invalid guard")
-  | Let (x, e1, e2) -> eval' (subst (eval' e1) x e2)
+  | If (e1, e2, e3) -> failwith "undefined"
+  | Let (x, e1, e2) -> failwith "undefined"
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,
