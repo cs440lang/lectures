@@ -1,3 +1,18 @@
+/* ============================================================================
+ *
+ * This parser is for a simple subset of OCaml, termed "SimPL" by the
+ * OCaml Programming: Correct + Efficient + Beautiful text. BNF below:
+ *
+ *  <expr> ::= <identifier> | <integer> | <boolean>
+ *          | <expr> <bop> <expr>
+ *          | if <expr> then <expr> else <expr>
+ *          | let <var> = <expr> in <expr>
+ *
+ *  <bop> ::= + | * | <=
+ *
+ * ============================================================================
+ */
+
 %{
 open Ast
 %}
