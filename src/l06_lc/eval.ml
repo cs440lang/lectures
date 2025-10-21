@@ -30,7 +30,8 @@ let string_of_expr (e : expr) : string =
  * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
  * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
  *)
-let rec subst v x e = match e with
+let rec subst (v : expr) (x : string) (e : expr) : expr =
+  match e with
   | Var y -> if x = y then v else e
   | App (e1, e2) -> App (subst v x e1, subst v x e2)
   (* Broken! Need to consider variable capture. *)
@@ -57,7 +58,7 @@ let rec subst v x e = match e with
  * - step_normal @@ Abs ("x", App (Var "x", Var "y"))
  *                = None
  *)
-let rec step_normal = function
+let rec step_normal : expr -> expr option = function
   | App (Abs (x, e1), e2) ->
       Some (subst e2 x e1)                   (* beta reduction *)
   | App (e1, e2) -> (
@@ -75,7 +76,7 @@ let rec step_normal = function
 
 (* normal-order multi-step eval
  * - step until no more redexes remain, return resulting expr *)
-let rec eval_normal e =
+let rec eval_normal (e : expr) : expr =
   print_endline (string_of_expr e) ;
   match step_normal e with
   | Some e' -> eval_normal e'
