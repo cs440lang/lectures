@@ -291,26 +291,6 @@ We call this combination of a function and its environment a *Closure*.
 
 # Closures
 
-The function returned by `adder` *captures the environment* at the time the
-function was created.
-
-- this includes all values of free variable in the function body
-
-```ocaml
-let adder x = let n = x in
-              fun y -> n + y
-```
-
-We call this combination of a function and its environment a *closure*.
-
-- closures are created automatically
-- closures are first-class -- you can pass them as arguments, return them, store
-  them in data structures, etc.
-
----
-
-# Closures
-
 Closures are incredibly important and useful!
 
 - they are implicit in every partial function application (why?)
