@@ -174,9 +174,44 @@ $
 Let's describe the semantics of SimPL using *substitution*.
 
 - i.e., we substitute values for variable names throughout an expression, just
-  like `[v/x]e` in λ-calculus
+  like `[v/x] e` in λ-calculus
 
 <!-- pause -->
+
+Examples:
+
+<!-- list_item_newlines: 1 -->
+<!-- column_layout: [1,1] -->
+<!-- column: 0 -->
+
+- `[42/x] 10`
+- `[42/x] true`
+- `[42/x] x`
+- `[42/x] (x + y) * x`
+- `[42/x] if x <= y then x else y`
+- `[42/x] let y=10 in x+y`
+- `[42/x] let y=x in y*2`
+- `[42/x] let x=10 in x+y`
+- `[42/x] let x=x+1 in x+y`
+
+<!-- column: 1 -->
+<!-- incremental_lists: true -->
+
+- => `10`
+- => `true`
+- => `42`
+- => `(42 + y) * 42`
+- => `if 42 <= y then 42 else y`
+- => `let y=10 in 42+y`
+- => `let y=42 in y*2`
+- => `let x=10 in x+y`
+- => `let x=42+1 in x+y`
+
+---
+
+# Substitution Model Evaluation
+
+Recursive substitution function:
 
 ```ocaml
 let rec subst (v : expr) (x : string) (e : expr) : expr =
@@ -309,7 +344,7 @@ match (bop, e1, e2) with
 
 ## Small-Step Semantics
 
-### If
+### If-Then-Else
 
 Can you write the rule(s) for `if-then-else` expressions?
 
@@ -326,7 +361,7 @@ $
 
 ## Small-Step Semantics
 
-### If
+### If-Then-Else
 
 Three rules:
 
@@ -347,7 +382,7 @@ $
 
 ## Small-Step Semantics
 
-### If
+### If-Then-Else
 
 ```ocaml
 let rec step : expr -> expr option = function
@@ -568,7 +603,7 @@ let rec eval e = match e with
 
 ## Big-Step Semantics
 
-### If
+### If-Then-Else
 
 Can you write the big-step rules for `if-then-else` expressions?
 
@@ -595,7 +630,7 @@ Remember, big-step reduces expressions to *values* in a single step.
 
 ## Big-Step Semantics
 
-### If
+### If-Then-Else
 
 ```ocaml
 let rec eval e = match e with
@@ -675,4 +710,225 @@ let rec eval (e : expr) : expr =
       | Bool false -> eval e3
       | _ -> failwith "Invalid guard expression")
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
+```
+
+---
+
+# Substitution Model Evaluation
+
+## Critique
+
+In the substitution model, we *recursively replace all instances* of a (free)
+variable within a `let` body in a single-step.
+
+<!-- incremental_lists: true -->
+
+- this is potentially very inefficient!
+
+  - instances that are never used are still replaced
+
+  - the body must be exhaustively searched (before it is evaluated)
+
+- this also tightly couples our AST with the dynamic environment
+
+  - will complicate implementing functions / closures
+
+---
+
+# Environment Model Evaluation
+
+The alternative is to *lazily* replace variables with their bound values.
+
+<!-- pause -->
+
+We can accumulate a *variable -> value* map during evaluation, and use it to
+look up variable bindings when needed. We call this map the *environment*,
+denoted σ.
+
+<!-- pause -->
+
+```typst +render +width:85%
+#let mapto = sym.arrow.r.bar
+$
+sigma(x)         & wide "Look up the value of var" x "in" sigma "(error if unmapped)"\
+sigma[x mapto v] & wide "Update the environment to include the" x mapto v "mapping"
+$
+```
+
+<!-- pause -->
+
+A trivial implementation of an environment is an associative list:
+
+```ocaml
+type env   = (string * value) list
+type value = VInt of int | VBool of bool
+
+let lookup (x : string) (env : env) : value =
+  List.assoc x env
+
+let update (x : string) (v : value) (e : env) : env =
+  (x, v) :: e
+```
+
+---
+
+# Environment Model Evaluation
+
+## Operational Semantics with Environments
+
+We need to update our small/big-step relations to include environments.
+
+```typst +render +width:80%
+#let bstep = sym.arrow.b.double
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+state(e,sigma) -> e'      & wide e "in" sigma "reduces to" e'\
+state(e,sigma) cancel(->) & wide e "in" sigma "cannot be reduced"\
+state(e,sigma) bstep v    & wide e "in" sigma "evaluates to value" v\
+$
+```
+
+---
+
+# Environment Model Evaluation
+
+## Big-Step Semantics
+
+### Values
+
+```typst +render +width:80%
+#let bstep = sym.arrow.b.double
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+"INT" & (i : "int")/(state(i,sigma) bstep i) wide
+
+"BOOL" (b : "bool")/(state(b,sigma) bstep b) wide
+$
+```
+
+```ocaml
+let rec eval (e : expr) (env : env) : value =
+  match e with
+  | Int i  -> VInt i
+  | Bool b -> VBool b
+```
+
+---
+
+# Environment Model Evaluation
+
+## Big-Step Semantics
+
+### Variables
+
+```typst +render +width:40%
+#let bstep = sym.arrow.b.double
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+"VAR" () / (state(x,sigma) bstep text(fill:#yellow,sigma(x)))
+$
+```
+
+Contrast this with the VAR rule under the substitution model!
+
+```ocaml
+let rec eval (e : expr) (env : env) : value =
+  match e with
+  | Var v -> lookup v env
+```
+
+---
+
+# Environment Model Evaluation
+
+## Big-Step Semantics
+
+### Binary Operations
+
+```typst +render +width:90%
+#let bstep = sym.arrow.b.double
+#let bop = sym.plus.circle
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+"BOP" & (state(e_1,sigma) bstep v_1 quad state(e_2,sigma) bstep v_2
+         quad r=v_1 bop v_2) /
+        (state(e_1 bop e_2,sigma) bstep r) 
+$
+```
+
+---
+
+# Environment Model Evaluation
+
+## Big-Step Semantics
+
+### If-Then-Else
+
+```typst +render +width:70%
+#let bstep = sym.arrow.b.double
+#let bop = sym.plus.circle
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+"IF-T" & (state(e_1,sigma) bstep "true" quad state(e_2,sigma) bstep v_2) /
+         (state("if" e_1 "then" e_2 "else" e_3,sigma) bstep v_2) \ \
+
+"IF-F" & (state(e_1,sigma) bstep "false" quad state(e_3,sigma) bstep v_3) /
+         (state("if" e_1 "then" e_2 "else" e_3,sigma) bstep v_3) 
+$
+```
+
+---
+
+# Environment Model Evaluation
+
+## Big-Step Semantics
+
+### Let
+
+```typst +render +width:80%
+#let bstep = sym.arrow.b.double
+#let bop = sym.plus.circle
+#let mapto = sym.arrow.r.bar
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+"LET" (state(e_1,sigma) bstep v_1 quad
+       state(e_2,text(fill:#yellow,sigma[x mapto v_1])) bstep v_2)
+      / (state("let" x=e_1 "in" e_2,sigma) bstep v_2)
+$
+```
+
+```ocaml
+let rec eval (e : expr) (env : env) : value =
+  match e with
+  | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
+```
+
+---
+
+# Environment Model Evaluation
+
+## Big-Step Semantics
+
+```ocaml
+let rec eval (e : expr) (env : env) : value =
+  match e with
+  | Int i  -> VInt i
+  | Bool b -> VBool b
+  | Var v  -> lookup v env
+  | Binop (bop, e1, e2) -> (
+      match (bop, eval e1 env, eval e2 env) with
+      | Add,  VInt a, VInt b -> VInt (a + b)
+      | Mult, VInt a, VInt b -> VInt (a * b)
+      | Leq,  VInt a, VInt b -> VBool (a <= b)
+  | If (e1, e2, e3) -> (
+      match eval e1 env with
+      | VBool true -> eval e2 env
+      | VBool false -> eval e3 env
+  | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
 ```
