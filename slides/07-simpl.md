@@ -300,7 +300,7 @@ match (bop, e1, e2) with
 | Add,  Int a, Int b -> Some (Int (a + b))
 | Mult, Int a, Int b -> Some (Int (a * b))
 | Leq,  Int a, Int b -> Some (Bool (a <= b))
-| _ -> failwith "Invalid operands!"
+| _ -> failwith "Invalid operands"
 ```
 
 ---
@@ -559,7 +559,7 @@ let rec eval e = match e with
       | Add,  Int a, Int b -> Int (a + b)
       | Mult, Int a, Int b -> Int (a * b)
       | Leq,  Int a, Int b -> Bool (a <= b)
-      | _ -> failwith "Invalid operands!")
+      | _ -> failwith "Invalid operands")
 ```
 
 ---
@@ -650,4 +650,29 @@ when using the substitution model.
 $
 "VAR" () / (x cancel(arrow.b.double))
 $
+```
+
+---
+
+# Substitution Model Evaluation
+
+## Big-Step Semantics
+
+```ocaml
+let rec eval (e : expr) : expr =
+  match e with
+  | Int _ | Bool _ -> e
+  | Var _ -> failwith "Unbound variable"
+  | Binop (bop, e1, e2) -> (
+      match (bop, eval e1, eval e2) with
+      | Add, Int a, Int b -> Int (a + b)
+      | Mult, Int a, Int b -> Int (a * b)
+      | Leq, Int a, Int b -> Bool (a <= b)
+      | _ -> failwith "Invalid operands")
+  | If (e1, e2, e3) -> (
+      match eval e1 with
+      | Bool true -> eval e2
+      | Bool false -> eval e3
+      | _ -> failwith "Invalid guard expression")
+  | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 ```
