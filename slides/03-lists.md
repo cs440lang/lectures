@@ -11,7 +11,7 @@ author: "Michael Lee"
 
 # Lists
 
-A list a sequence of elements *of the same type*
+A list is a sequence of elements *of the same type*
 
 - implemented as singly-linked lists
 

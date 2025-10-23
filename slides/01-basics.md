@@ -52,7 +52,7 @@ If you don't have OCaml installed, you can use the
 
 3. *First-class functions*: functions are treated like any other value
 
-4. *Algebraic data types*: custome types are defined as "sums" and "products" of
+4. *Algebraic data types*: custom types are defined as "sums" and "products" of
    other types
 
 5. *Pattern matching*: concise and expressive way of deconstructing values

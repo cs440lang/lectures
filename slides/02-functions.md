@@ -57,7 +57,7 @@ let foo = fun x y z -> (2*x + y) * z
 
 # Functions: definition and application
 
-## Equivalance to `let-in`
+## Equivalence to `let-in`
 
 Note that `let-in` is really just *syntactic sugar* for the application of a
 corresponding anonymous function to the binding expression:
