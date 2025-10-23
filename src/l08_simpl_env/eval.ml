@@ -21,10 +21,19 @@ let rec eval (e : expr) (env: env) : value =
   match e with
   | Int i -> VInt i
   | Bool b -> VBool b
-  | Var v -> failwith "undefined"
-  | Binop (bop, e1, e2) -> failwith "undefined"
-  | If (e1, e2, e3) -> failwith "undefined"
-  | Let (x, e1, e2) -> failwith "undefined"
+  | Var v -> List.assoc v env
+  | Binop (bop, e1, e2) -> (
+      match (bop, eval e1 env, eval e2 env) with
+      | Add, VInt a, VInt b -> VInt (a + b)
+      | Mult, VInt a, VInt b -> VInt (a * b)
+      | Leq, VInt a, VInt b -> VBool (a <= b)
+      | _ -> failwith "Invalid bop")
+  | If (e1, e2, e3) -> (
+      match eval e1 env with
+      | VBool true -> eval e2 env
+      | VBool false -> eval e3 env
+      | _ -> failwith "Invalid guard")
+  | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,
