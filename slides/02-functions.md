@@ -86,10 +86,7 @@ let foo = fun x y z -> (2*x + y) * z
 let foo' = fun x -> fun y -> fun z -> (2*x + y) * z
 ```
 
-- We say that functions of multiple arguments are *curried* in OCaml --- i.e.,
-  it is turned into multiple functions of one argument, each of which returns
-  another function of one argument (except for the last, which evaluates to the
-  result)
+- We say that functions of multiple arguments are *curried* in OCaml --- i.e., they are turned into multiple functions of one argument, each of which returns another function of one argument (except for the last, which evaluates to the result)
 
 ---
 
@@ -140,9 +137,9 @@ let foo' x y z = (2*x + y) * z
 Here's another example that helps illustrate the utility of partial application:
 
 ```ocaml
-let dist (x1,y1) (x2,y2) = sqrt ((x2-.x1)**2.+.(y2-.y1)**2.)
+let dist (x1,y1) (x2,y2) = sqrt ((x2-.x1)**2. +. (y2-.y1)**2.)
 
-let distFromOrigin = dist (0.0,0.0)
+let distFromOrigin = dist (0.0, 0.0)
 ```
 
 ---

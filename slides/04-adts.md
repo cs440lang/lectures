@@ -121,7 +121,7 @@ type color = Red | Blue | Green
 
 let describe_color = function
   | Red -> "Warm"
-  | Blue-> "Cool"
+  | Blue -> "Cool"
   | Green -> "Verdant"
 
 type shape = Circle of float

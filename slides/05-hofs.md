@@ -202,14 +202,11 @@ let product' lst = fold_left ( * ) 1 lst
 
 ## Right vs. Left fold (on lists)
 
-Right folds follow the natural associativity of the list `(::)` operator, so
-yields the correct order when building a list result from an input list.
+Right folds follow the natural associativity of the list `(::)` operator, so yield the correct order when building a list result from an input list.
 
-Left folds are tail-recursive, so are typically going to be faster and
-more-efficient when possible.
+Left folds are tail-recursive, so are typically going to be faster and more efficient when possible.
 
-If using a right- or left- associative operation as the function argument to a
-fold, it makes sense to use the corresponding right- or left- fold HOF!
+If using a right- or left-associative operation as the function argument to a fold, it makes sense to use the corresponding right- or left-fold HOF!
 
 ---
 

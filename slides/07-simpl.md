@@ -104,16 +104,13 @@ How do we formally describe the semantics of a language?
 
 # Operational Semantics
 
-*Operational semantics* specifies the behavior of programming language
-constructs using *rules of inference*, which describe how expressions/statements
-reduce or transition to simpler forms or values.
+*Operational semantics* specifies the behavior of programming language constructs using *rules of inference*, which describe how expressions/statements reduce or transition to simpler forms or values.
 
 <!-- pause -->
 
 <!-- list_item_newlines: 1 -->
 
-- *Small-step* semantics: describes individual computational steps, showing how
-  expressions reduce to simpler forms. E.g., we might assert:
+- *Small-step* semantics: describes individual computational steps, showing how expressions reduce to simpler forms. E.g., we might assert:
 
 ```typst +render +width:60%
 $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
@@ -121,8 +118,7 @@ $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
 
 <!-- pause -->
 
-- *Big-step* semantics: describes entire evaluations, relating expressions
-  directly to their final results. E.g., we might assert:
+- *Big-step* semantics: describes entire evaluations, relating expressions directly to their final results. E.g., we might assert:
 
 ```typst +render +width:10%
 $e arrow.b.double v$
@@ -741,9 +737,7 @@ The alternative is to *lazily* replace variables with their bound values.
 
 <!-- pause -->
 
-We can accumulate a *variable -> value* map during evaluation, and use it to
-look up variable bindings when needed. We call this map the *environment*,
-denoted σ.
+We can accumulate a *variable -> value* map during evaluation, and use it to look up variable bindings when needed. We call this map the *environment*, denoted σ.
 
 <!-- pause -->
 
