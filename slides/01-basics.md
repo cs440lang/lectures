@@ -18,7 +18,7 @@ Code repository: <https://github.com/cs440lang/lectures>
 
 - Slides in `slides/`, Source code in `src/`
 
-- Completed versions in `main` branch, Starter in `starter` branch
+- Completed versions in `main` branch, starter versions in `demo` branch
 
 <!-- pause -->
 
@@ -33,8 +33,7 @@ Load starter code in OCaml toplevel during code demos to follow along
 REPL for OCaml
 
 - Typical workflow: edit source file, (re)load in `utop`, interact/test
-- Syntax and semantics between top-level and "normal" OCaml are slightly
-  different!
+- Syntax and semantics between top-level and "normal" OCaml are slightly different!
 
 If you don't have OCaml installed, you can use the
 [OCaml playground](https://ocaml.org/play)
@@ -45,10 +44,9 @@ If you don't have OCaml installed, you can use the
 
 <!-- incremental_lists: true -->
 
-1. *Static-typing* and *Type-safety*: every expression has a type, determined
-   and enforced at compile time
+1. *Static typing* and *type safety*: every expression has a type, determined and enforced at compile time
 
-2. *Type-inference*: the compiler can deduce types automatically
+2. *Type inference*: the compiler can deduce types automatically
 
 3. *First-class functions*: functions are treated like any other value
 
@@ -106,7 +104,7 @@ What can go wrong?
 
 ### Syntax errors
 
-Illegal/Malformed code
+Illegal/malformed code
 
 - Caught by the parser
 
@@ -136,7 +134,7 @@ E.g.,
 
 ### Exceptions
 
-Dynamic / Run-time
+Dynamic / runtime
 
 - type system guarantees no type-related errors!
 
@@ -234,8 +232,7 @@ let y : int = 9 + 1
 let z : int = x * y
 ```
 
-- but we typically don't, because the compiler *infers* the correct types for
-  us!
+- but we typically don't, because the compiler *infers* the correct types for us!
   - (how can it do so in the examples above?)
 
 ---

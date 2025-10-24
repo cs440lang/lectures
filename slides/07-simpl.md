@@ -104,16 +104,13 @@ How do we formally describe the semantics of a language?
 
 # Operational Semantics
 
-*Operational semantics* specifies the behavior of programming language
-constructs using *rules of inference*, which describe how expressions/statements
-reduce or transition to simpler forms or values.
+*Operational semantics* specifies the behavior of programming language constructs using *rules of inference*, which describe how expressions/statements reduce or transition to simpler forms or values.
 
 <!-- pause -->
 
 <!-- list_item_newlines: 1 -->
 
-- *Small-step* semantics: describes individual computational steps, showing how
-  expressions reduce to simpler forms. E.g., we might assert:
+- *Small-step* semantics: describes individual computational steps, showing how expressions reduce to simpler forms. E.g., we might assert:
 
 ```typst +render +width:60%
 $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
@@ -121,8 +118,7 @@ $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
 
 <!-- pause -->
 
-- *Big-step* semantics: describes entire evaluations, relating expressions
-  directly to their final results. E.g., we might assert:
+- *Big-step* semantics: describes entire evaluations, relating expressions directly to their final results. E.g., we might assert:
 
 ```typst +render +width:10%
 $e arrow.b.double v$
@@ -173,8 +169,7 @@ $
 
 Let's describe the semantics of SimPL using *substitution*.
 
-- i.e., we substitute values for variable names throughout an expression, just
-  like `[v/x] e` in λ-calculus
+- i.e., we substitute values for variable names throughout an expression, just like `[v/x] e` in λ-calculus
 
 <!-- pause -->
 
@@ -490,12 +485,14 @@ let rec step : expr -> expr option = function
           | None -> (match (bop, e1, e2) with
               | Add, Int a, Int b -> Some (Int (a + b))
               | Mult, Int a, Int b -> Some (Int (a * b))
-              | Leq, Int a, Int b -> Some (Bool (a <= b))))
+              | Leq, Int a, Int b -> Some (Bool (a <= b))
+              | _ -> failwith "Invalid operands")))
   | If (b, e1, e2) -> (match step b with
       | Some b' -> Some (If (b', e1, e2))
       | None -> (match b with
           | Bool true -> Some e1
-          | Bool false -> Some e2))
+          | Bool false -> Some e2
+          | _ -> failwith "Invalid guard expression"))
   | Let (x, e1, e2) -> (match step e1 with
       | Some e1' -> Some (Let (x, e1', e2))
       | None -> Some (subst e1 x e2))
@@ -741,9 +738,7 @@ The alternative is to *lazily* replace variables with their bound values.
 
 <!-- pause -->
 
-We can accumulate a *variable -> value* map during evaluation, and use it to
-look up variable bindings when needed. We call this map the *environment*,
-denoted σ.
+We can accumulate a *variable -> value* map during evaluation, and use it to look up variable bindings when needed. We call this map the *environment*, denoted σ.
 
 <!-- pause -->
 
@@ -926,9 +921,11 @@ let rec eval (e : expr) (env : env) : value =
       | Add,  VInt a, VInt b -> VInt (a + b)
       | Mult, VInt a, VInt b -> VInt (a * b)
       | Leq,  VInt a, VInt b -> VBool (a <= b)
+      | _ -> failwith "Invalid operands")
   | If (e1, e2, e3) -> (
       match eval e1 env with
       | VBool true -> eval e2 env
       | VBool false -> eval e3 env
+      | _ -> failwith "Invalid guard expression")
   | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
 ```
