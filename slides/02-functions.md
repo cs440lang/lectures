@@ -332,11 +332,9 @@ let rec sum' n acc = if n = 0 then acc
                      else sum' (n-1) (acc+n)
 ```
 
-We say that the recursive call above is in the "tail position" --- i.e., it is
-the *last thing* done in the function body
+We say that the recursive call above is in the "tail position" --- i.e., it is the *last thing* done in the function body
 
-- When this is the case, OCaml can perform *tail-call optimization*, which
-  prevents additional stack frames from being allocated on recursive calls
+- When this is the case, OCaml can perform *tail-call optimization*, which prevents additional stack frames from being allocated on recursive calls
 
 ---
 

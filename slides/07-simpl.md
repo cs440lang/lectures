@@ -169,8 +169,7 @@ $
 
 Let's describe the semantics of SimPL using *substitution*.
 
-- i.e., we substitute values for variable names throughout an expression, just
-  like `[v/x] e` in λ-calculus
+- i.e., we substitute values for variable names throughout an expression, just like `[v/x] e` in λ-calculus
 
 <!-- pause -->
 

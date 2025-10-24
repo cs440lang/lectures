@@ -43,7 +43,7 @@ different types.
 We use pattern-matching to access tuple components. E.g.,
 
 ```ocaml
-let dist (x1,y1) (x2,y2) = sqrt ((x1-.x2)**2. +. (y1-.y2)**2.)
+let dist (x1,y1) (x2,y2) = sqrt ((x2-.x1)**2. +. (y2-.y1)**2.)
 
 val dist : float * float -> float * float -> float
 ```
