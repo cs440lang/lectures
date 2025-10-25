@@ -1,5 +1,6 @@
 ---
 title: "SimPL and Operational Semantics"
+sub_title: "CS 440: Programming Languages"
 author: "Michael Lee"
 theme:
   override:

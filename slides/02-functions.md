@@ -1,5 +1,6 @@
 ---
 title: "OCaml: Functions"
+sub_title: "CS 440: Programming Languages"
 author: "Michael Lee"
 ---
 

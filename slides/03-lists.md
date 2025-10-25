@@ -1,5 +1,6 @@
 ---
 title: "OCaml: Lists"
+sub_title: "CS 440: Programming Languages"
 author: "Michael Lee"
 ---
 
