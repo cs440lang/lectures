@@ -1,5 +1,5 @@
 (library
- (name demos_lc)
+ (name l06_lc)
  (flags
   (:standard -w -20-27-39)))
 

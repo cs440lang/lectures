@@ -1,5 +1,5 @@
 (library
- (name demos_closures)
+ (name l07a_simpl)
  (flags
   (:standard -w -20-27-39)))
 

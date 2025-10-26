@@ -1,5 +1,5 @@
 (library
- (name demos_simplenv)
+ (name l07b_simplenv)
  (flags
   (:standard -w -20-27-39)))
 
