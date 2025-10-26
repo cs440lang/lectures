@@ -1,12 +1,7 @@
 ---
 title: "SimPL and Operational Semantics"
+sub_title: "CS 440: Programming Languages"
 author: "Michael Lee"
-theme:
-  override:
-    typst:
-      colors:
-        foreground: ffffff
-        background: 000000
 ---
 
 # Agenda
@@ -716,6 +711,21 @@ let rec eval (e : expr) : expr =
 
 # Substitution Model Evaluation
 
+Both our small- and big- step evaluation functions so far have been
+fundamentally driven by *substitution*.
+
+- eval `(let x = 6 in (let y = (x + 1) in (x * y)))`
+- eval `(let y = (6 + 1) in (6 * y))`
+- eval `(let y = 7 in (6 * y))`
+- eval `(6 * 7)`
+- `42`
+
+Is this how we typically think of / model program execution?
+
+---
+
+# Substitution Model Evaluation
+
 ## Critique
 
 In the substitution model, we *recursively replace all instances* of a (free)
@@ -725,25 +735,26 @@ variable within a `let` body in a single-step.
 
 - this is potentially very inefficient!
 
-  - instances that are never used are still replaced
+  - instances that are never used are replaced nonetheless
 
-  - the body must be exhaustively searched (before it is evaluated)
+  - the body must be exhaustively searched before evaluation
 
-- this also tightly couples our AST with the dynamic environment
+- this effectively "rewrites" our program (in AST form) during execution
 
-  - will complicate implementing functions / closures
+  - this is in contrast to how we typically model execution, i.e., with static
+    code and dynamic data stored separately
 
 ---
 
 # Environment Model Evaluation
 
-The alternative is to *lazily* replace variables with their bound values.
+An alternative is to *lazily* replace variables names with their bound values.
 
 <!-- pause -->
 
-We can accumulate a *variable -> value* map during evaluation, and use it to
-look up variable bindings when needed. We call this map the *environment*,
-denoted σ.
+We can accumulate (*name -> value*) mappings during evaluation, and use it to
+look up variable bindings when needed. We call this map the *dynamic
+environment*, denoted σ (sigma).
 
 <!-- pause -->
 
@@ -761,7 +772,7 @@ A trivial implementation of an environment is an associative list:
 
 ```ocaml
 type env   = (string * value) list
-type value = VInt of int | VBool of bool
+and  value = VInt of int | VBool of bool
 
 let lookup (x : string) (env : env) : value =
   List.assoc x env
@@ -776,7 +787,7 @@ let update (x : string) (v : value) (e : env) : env =
 
 ## Operational Semantics with Environments
 
-We need to update our small/big-step relations to include environments.
+We need to update our small/big-step relations to include dynamic environments.
 
 ```typst +render +width:80%
 #let bstep = sym.arrow.b.double
@@ -788,6 +799,27 @@ state(e,sigma) cancel(->) & wide e "in" sigma "cannot be reduced"\
 state(e,sigma) bstep v    & wide e "in" sigma "evaluates to value" v\
 $
 ```
+
+<!-- pause -->
+
+For imperative constructs (which SimPL does not have), evaluating a statement
+*s* updates the environment.
+
+```typst +render +width:80%
+#let bstep = sym.arrow.b.double
+#let state(e,s) = { $angle.l #e,#s angle.r$ }
+
+$
+state(s,sigma) -> sigma'    & wide s "updates" sigma "to" sigma'\
+state(s,sigma) bstep sigma' & wide s "in" sigma "terminates with" sigma'\
+$
+```
+
+---
+
+# Environment Model Evaluation
+
+`eval (let x=1 in let y=2 in x+y)`
 
 ---
 
@@ -932,3 +964,16 @@ let rec eval (e : expr) (env : env) : value =
       | VBool false -> eval e3 env
   | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
 ```
+
+---
+
+# Environment Model Evaluation
+
+The environment model better reflects how interpreters and compiled programs
+actually behave: the code remains static, and a separate dynamic environment
+maps identifiers to data.
+
+- eval `let x=6 in let y=x+1 in x*y  []`
+- eval `let y=x+1 in x*y             [(x,6)]`
+- eval `x*y                          [(y,7); (x,6)]`
+- `42`
