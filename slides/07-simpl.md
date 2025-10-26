@@ -272,7 +272,7 @@ $
 
 <!-- pause -->
 
-```ocaml
+```ocaml {2-5}
 let rec step : expr -> expr option = function
   | Binop (bop, e1, e2) -> (
       match step e1 with
@@ -297,7 +297,7 @@ $
 
 <!-- pause -->
 
-```ocaml
+```ocaml {5-7}
 let rec step : expr -> expr option = function
   | Binop (bop, e1, e2) -> (
       match step e1 with
@@ -379,7 +379,7 @@ $
 
 ### If-Then-Else
 
-```ocaml
+```ocaml {2-9}
 let rec step : expr -> expr option = function
   | If (e1, e2, e3) -> (
       match step e1 with
@@ -435,7 +435,7 @@ this is the only rule that uses substitution!
 
 ### Let
 
-```ocaml
+```ocaml {2-5}
 let rec step : expr -> expr option = function
   | Let (x, e1, e2) -> (
       match step e1 with
@@ -464,7 +464,7 @@ $
 
 <!-- pause -->
 
-```ocaml
+```ocaml {2}
 let rec step : expr -> expr option = function
   | Var _ -> None
 ```
@@ -582,7 +582,7 @@ With big-step semantics, we boil expressions down to values in a single step!
 
 ### Binary Operations
 
-```ocaml
+```ocaml {2-7}
 let rec eval e = match e with
   | Binop (bop, e1, e2) -> (
       match (bop, eval e1, eval e2) with
@@ -627,7 +627,7 @@ Remember, big-step reduces expressions to *values* in a single step.
 
 ### If-Then-Else
 
-```ocaml
+```ocaml {2-6}
 let rec eval e = match e with
   | If (e1, e2, e3) -> (
       match eval e1 with
@@ -660,7 +660,7 @@ $
 
 <!-- pause -->
 
-```ocaml
+```ocaml {2}
 let rec eval e = match e with
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 ```
@@ -866,7 +866,7 @@ $
 
 Contrast this with the VAR rule under the substitution model!
 
-```ocaml
+```ocaml {3}
 let rec eval (e : expr) (env : env) : value =
   match e with
   | Var v -> lookup v env
@@ -935,7 +935,7 @@ $
 $
 ```
 
-```ocaml
+```ocaml {3}
 let rec eval (e : expr) (env : env) : value =
   match e with
   | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
