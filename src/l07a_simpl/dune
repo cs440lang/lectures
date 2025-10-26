@@ -1,5 +1,5 @@
 (library
- (name demos_simpl))
+ (name l07a_simpl))
 
 (menhir
  (modules parser))

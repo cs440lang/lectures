@@ -1,5 +1,5 @@
 (library
- (name demos_closures))
+ (name l08_closures))
 
 (menhir
  (modules parser))
