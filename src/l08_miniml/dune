@@ -1,5 +1,5 @@
 (library
- (name l08_closures)
+ (name l08_miniml)
  (flags
   (:standard -w -20-27-39)))
 

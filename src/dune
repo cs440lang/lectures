@@ -1,6 +1,6 @@
 (library
  (name demos)
- (libraries l06_lc l07a_simpl l07b_simplenv l08_closures)
+ (libraries l06_lc l07a_simpl l07b_simplenv l08_miniml)
  (wrapped false)
  (flags
   (:standard -w -20-27-39)))
