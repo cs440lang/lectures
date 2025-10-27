@@ -97,11 +97,13 @@ type ('k,'v) bin_tree = Nil
 
 let rec tree_insert k v = failwith "Unimplemented"
 
+(*
 let t = Nil
         |> tree_insert 10 "ten"
         |> tree_insert 5 "five"
         |> tree_insert 15 "fifteen"
         |> tree_insert 8 "eight"
         |> tree_insert 12 "twelve"
+*)
 
-let rec inorder_list = failwith "Unimplemented"
+let rec inorder_list t = failwith "Unimplemented"

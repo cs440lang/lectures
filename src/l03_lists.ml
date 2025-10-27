@@ -1,29 +1,37 @@
 (* basic pattern matching *)
 
-let first l = match l with
-  | [] -> failwith "List is empty"
-  | x :: _ -> x
+let first lst =
+  failwith "Unimplemented"
 
 (* processing lists *)
 
-let rec sum = failwith "Unimplemented"
+let rec sum lst =
+  failwith "Unimplemented"
 
-let rec length = failwith "Unimplemented"
+let rec length lst =
+  failwith "Unimplemented"
 
-let rec index n = failwith "Unimplemented"
+let rec index n lst =
+  failwith "Unimplemented"
 
-let rec append lst1 lst2 = failwith "Unimplemented"
+let rec append lst1 lst2 =
+  failwith "Unimplemented"
  
-let reverse lst = failwith "Unimplemented"
+let reverse lst =
+  failwith "Unimplemented"
 
 (* list generating functions *)
 
-let rec range m n = failwith "Unimplemented"
+let rec range m n =
+  failwith "Unimplemented"
 
-let rec repeat n x = failwith "Unimplemented"
+let rec repeat n x =
+  failwith "Unimplemented"
 
-let fibs n = failwith "Unimplemented"
+let fibs n =
+  failwith "Unimplemented"
 
 (* associative lists *)
 
-let rec assoc k = failwith "Unimplemented"
+let rec assoc k alst =
+  failwith "Unimplemented"

@@ -52,7 +52,7 @@ let rec subst v x e = failwith "undefined"
  * - step_normal @@ Abs ("x", App (Var "x", Var "y"))
  *                = None
  *)
-let rec step_normal = failwith "undefined"
+let rec step_normal e = failwith "undefined"
 
 (* normal-order multi-step eval
  * - step until no more redexes remain, return resulting expr *)
