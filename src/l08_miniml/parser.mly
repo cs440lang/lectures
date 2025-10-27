@@ -1,5 +1,9 @@
 %{
 open Ast
+
+let curry (args: string list) (body: expr) : expr =
+  List.fold_right (fun arg body -> Fun (arg, body))
+                  args body
 %}
 
 %token <int> INT
@@ -24,10 +28,16 @@ expr:
       { Let (x, e1, e2) }
   | IF e1 = expr THEN e2 = expr ELSE e3 = expr
       { If (e1, e2, e3) }
-  | FUN x = ID ARROW e = expr
-      { Fun (x, e) }
+  | FUN xs = args ARROW e = expr
+      { curry xs e }
   | e = binop_expr
       { e }
+
+args:
+  | x = ID
+      { [x] }
+  | x = ID xs = args
+      { x :: xs }
 
 binop_expr:
   | e1 = binop_expr PLUS e2 = app_expr
