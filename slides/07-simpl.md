@@ -819,7 +819,66 @@ $
 
 # Environment Model Evaluation
 
-`eval (let x=1 in let y=2 in x+y)`
+Let's consider an example before giving the big-step rules:
+
+```ocaml
+let x=5 in
+let y=x+1 in
+let z=x*y+2
+y*x+z
+```
+
+---
+
+# Environment Model Evaluation
+
+Let's consider an example before giving the big-step rules:
+
+```ocaml {1}
+let x=5 in       env=[]
+let y=x+1 in
+let z=x*y+2
+y*x+z
+```
+
+---
+
+# Environment Model Evaluation
+
+Let's consider an example before giving the big-step rules:
+
+```ocaml {2}
+let x=5 in  
+let y=x+1 in     env=[(x,5)]
+let z=x*y+2
+y*x+z
+```
+
+---
+
+# Environment Model Evaluation
+
+Let's consider an example before giving the big-step rules:
+
+```ocaml {3}
+let x=5 in
+let y=x+1 in
+let z=x*y+2      env=[(y,6);(x,5)]
+y*x+z
+```
+
+---
+
+# Environment Model Evaluation
+
+Let's consider an example before giving the big-step rules:
+
+```ocaml {4}
+let x=5 in
+let y=x+1 in
+let z=x*y+2
+y*x+z            env=[(z,32);(y,6);(x,5)]
+```
 
 ---
 
@@ -828,6 +887,8 @@ $
 ## Big-Step Semantics
 
 ### Values
+
+<!-- pause -->
 
 ```typst +render +width:80%
 #let bstep = sym.arrow.b.double
@@ -973,7 +1034,13 @@ The environment model better reflects how interpreters and compiled programs
 actually behave: the code remains static, and a separate dynamic environment
 maps identifiers to data.
 
-- eval `let x=6 in let y=x+1 in x*y  []`
-- eval `let y=x+1 in x*y             [(x,6)]`
-- eval `x*y                          [(y,7); (x,6)]`
-- `42`
+<!-- pause -->
+
+Going forward, we will use the environment model for our interpreter
+implementations, but will occasionally employ the substitution model when
+mathematical clarity is needed.
+
+<!-- pause -->
+
+We will also prefer big-step rules for brevity. You should be able to write up
+the small-step rules on your own!
