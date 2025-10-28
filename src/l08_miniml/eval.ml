@@ -24,22 +24,27 @@ let string_of_val : value -> string = function
 type scope_rule = Lexical | Dynamic
 let scope = Lexical
 
+exception RuntimeError of string
+
 let rec eval (e : expr) (env: env) : value =
   match e with
   | Int i -> VInt i
   | Bool b -> VBool b
-  | Var v -> List.assoc v env
+  | Var v -> (
+      match List.assoc_opt v env with
+      | Some y -> y
+      | None -> raise (RuntimeError "Unbound variable"))
   | Binop (bop, e1, e2) -> (
       match (bop, eval e1 env, eval e2 env) with
       | Add, VInt a, VInt b -> VInt (a + b)
       | Mult, VInt a, VInt b -> VInt (a * b)
       | Leq, VInt a, VInt b -> VBool (a <= b)
-      | _ -> failwith "Invalid bop")
+      | _ -> raise (RuntimeError "Invalid bop"))
   | If (e1, e2, e3) -> (
       match eval e1 env with
       | VBool true -> eval e2 env
       | VBool false -> eval e3 env
-      | _ -> failwith "Invalid guard")
+      | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
 
   (* evaluating a function gives us a closure *)
@@ -57,7 +62,7 @@ let rec eval (e : expr) (env: env) : value =
             | Dynamic -> env in
           let cenv = (x, arg) :: base_env in
           eval body cenv)
-      | _ -> failwith "Invalid application")
+      | _ -> raise (RuntimeError "Invalid application"))
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,
@@ -75,8 +80,8 @@ let rec repl () =
         print_endline (string_of_val value);
         repl ()
       with
-      | Failure msg ->
-          Printf.printf "Error: %s\n" msg;
+      | RuntimeError msg ->
+          Printf.printf "Runtime Error: %s\n" msg;
           repl ()
       | Parser.Error ->
           print_endline "Parse error.";

@@ -16,23 +16,28 @@ let string_of_val : value -> string = function
    of name-value mappings  *)
 type env = (string * value) list
 
+exception RuntimeError of string
+
 (* big-step evaluation using an environment *)
 let rec eval (e : expr) (env: env) : value =
   match e with
   | Int i -> VInt i
   | Bool b -> VBool b
-  | Var v -> List.assoc v env
+  | Var x -> (
+      match List.assoc_opt x env with
+      | Some y -> y
+      | None -> raise (RuntimeError "Unbound variable"))
   | Binop (bop, e1, e2) -> (
       match (bop, eval e1 env, eval e2 env) with
       | Add, VInt a, VInt b -> VInt (a + b)
       | Mult, VInt a, VInt b -> VInt (a * b)
       | Leq, VInt a, VInt b -> VBool (a <= b)
-      | _ -> failwith "Invalid bop")
+      | _ -> raise (RuntimeError "Invalid bop"))
   | If (e1, e2, e3) -> (
       match eval e1 env with
       | VBool true -> eval e2 env
       | VBool false -> eval e3 env
-      | _ -> failwith "Invalid guard")
+      | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
 
 (* Read a line and Parse an expression out of it,
@@ -51,8 +56,8 @@ let rec repl () =
         print_endline (string_of_val value);
         repl ()
       with
-      | Failure msg ->
-          Printf.printf "Error: %s\n" msg;
+      | RuntimeError msg ->
+          Printf.printf "Runtime Error: %s\n" msg;
           repl ()
       | Parser.Error ->
           print_endline "Parse error.";
