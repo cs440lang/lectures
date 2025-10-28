@@ -1,0 +1,16 @@
+type bop =
+  | Add
+  | Mult
+  | Leq
+
+type typ = TInt | TBool | TFun of (typ * typ)
+
+type expr =
+  | Int of int
+  | Bool of bool
+  | Var of string
+  | Binop of bop * expr * expr
+  | If of expr * expr * expr
+  | Let of string * expr * expr
+  | App of expr * expr
+  | Fun of string * typ * expr
