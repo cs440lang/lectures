@@ -1,4 +1,5 @@
 open Ast
+open Typeinfer
 
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
@@ -17,7 +18,7 @@ and value = VInt of int
 let string_of_val : value -> string = function
   | VInt n -> string_of_int n
   | VBool b -> string_of_bool b
-  | Closure _ -> "<fn>"
+  | Closure _ -> "<fun>"
 
 (* for easily switching between scoping strategy,
    as applied to functions *)
@@ -76,10 +77,16 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
+        let inferred_type = infer expr in
         let value = eval expr [] in
-        print_endline (string_of_val value);
+        Printf.printf "- : %s = %s\n"
+          (string_of_type inferred_type)
+          (string_of_val value);
         repl ()
       with
+      | TypeError msg ->
+          Printf.printf "Type Error: %s\n" msg;
+          repl ()
       | RuntimeError msg ->
           Printf.printf "Runtime Error: %s\n" msg;
           repl ()
