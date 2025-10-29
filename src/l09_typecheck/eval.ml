@@ -1,58 +1,58 @@
 open Ast
+open Typecheck
 
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
-type tenv = (string * typ) list
 
-exception TypeError of string
+type env = (string * value) list
+and value = VInt of int
+          | VBool of bool
+          | Closure of (string * expr * env) 
 
-let rec string_of_type : typ -> string = function
-  | TInt -> "Int"
-  | TBool -> "Bool"
-  | TFun (t1, t2) ->
-      Printf.sprintf "(%s -> %s)" (string_of_type t1) (string_of_type t2)
+let string_of_val : value -> string = function
+  | VInt n -> string_of_int n
+  | VBool b -> string_of_bool b
+  | Closure _ -> "<fn>"
 
-let rec typeof (e : expr) (tenv : tenv) =
+type scope_rule = Lexical | Dynamic
+let scope = Lexical
+
+exception RuntimeError of string
+
+let rec eval (e : expr) (env: env) : value =
   match e with
-  | Int _ -> TInt
-  | Bool _ -> TBool
-  | Var x -> (
-      match List.assoc_opt x tenv with
-      | Some t -> t
-      | None -> raise (TypeError (Printf.sprintf "%s undeclared" x)))
+  | Int i -> VInt i
+  | Bool b -> VBool b
+  | Var v -> (
+      match List.assoc_opt v env with
+      | Some y -> y
+      | None -> raise (RuntimeError "Unbound variable"))
   | Binop (bop, e1, e2) -> (
-      let t1 = typeof e1 tenv in
-      let t2 = typeof e2 tenv in
-      match (bop, t1, t2) with
-      | Add, TInt, TInt -> TInt
-      | Mult, TInt, TInt -> TInt
-      | Leq, TInt, TInt -> TBool
-      | _ -> raise (TypeError "Invalid bop operands"))
-  | If (e1, e2, e3) ->
-      let t1 = typeof e1 tenv in
-      if t1 <> TBool then raise (TypeError "Invalid guard")
-      else
-        let t2 = typeof e2 tenv in
-        let t3 = typeof e3 tenv in
-        if t2 = t3 then t3 else raise (TypeError "Branches don't match")
-  | Let (x, e1, e2) ->
-      let t = typeof e1 tenv in
-      typeof e2 ((x, t) :: tenv)
-  | Fun (x, t, e) ->
-      let t' = typeof e ((x, t) :: tenv) in
-      TFun (t, t')
+      match (bop, eval e1 env, eval e2 env) with
+      | Add, VInt a, VInt b -> VInt (a + b)
+      | Mult, VInt a, VInt b -> VInt (a * b)
+      | Leq, VInt a, VInt b -> VBool (a <= b)
+      | _ -> raise (RuntimeError "Invalid bop"))
+  | If (e1, e2, e3) -> (
+      match eval e1 env with
+      | VBool true -> eval e2 env
+      | VBool false -> eval e3 env
+      | _ -> raise (RuntimeError "Invalid guard"))
+  | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
+  | Fun (x, _, body) -> Closure (x, body, env)
   | App (e1, e2) -> (
-      let t1 = typeof e1 tenv in
-      let t2 = typeof e2 tenv in
-      match t1 with
-      | TFun (t, t') when t = t2 -> t'
-      | _ -> raise (TypeError "Function and argument don't match"))
-
-let typecheck e =
-  let _ = typeof e [] in e
+      match eval e1 env with
+      | Closure (x, body, defenv) -> (
+          let arg = eval e2 env in
+          let base_env = match scope with
+            | Lexical -> defenv
+            | Dynamic -> env in
+          let cenv = (x, arg) :: base_env in
+          eval body cenv)
+      | _ -> raise (RuntimeError "Invalid application"))
 
 let rec repl () =
   print_string "> ";
@@ -61,8 +61,12 @@ let rec repl () =
   | "" -> ()
   | line -> (
       try
-        let t = typeof (parse line) [] in
-        print_endline (string_of_type t);
+        let expr = parse line in
+        let typ = typeof expr [] in
+        let value = eval expr [] in
+        Printf.printf "- : %s = %s\n"
+          (string_of_type typ)
+          (string_of_val value);
         repl ()
       with
       | TypeError msg ->
