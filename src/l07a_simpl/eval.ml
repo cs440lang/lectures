@@ -64,27 +64,27 @@ let rec step : expr -> expr option = function
       | None -> Some (subst e1 x e2))
 
 (* single-step reduce until we get a value *)
-let rec eval (e : expr) : expr =
+let rec multistep (e : expr) : expr =
   print_endline (string_of_expr e);
-  match step e with None -> e | Some e' -> eval e'
+  match step e with None -> e | Some e' -> multistep e'
 
 (* big-step reduction *)
-let rec eval' (e : expr) : expr =
+let rec eval (e : expr) : expr =
   match e with
   | Int _ | Bool _ -> e
   | Var _ -> raise (RuntimeError "Unbound variable")
   | Binop (bop, e1, e2) -> (
-      match (bop, eval' e1, eval' e2) with
+      match (bop, eval e1, eval e2) with
       | Add, Int a, Int b -> Int (a + b)
       | Mult, Int a, Int b -> Int (a * b)
       | Leq, Int a, Int b -> Bool (a <= b)
       | _ -> raise (RuntimeError "Invalid bop"))
   | If (e1, e2, e3) -> (
-      match eval' e1 with
-      | Bool true -> eval' e2
-      | Bool false -> eval' e3
+      match eval e1 with
+      | Bool true -> eval e2
+      | Bool false -> eval e3
       | _ -> raise (RuntimeError "Invalid guard"))
-  | Let (x, e1, e2) -> eval' (subst (eval' e1) x e2)
+  | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,
@@ -98,7 +98,7 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
-        let value = eval expr in
+        let value = multistep expr in
         print_endline (string_of_expr value);
         repl ()
       with
