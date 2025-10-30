@@ -36,3 +36,6 @@ setup.log
 
 # Local OPAM switch
 _opam/
+
+# PDFs (e.g., for exported slides)
+*.pdf
