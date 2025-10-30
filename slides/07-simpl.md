@@ -758,7 +758,7 @@ environment*, denoted σ (sigma).
 
 <!-- pause -->
 
-```typst +render +width:85%
+```typst +render +width:100%
 #let mapto = sym.arrow.r.bar
 $
 sigma(x)         & wide "Look up the value of var" x "in" sigma "(error if unmapped)"\
@@ -766,7 +766,9 @@ sigma[x mapto v] & wide "Update the environment to include the" x mapto v "mappi
 $
 ```
 
-<!-- pause -->
+---
+
+# Environment Model Evaluation
 
 A trivial implementation of an environment is an associative list:
 
@@ -775,7 +777,9 @@ type env   = (string * value) list
 and  value = VInt of int | VBool of bool
 
 let lookup (x : string) (env : env) : value =
-  List.assoc x env
+  match List.assoc_opt x env with
+  | Some value -> value
+  | None -> raise (RuntimeError "Unbound variable")
 
 let update (x : string) (v : value) (e : env) : env =
   (x, v) :: e
