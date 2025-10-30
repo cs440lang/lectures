@@ -19,7 +19,7 @@ Code repository: <https://github.com/cs440lang/lectures>
 
 - Slides in `slides/`, Source code in `src/`
 
-- Completed versions in `main` branch, Starter in `starter` branch
+- Completed versions in `main` branch, Starter in `demo` branch
 
 <!-- pause -->
 
