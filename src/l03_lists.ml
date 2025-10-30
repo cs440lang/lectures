@@ -37,7 +37,7 @@ let rec index n = function
 let rec index' n = function
   | [] -> failwith "Index out of range"
   | x :: xs when n = 0 -> x
-  | _ :: xs -> index (n-1) xs
+  | _ :: xs -> index' (n-1) xs
 
 let rec append lst1 lst2 = match lst1 with
   | [] -> lst2
