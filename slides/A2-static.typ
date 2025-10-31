@@ -16,16 +16,16 @@
 Building on the notation described in appendix A1, we use $tau$, $tau'$,
 $tau_n$  for meta-variables ranging over arbitrary types, and $alpha$, $alpha'$,
 $alpha_n$ for type variables occuring in language-level type expressions or type
-signatures. $Gamma$ denotes a typing environment.
+signatures. $Gamma$ denotes a typing context.
 
 #grid(
   columns: 2,
   gutter: 1em,
   align: (right, left),
 
-  [$e: tau$], [$e$ has type $tau$],
+  [$Gamma tstile e : tau$], [Under $Gamma$, $e$ has type $tau$],
 
-  [$Gamma tstile e : tau$], [Under $Gamma$, $e$ is inferred to have type $tau$],
+  [$tstile e : tau$], [$e$ has type $tau$ in the empty context],
 
   [$Gamma(x)$], [Look up the type assigned to $x$ in $Gamma$],
 
