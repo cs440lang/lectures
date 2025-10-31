@@ -28,7 +28,6 @@ $sigma$, $sigma'$ to represent the dynamic environment.
   [$e cancel(->)$], [$e$ cannot be further reduced],
   [$e ~> v$], [$e$ reduces to $v$ in zero or more steps],
   [$e bstep v$], [$e$ evaluates to $v$],
-  [$e : tau$], [$e$ has type $tau$],
   [$sigma(x)$], [Look up the value of $x$ in $sigma$ (error if unmapped)],
 
   [$sigma[x mapto v]$], [Extend $sigma$ to include a binding from $x$ to $v$],
@@ -49,8 +48,8 @@ $sigma$, $sigma'$ to represent the dynamic environment.
 ==== Small-Step Semantic Rules
 
 $
-    "INT" & (i : "int") / (i cancel(->)) \
-   "BOOL" & (b : "bool") / (b cancel(->)) \
+    "INT" & (i in ZZ) / (i cancel(->)) \
+   "BOOL" & (b in {"true", "false"}) / (b cancel(->)) \
     "VAR" & () / (x cancel(->)) \
   "BOP-L" & (e_1 -> e'_1) / (e_1 bop e_2 -> e'_1 bop e_2) \
   "BOP-R" & (e_1 cancel(->) quad e_2 -> e'_2) /
@@ -70,8 +69,8 @@ $
 ==== Big-Step Semantic Rules
 
 $
-   "INT" & (i : "int")/(i bstep i) \
-  "BOOL" & (b : "bool")/(b bstep b) \
+   "INT" & (i in ZZ)/(i bstep i) \
+  "BOOL" & (b in {"true", "false"})/(b bstep b) \
    "VAR" & () / (x cancel(arrow.b.double)) \
    "BOP" & (e_1 bstep v_1 quad e_2 bstep v_2) /
            (e_1 bop e_2 bstep (v_1 bop v_2)) \
@@ -90,8 +89,8 @@ $
 ==== Big-Step Semantic Rules
 
 $
-   "INT" & (i : "int")/(state(i, sigma) bstep i) \
-  "BOOL" & (b : "bool")/(state(b, sigma) bstep b) \
+   "INT" & (i in ZZ)/(state(i, sigma) bstep i) \
+  "BOOL" & (b in {"true", "false"})/(state(b, sigma) bstep b) \
    "VAR" & () / (state(x, sigma) bstep sigma(x)) \
    "BOP" & (state(e_1, sigma) bstep v_1 quad state(e_2, sigma) bstep v_2) /
            (state(e_1 bop e_2, sigma) bstep (v_1 bop v_2)) \
