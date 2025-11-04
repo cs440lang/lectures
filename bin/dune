@@ -1,0 +1,3 @@
+(executables
+ (names lc miniml minitype)
+ (libraries demos))

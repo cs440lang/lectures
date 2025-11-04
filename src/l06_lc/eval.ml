@@ -1,10 +1,22 @@
+(** A normal-order interpreter for the untyped lambda calculus.
+    Implements capture-ignoring substitution, a single-step reducer,
+    and a REPL that normalizes terms via repeated beta reduction. *)
+
 open Ast
 
+(** [parse s] lexes and parses a lambda-calculus expression from [s],
+    raising [Parser.Error] on malformed input. *)
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
+(* Pretty-Printing ***********************************************************)
+
+(** [string_of_expr e] renders [e] with minimal parentheses, using context
+    to avoid extraneous grouping in applications. For example,
+    - [string_of_expr (Abs ("x", Var "x"))] = ["λx.x"]
+    - [string_of_expr (App (Var "f", App (Var "x", Var "y")))] = ["f (x y)"]. *)
 let string_of_expr (e : expr) : string =
   let rec aux ctx = function
     (* ctx indicates context/precedence, used to parenthesize
@@ -21,48 +33,58 @@ let string_of_expr (e : expr) : string =
         if ctx = 2 then "(" ^ s ^ ")" else s
   in aux 0 e
 
-(* subst v x e = [v/x] e
- * e.g.,
- * - subst id "z" (Var "z") = id
- * - subst id "z" (Var "y") = Var "y" 
- * - subst id "z" (App (Var "w", Var "z")) = App (Var "w", id)
- * - subst id "z" (App (Var "z", Var "z")) = App (id, id)
- * - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
- * - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z")
- *)
-let rec subst v x e = failwith "undefined"
-  
-(* normal-order (leftmost-outermost) step function
- * - if a redex exists in arg e, perform it and return Some e'
- * - else return None 
- *
- * e.g.,
- * - step_normal @@ App (id, Var "x")
- *                = Some (Var "x")
- * - step_normal @@ App (App (id, id), App (id, id))
- *                = Some (App (id, App (id, id)))
- * - step_normal @@ App (Var "x", App (id, id))
- *                = Some (App (Var "x", id))
- * - step_normal @@ Abs ("x", App (id, Var "x"))
- *                = Some (Abs ("x", Var "x"))
- * - step_normal @@ Var "x"
- *                = None
- * - step_normal @@ App (Var "x", Var "y")
- *                = None
- * - step_normal @@ Abs ("x", App (Var "x", Var "y"))
- *                = None
- *)
-let rec step_normal e = failwith "undefined"
+(* Substitution  *************************************************************)
 
-(* normal-order multi-step eval
- * - step until no more redexes remain, return resulting expr *)
-let rec eval_normal e = failwith "undefined"
+(** [subst v x e] computes [[v/x]e], replacing free occurrences of [x] in [e]
+    with [v]. Examples:
 
-(* Read a line and Parse an expression out of it,
-   Evaluate it to a value,
-   Print the value,
-   Loop  *)
-let rec repl () =
+    - subst id "z" (Var "z") = id
+    - subst id "z" (Var "y") = Var "y" 
+    - subst id "z" (App (Var "w", Var "z")) = App (Var "w", id)
+    - subst id "z" (App (Var "z", Var "z")) = App (id, id)
+    - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
+    - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z") *)
+let rec subst (v : expr) (x : string) (e : expr) : expr =
+    failwith "Undefined"
+
+(* Evaluation ****************************************************************)
+
+(** [step_normal e] performs one normal-order (leftmost-outermost) beta reduction.
+    Returns [Some e'] when a redex is reduced and [None] when [e] is in
+    normal form. Examples:
+
+    - step_normal @@ App (id, Var "x")
+                   = Some (Var "x")
+    - step_normal @@ App (App (id, id), App (id, id))
+                   = Some (App (id, App (id, id)))
+    - step_normal @@ App (Var "x", App (id, id))
+                   = Some (App (Var "x", id))
+    - step_normal @@ Abs ("x", App (id, Var "x"))
+                   = Some (Abs ("x", Var "x"))
+    - step_normal @@ Var "x"
+                   = None
+    - step_normal @@ App (Var "x", Var "y")
+                   = None
+    - step_normal @@ Abs ("x", App (Var "x", Var "y"))
+                   = None *)
+let rec step_normal : expr -> expr option =
+    failwith "Undefined"
+
+(** [eval_normal ?trace e] repeatedly applies [step_normal] until no redexes
+    remain, returning the resulting normal form. When [trace] is true, each
+    intermediate term is printed. *)
+let rec eval_normal ?(trace=false) (e : expr) : expr =
+  if trace then print_endline (string_of_expr e) ;
+  match step_normal e with
+  | Some e' -> eval_normal ~trace e'
+  | None -> e
+
+(* REPL **********************************************************************)
+
+(** [repl ?trace ()] runs a read-eval-print loop for the lambda calculus,
+    parsing input lines, evaluating them to normal form, and printing the
+    result; blank input exits. *)
+let rec repl ?(trace=false) () =
   print_string "> ";
   flush stdout;
   match read_line () with
@@ -70,7 +92,7 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
-        let value = eval_normal expr in
+        let value = eval_normal ~trace expr in
         print_endline (string_of_expr value);
         repl ()
       with

@@ -1,40 +1,29 @@
-(** An environment-based variant of the SimPL interpreter. Replaces
-    substitution with an explicit environment, illustrating big-step
-    evaluation with state threaded through function calls. *)
-
 open Ast
+open Poly_typeinfer
 
-(** [parse s] lexes and parses a simple expression with variables from [s],
-    raising [Parser.Error] on malformed input. *)
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
-type value = VInt of int | VBool of bool
-(** Values produced by interpretation. *)
+type env = (string * value) list
+and value = VInt of int
+          | VBool of bool
+          | Closure of (string * expr * env) 
 
-(** [string_of_val v] renders a run-time [value] for display in the REPL. *)
 let string_of_val : value -> string = function
   | VInt n -> string_of_int n
   | VBool b -> string_of_bool b
-
-type env = (string * value) list
-(** Environment mapping identifiers to their run-time values. Newer bindings
-    appear earlier in the list. *)
+  | Closure _ -> "<fun>"
 
 exception RuntimeError of string
-(** Raised when evaluation encounters an ill-formed operation or unbound
-    variable. *)
 
-(** [eval e env] evaluates [e] under environment [env] using big-step
-    semantics. *)
 let rec eval (e : expr) (env: env) : value =
   match e with
   | Int i -> VInt i
   | Bool b -> VBool b
-  | Var x -> (
-      match List.assoc_opt x env with
+  | Var v -> (
+      match List.assoc_opt v env with
       | Some y -> y
       | None -> raise (RuntimeError "Unbound variable"))
   | Binop (bop, e1, e2) -> (
@@ -42,17 +31,21 @@ let rec eval (e : expr) (env: env) : value =
       | Add, VInt a, VInt b -> VInt (a + b)
       | Mult, VInt a, VInt b -> VInt (a * b)
       | Leq, VInt a, VInt b -> VBool (a <= b)
-      | _ -> raise (RuntimeError "Invalid bop"))
+      | _ -> raise (RuntimeError "Invalid bop args"))
   | If (e1, e2, e3) -> (
       match eval e1 env with
       | VBool true -> eval e2 env
       | VBool false -> eval e3 env
       | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
+  | Fun (x, body) -> Closure (x, body, env)
+  | App (e1, e2) -> (
+      match eval e1 env with
+      | Closure (x, body, defenv) -> 
+          let arg = eval e2 env in
+          eval body ((x, arg) :: defenv)
+      | _ -> raise (RuntimeError "Invalid application"))
 
-(** [repl ()] runs the interactive interpreter: it parses a line, evaluates
-    it in the empty environment, prints the resulting value, and repeats until
-    a blank line is provided. *)
 let rec repl () =
   print_string "> ";
   flush stdout;
@@ -61,10 +54,17 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
+        (* type-checking before evaluation *)
+        let inferred_type = infer expr in
         let value = eval expr [] in
-        print_endline (string_of_val value);
+        Printf.printf "- : %s = %s\n"
+          (string_of_type inferred_type)
+          (string_of_val value);
         repl ()
       with
+      | TypeError msg ->
+          Printf.printf "Type Error: %s\n" msg;
+          repl ()
       | RuntimeError msg ->
           Printf.printf "Runtime Error: %s\n" msg;
           repl ()

@@ -158,7 +158,6 @@ e -> e'      & wide e "reduces to" e' "in one step" \
 e cancel(->) & wide e "cannot be further reduced"\
 e ~> v       & wide e "reduces to" v "in zero or more steps" \
 e bstep v    & wide e "evaluates to" v\
-e : t        & wide e "has type" t
 $
 ```
 
@@ -240,9 +239,9 @@ Values cannot be further reduced!
 
 ```typst +render +width:70%
 $
-"INT" (i : "int") / (i cancel(->)) wide
+"INT" (i in ZZ) / (i cancel(->)) wide
 
-"BOOL" (b : "bool") / (b cancel(->)) wide
+"BOOL" (b in {"true", "false"}) / (b cancel(->)) wide
 $
 ```
 
@@ -323,15 +322,54 @@ $
 $
 ```
 
-<!-- pause -->
+---
+
+# Substitution Model Evaluation
+
+## Small-Step Semantics
+
+### Binary Operations
+
+```ocaml {8-13}
+let rec step : expr -> expr option = function
+  | Binop (bop, e1, e2) -> (
+      match step e1 with
+      | Some e1' -> Some (Binop (bop, e1', e2))
+      | None -> (
+          match step e2 with
+          | Some e2' -> Some (Binop (bop, e1, e2'))
+          | None -> (
+              match (bop, e1, e2) with
+              | Add, Int a, Int b  -> Some (Int (a + b))
+              | Mult, Int a, Int b -> Some (Int (a * b))
+              | Leq, Int a, Int b  -> Some (Bool (a <= b))
+              | _ -> (* how might we get here? *))))
+```
+
+---
+
+# Substitution Model Evaluation
+
+## Small-Step Semantics
+
+### Binary Operations
+
+Our first runtime error!
 
 ```ocaml
+exception RuntimeError
+
 match (bop, e1, e2) with
-| Add,  Int a, Int b -> Some (Int (a + b))
+| Add, Int a, Int b  -> Some (Int (a + b))
 | Mult, Int a, Int b -> Some (Int (a * b))
-| Leq,  Int a, Int b -> Some (Bool (a <= b))
-| _ -> failwith "Invalid operands"
+| Leq, Int a, Int b  -> Some (Bool (a <= b))
+| _ -> raise (RuntimeError "Invalid bop operands"))))
 ```
+
+<!-- pause -->
+
+This could be avoided if we performed *type checking* on the AST prior to
+evaluation. We'll tackle this later.
 
 ---
 
@@ -388,7 +426,7 @@ let rec step : expr -> expr option = function
           match e1 with
           | Bool true -> Some e2
           | Bool false -> Some e3
-          | _ -> failwith "Invalid guard expression"))
+          | _ -> raise (RuntimeError "Invalid guard")))
 ```
 
 ---
@@ -529,9 +567,9 @@ Unlike with small-step semantics, values just evaluate to themselves.
 $
 #let bstep = sym.arrow.b.double
 
-"INT" & (i : "int")/(i bstep i) wide
+"INT" & (i in ZZ)/(i bstep i) wide
 
-"BOOL" (b : "bool")/(b bstep b) wide
+"BOOL" (b in {"true", "false"})/(b bstep b) wide
 $
 ```
 
@@ -589,7 +627,7 @@ let rec eval e = match e with
       | Add,  Int a, Int b -> Int (a + b)
       | Mult, Int a, Int b -> Int (a * b)
       | Leq,  Int a, Int b -> Bool (a <= b)
-      | _ -> failwith "Invalid operands")
+      | _ -> raise (RuntimeError "Invalid bop operands"))
 ```
 
 ---
@@ -633,7 +671,7 @@ let rec eval e = match e with
       match eval e1 with
       | Bool true  -> eval e2
       | Bool false -> eval e3
-      | _ -> failwith "Invalid guard expression")
+      | _ -> raise (RuntimeError "Invalid guard"))
 ```
 
 ---
@@ -692,18 +730,18 @@ $
 let rec eval (e : expr) : expr =
   match e with
   | Int _ | Bool _ -> e
-  | Var _ -> failwith "Unbound variable"
+  | Var _ -> raise (RuntimeError "Unbound variable")
   | Binop (bop, e1, e2) -> (
       match (bop, eval e1, eval e2) with
       | Add, Int a, Int b -> Int (a + b)
       | Mult, Int a, Int b -> Int (a * b)
       | Leq, Int a, Int b -> Bool (a <= b)
-      | _ -> failwith "Invalid operands")
+      | _ -> raise (RuntimeError "Invalid bop operands"))
   | If (e1, e2, e3) -> (
       match eval e1 with
       | Bool true -> eval e2
       | Bool false -> eval e3
-      | _ -> failwith "Invalid guard expression")
+      | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 ```
 
@@ -804,21 +842,6 @@ state(e,sigma) bstep v    & wide e "in" sigma "evaluates to value" v\
 $
 ```
 
-<!-- pause -->
-
-For imperative constructs (which SimPL does not have), evaluating a statement
-*s* updates the environment.
-
-```typst +render +width:80%
-#let bstep = sym.arrow.b.double
-#let state(e,s) = { $angle.l #e,#s angle.r$ }
-
-$
-state(s,sigma) -> sigma'    & wide s "updates" sigma "to" sigma'\
-state(s,sigma) bstep sigma' & wide s "in" sigma "terminates with" sigma'\
-$
-```
-
 ---
 
 # Environment Model Evaluation
@@ -899,9 +922,9 @@ y*x+z            env=[(z,32);(y,6);(x,5)]
 #let state(e,s) = { $angle.l #e,#s angle.r$ }
 
 $
-"INT" & (i : "int")/(state(i,sigma) bstep i) wide
+"INT" & (i in ZZ)/(state(i,sigma) bstep i) wide
 
-"BOOL" (b : "bool")/(state(b,sigma) bstep b) wide
+"BOOL" (b in {"true", "false"})/(state(b,sigma) bstep b) wide
 $
 ```
 

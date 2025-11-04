@@ -6,7 +6,6 @@ let parse (s : string) : expr =
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
-
 type env = (string * value) list
 and value = VInt of int
           | VBool of bool
@@ -15,10 +14,7 @@ and value = VInt of int
 let string_of_val : value -> string = function
   | VInt n -> string_of_int n
   | VBool b -> string_of_bool b
-  | Closure _ -> "<fn>"
-
-type scope_rule = Lexical | Dynamic
-let scope = Lexical
+  | Closure _ -> "<fun>"
 
 exception RuntimeError of string
 
@@ -35,7 +31,7 @@ let rec eval (e : expr) (env: env) : value =
       | Add, VInt a, VInt b -> VInt (a + b)
       | Mult, VInt a, VInt b -> VInt (a * b)
       | Leq, VInt a, VInt b -> VBool (a <= b)
-      | _ -> raise (RuntimeError "Invalid bop"))
+      | _ -> raise (RuntimeError "Invalid bop args"))
   | If (e1, e2, e3) -> (
       match eval e1 env with
       | VBool true -> eval e2 env
@@ -45,13 +41,9 @@ let rec eval (e : expr) (env: env) : value =
   | Fun (x, _, body) -> Closure (x, body, env)
   | App (e1, e2) -> (
       match eval e1 env with
-      | Closure (x, body, defenv) -> (
+      | Closure (x, body, defenv) -> 
           let arg = eval e2 env in
-          let base_env = match scope with
-            | Lexical -> defenv
-            | Dynamic -> env in
-          let cenv = (x, arg) :: base_env in
-          eval body cenv)
+          eval body ((x, arg) :: defenv)
       | _ -> raise (RuntimeError "Invalid application"))
 
 let rec repl () =
@@ -62,6 +54,7 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
+        (* type-checking before evaluation *)
         let typ = typeof expr [] in
         let value = eval expr [] in
         Printf.printf "- : %s = %s\n"
@@ -71,6 +64,9 @@ let rec repl () =
       with
       | TypeError msg ->
           Printf.printf "Type Error: %s\n" msg;
+          repl ()
+      | RuntimeError msg ->
+          Printf.printf "Runtime Error: %s\n" msg;
           repl ()
       | Parser.Error ->
           print_endline "Parse error.";
