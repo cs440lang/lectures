@@ -72,7 +72,7 @@ can prevent the evaluation of programs that are doomed to fail.
 <!-- pause -->
 
 Just as evaluation uses a dynamic environment (`σ`) that maps variables to
-values, type checking uses a static environment (`Γ`) -- aka typing context ---
+values, type checking uses a static environment (`Γ`) -- aka typing context --
 that maps variables to *types*.
 
 ---
@@ -104,7 +104,7 @@ Static semantics focuses on types, contexts, and related assertions/judgments.
 
 <!-- pause -->
 
-A type-checker tries to derive the judgment `Γ ⊢ e : τ` for program `e`. If it
+A type-checker tries to prove the judgment `⊢ e : τ` for program `e`. If it
 succeeds, the program is *well-typed*, else it is *ill-typed*.
 
 ---
@@ -318,6 +318,35 @@ $
 
 ---
 
+# Type Checking in the Interpreter
+
+<!-- pause -->
+
+We define a new type of exception:
+
+```ocaml
+exception TypeError of string
+```
+
+<!-- pause -->
+
+Our REPL type-checks before evaluation. `TypeError`s will prevent ill-typed
+programs from being evaluated.
+
+```ocaml {3,8-9}
+try
+  let expr = parse line in
+  let typ = typeof expr [] in
+  let value = eval expr [] in
+  Printf.printf "- : %s = %s\n"
+    (string_of_type typ) (string_of_val value);
+with
+| TypeError msg ->
+    Printf.printf "Type Error: %s\n" msg;
+```
+
+---
+
 # Static Semantics Rules
 
 ## Binary Operators
@@ -387,6 +416,28 @@ $
       if t2 = t3 then t3
       else raise (TypeError "Branches don't match")
 ```
+
+---
+
+# Static Semantics Rules
+
+## `if-then-else`
+
+Why do the branches need to agree? Is this program stuck?
+
+`if 1 <= 2 then 5 else false`
+
+<!-- pause -->
+
+How about this?
+
+`if (if 1 <= 2 then 5 else false) then 10 else 20`
+
+<!-- pause -->
+
+Type checkers ignore dynamic semantics. They must be *conservative*: every
+subexpression -- even those never evaluated -- must be well-typed for the
+program to be well-typed.
 
 ---
 
@@ -478,27 +529,75 @@ $
     let t1 = typeof e1 tenv in
     let t2 = typeof e2 tenv in
     match t1 with
-    | TFun (t, t') when t = t2 -> t'
-    | _ -> raise (TypeError "Function and argument don't match"))
+    | TFun (t, t') ->
+        if t = t2 then t'
+        else raise (TypeError "Function/Arg type mismatch")
+    | _ -> raise (TypeError "Non-function type being applied"))
 ```
 
 ---
 
-# Type Checking Before Evaluation
+# Typing Proofs
 
-Our evaluator now consults the type checker before running a program, ensuring
-that only well-typed expressions are evaluated at runtime.
+Using the typing rules, how can we prove the following programs are well-typed?
 
-```ocaml {3,8-9}
-try
-  let expr = parse line in
-  let typ = typeof expr [] in
-  let value = eval expr [] in
-  Printf.printf "- : %s = %s\n"
-    (string_of_type typ) (string_of_val value);
-with
-| TypeError msg ->
-    Printf.printf "Type Error: %s\n" msg;
+- `2 * (3 + 4)`
+
+- `if 2 <= 3 then 10 else 20`
+
+- `let f=fun x:int -> x * 10 in f (1 + 2)`
+
+---
+
+# Proof Trees
+
+```typst +render +width:100%
+#let bop = sym.plus.circle
+#let tstile = sym.tack.r
+#let mapto = sym.arrow.r.bar
+#let bstep = sym.arrow.b.double
+#let state(e, s) = { $angle.l #e,#s angle.r$ }
+
+#let nonumeq = math.equation.with(block: true, numbering: none)
+#let dm(x) = box[#nonumeq[#x]]
+#let dfrac(x, y) = math.frac(dm(x), dm(y))
+
+#show math.equation.where(block: true): set par(leading: 2em)
+
+$
+  "BOP-I" dfrac(
+    bop in {*,+} quad
+    "INT" dfrac(, Gamma tstile 2 : "int") wide
+    "BOP-I" dfrac(bop in {*,+}
+                  quad "INT" dfrac(, Gamma tstile 3 : "int")
+                  quad "INT" dfrac(, Gamma tstile 4 : "int"),
+                  Gamma tstile 3+4 : "int"),
+    Gamma tstile 2 * (3+4) : "int"
+  )\
+
+  #v(1cm) 
+
+  "IF" dfrac(
+    "BOP-B" dfrac(bop in {<=}
+                  wide "INT" dfrac(, Gamma tstile 2 : "int")
+                  wide "INT" dfrac(, Gamma tstile 3 : "int"),
+                  Gamma tstile 2 <= 3 : "bool")
+    wide quad "INT" dfrac(, Gamma tstile 10 : "int")
+         quad "INT" dfrac(, Gamma tstile 20 : "int"),
+    Gamma tstile "if" 2 <= 3 "then" 10 "else" 20 : "int"
+  )
+$
+```
+
+---
+
+# Demo
+
+```ocaml
+dune utop
+
+# open L09_typecheck;;
+# Eval.repl ();;
 ```
 
 ---
@@ -525,4 +624,4 @@ id<Integer>(3)
 
 - no guarantee that the *most general type* is used -- only the one declared
 
-  - as can be algorithmically derived via type inference
+  - as can be algorithmically derived via *type inference* (coming next!)
