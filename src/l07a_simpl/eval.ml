@@ -5,6 +5,8 @@ let parse (s : string) : expr =
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
+(* Pretty-Printing ***********************************************************)
+
 let rec string_of_expr : expr -> string = function
   | Int n -> string_of_int n
   | Bool b -> string_of_bool b
@@ -20,6 +22,8 @@ let rec string_of_expr : expr -> string = function
       Printf.sprintf "(let %s = %s in %s)" x (string_of_expr e1)
         (string_of_expr e2)
 
+(* Substitution  *************************************************************)
+
 (* subst v x e = [v/x] e *)
 let rec subst (v : expr) (x : string) (e : expr) : expr =
   match e with
@@ -31,6 +35,8 @@ let rec subst (v : expr) (x : string) (e : expr) : expr =
   | Let (y, e1, e2) ->
       let e1' = subst v x e1 in
       if x = y then Let (y, e1', e2) else Let (y, e1', subst v x e2)
+
+(* Small-Step Evaluation *****************************************************)
 
 exception RuntimeError of string
 
@@ -68,7 +74,8 @@ let rec multistep (e : expr) : expr =
   print_endline (string_of_expr e);
   match step e with None -> e | Some e' -> multistep e'
 
-(* big-step reduction *)
+(* Big-Step Evaluation *******************************************************)
+
 let rec eval (e : expr) : expr =
   match e with
   | Int _ | Bool _ -> e
@@ -86,10 +93,8 @@ let rec eval (e : expr) : expr =
       | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 
-(* Read a line and Parse an expression out of it,
-   Evaluate it to a value,
-   Print the value,
-   Loop  *)
+(* REPL **********************************************************************)
+
 let rec repl () =
   print_string "> ";
   flush stdout;

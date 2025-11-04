@@ -1,0 +1,9 @@
+(library
+ (name l10_typeinfer)
+ (flags
+  (:standard -w -27-39)))
+
+(menhir
+ (modules parser))
+
+(ocamllex lexer)
