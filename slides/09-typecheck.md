@@ -18,11 +18,12 @@ author: "Michael Lee"
 # Dynamic Semantics
 
 Operational semantics specify *dynamic semantics*: they describe how evaluation
-proceeds step by step at *runtime* to obtain a final result.
+proceeds step by step at *runtime* to produce a final result.
 
 <!-- pause -->
 
-But situations arose where evaluation would get "stuck". E.g.,
+But situations arose where evaluation would get "stuck"; i.e., no evaluation
+rule could be applied. E.g.,
 
 ```ocaml {4,7,10,13}
 let rec eval (e : expr) (env: env) : value = match e with
@@ -76,9 +77,9 @@ that maps variables to *types*.
 
 ---
 
-# Typing Notation and Judgements
+# Typing Notation and Judgments
 
-Static semantics focuses on types, contexts, and related assertions/judgements.
+Static semantics focuses on types, contexts, and related assertions/judgments.
 
 ```typst +render +width:70%
 #let mapto = sym.arrow.r.bar
@@ -103,15 +104,15 @@ Static semantics focuses on types, contexts, and related assertions/judgements.
 
 <!-- pause -->
 
-A type-checker tries to derive the judgement `Γ ⊢ e : τ` for program `e`. If it
+A type-checker tries to derive the judgment `Γ ⊢ e : τ` for program `e`. If it
 succeeds, the program is *well-typed*, else it is *ill-typed*.
 
 ---
 
 # Type Systems as Proof Systems
 
-Type systems give us a mathematical way of proving that well-typed programs will
-not get stuck when run. This guarantee is called *type-safety*.
+Type systems provide a mathematical framework for proving that well-typed
+programs will not get stuck when run. This guarantee is called *type-safety*.
 
 <!-- pause -->
 
@@ -145,9 +146,9 @@ Type safety guarantees that *well-typed programs won't get stuck*.
 
 But it doesn't say that:
 
-- programs that don't get stuck are well-typed
+- Every non-stuck program is well-typed.
 
-- well-typed programs will terminate
+- Every well-typed programs will terminate.
 
 <!-- pause -->
 
@@ -395,7 +396,7 @@ $
 
 <!-- pause -->
 
-We don't require `let` variables to be declared. We can perform *local
+`let` bindings need not be explicitly annotated. We can perform *local
 inference* to compute their types and extend the environment.
 
 ```typst +render +width:80%
@@ -486,7 +487,7 @@ $
 # Type Checking Before Evaluation
 
 Our evaluator now consults the type checker before running a program, ensuring
-only well-typed expressions reach the dynamic semantics.
+that only well-typed expressions are evaluated at runtime.
 
 ```ocaml {3,8-9}
 try
@@ -508,11 +509,11 @@ with
 
 Explicit type checking is simple, predictable, and fast, but ...
 
-- programmers must write comprehensive and verbose type annotations
+- programmers must write verbose type annotations, even when obvious
 
   - increasingly annoying with complex features (e.g., lists, HOFs)
 
-- polymorphic types can only be supported if explicitly quantified on use
+- polymorphic types require explicit quantification or type args on use
 
   - e.g., specifying type parameters with Java/C#/TypeScript generics
 
@@ -522,6 +523,6 @@ Explicit type checking is simple, predictable, and fast, but ...
 id<Integer>(3)
 ```
 
-- no guarantee that "optimal" types are used (e.g., most *general* type)
+- no guarantee that the *most general type* is used -- only the one declared
 
   - as can be algorithmically derived via type inference
