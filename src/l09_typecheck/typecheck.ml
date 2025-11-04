@@ -1,4 +1,5 @@
 open Ast
+
 type tenv = (string * typ) list
 
 exception TypeError of string
@@ -47,8 +48,10 @@ let rec typeof (e : expr) (tenv : tenv) =
       let t1 = typeof e1 tenv in
       let t2 = typeof e2 tenv in
       match t1 with
-      | TFun (t, t') when t = t2 -> t'
-      | _ -> raise (TypeError "Function and argument don't match"))
+      | TFun (t, t') ->
+          if t = t2 then t'
+          else raise (TypeError "Function/Arg type mismatch")
+      | _ -> raise (TypeError "Non-function type being applied"))
 
 let typecheck e =
   let _ = typeof e [] in e
