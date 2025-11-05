@@ -1,9 +1,9 @@
 #show heading: set block(below: 1em)
 
-#let bop = sym.plus.circle
+#let bop = sym.plus.o
 #let mapto = sym.arrow.r.bar
 #let bstep = sym.arrow.b.double
-#let state(e, s) = { $angle.l #e,#s angle.r$ }
+#let state(e, s) = { $chevron.l #e,#s chevron.r$ }
 
 #let nonumeq = math.equation.with(block: true, numbering: none)
 #let dm(x) = box[#nonumeq[#x]]

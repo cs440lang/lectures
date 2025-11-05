@@ -1,6 +1,6 @@
 #show heading: set block(below: 1em)
 
-#let bop = sym.plus.circle
+#let bop = sym.plus.o
 #let mapto = sym.arrow.r.bar
 #let tstile = sym.tack.r
 #let rtstile = sym.tack.l
