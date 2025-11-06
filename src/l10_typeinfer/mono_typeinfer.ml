@@ -5,20 +5,8 @@ exception TypeError of string
 type type_variable = int
 type typ = TInt | TBool | TFun of typ * typ | TVar of type_variable
 type type_env = (string * typ) list
+type type_constraint = typ * typ
 type substitution = (type_variable * typ) list
-
-(* Fresh type variables                                                      *)
-
-let fresh_type_variable =
-  let counter = ref 0 in
-  fun () ->
-    let v = !counter in
-    incr counter;
-    v
-
-let fresh_type () = TVar (fresh_type_variable ())
-
-(* Pretty-printing                                                           *)
 
 let rec string_of_type = function
   | TInt -> "int"
@@ -32,15 +20,73 @@ let rec string_of_type = function
       in
       Printf.sprintf "%s -> %s" lhs (string_of_type t2)
 
-(* Substitutions                                                             *)
-
-let empty_subst : substitution = []
-
 let rec string_of_subst = function
   | [] -> ""
   | (n, typ) :: ss ->
       let s = Printf.sprintf "'a%d = %s\n" n (string_of_type typ) in
       s ^ string_of_subst ss
+
+let string_of_constraint (lhs, rhs) =
+  Printf.sprintf "%s ~ %s" (string_of_type lhs) (string_of_type rhs)
+
+let fresh_int =
+  let counter = ref 0 in
+  fun () ->
+    let v = !counter in
+    incr counter;
+    v
+
+let fresh_var () = TVar (fresh_int ())
+
+let lookup (tenv : type_env) (name : string) : typ =
+  match List.assoc_opt name tenv with
+  | Some typ -> typ
+  | None -> raise (TypeError (Printf.sprintf "Unbound variable %s" name))
+
+let rec collect_constraints_expr (tenv : type_env) (e : expr) :
+    typ * type_constraint list =
+  match e with
+  | Int _ -> (TInt, [])
+  | Bool _ -> (TBool, [])
+  | Var x -> (lookup tenv x, [])
+  | Binop (bop, e1, e2) -> (
+      let t1, c1 = collect_constraints_expr tenv e1 in
+      let t2, c2 = collect_constraints_expr tenv e2 in
+      match bop with
+      | Add | Mult ->
+          let constraints = c1 @ c2 @ [ (t1, TInt); (t2, TInt) ] in
+          (TInt, constraints)
+      | Leq ->
+          let constraints = c1 @ c2 @ [ (t1, TInt); (t2, TInt) ] in
+          (TBool, constraints))
+  | If (e1, e2, e3) ->
+      let t = fresh_var () in
+      let t1, c1 = collect_constraints_expr tenv e1 in
+      let t2, c2 = collect_constraints_expr tenv e2 in
+      let t3, c3 = collect_constraints_expr tenv e3 in
+      let constraints =
+        c1 @ c2 @ c3 @ [ (t1, TBool); (t, t2); (t, t3) ]
+      in
+      (t, constraints)
+  | Let (x, e1, e2) ->
+      let t1, c1 = collect_constraints_expr tenv e1 in
+      let t2, c2 = collect_constraints_expr ((x, t1) :: tenv) e2 in
+      (t2, c1 @ c2)
+  | Fun (x, e) ->
+      let tx = fresh_var () in
+      let env = (x, tx) :: tenv in
+      let te, constraints = collect_constraints_expr env e in
+      (TFun (tx, te), constraints)
+  | App (e1, e2) ->
+      let t = fresh_var () in
+      let t1, c1 = collect_constraints_expr tenv e1 in
+      let t2, c2 = collect_constraints_expr tenv e2 in
+      let constraints =
+        c1 @ c2 @ [ (t1, TFun (t2, t)) ]
+      in
+      (t, constraints)
+
+let empty_subst : substitution = []
 
 let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
   match ty with
@@ -55,27 +101,9 @@ let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
       | None -> TVar v
       | Some ty' -> apply_subst_type subst ty')
 
-let apply_subst_env (subst : substitution) (env : type_env) : type_env =
-  List.map (fun (name, typ) -> (name, apply_subst_type subst typ)) env
-
 let compose_subst (s2 : substitution) (s1 : substitution) : substitution =
   let s1' = List.map (fun (v, ty) -> (v, apply_subst_type s2 ty)) s1 in
   s2 @ s1'
-
-(* Free type variables                                                       *)
-
-module IntSet = Set.Make (Int)
-
-let rec free_type_vars_type = function
-  | TInt | TBool -> IntSet.empty
-  | TVar v -> IntSet.singleton v
-  | TFun (t1, t2) ->
-      IntSet.union (free_type_vars_type t1) (free_type_vars_type t2)
-
-let lookup (tenv : type_env) (name : string) : typ =
-  match List.assoc_opt name tenv with
-  | Some typ -> typ
-  | None -> raise (TypeError (Printf.sprintf "Unbound variable %s" name))
 
 let rec occurs (v : type_variable) = function
   | TInt | TBool -> false
@@ -110,68 +138,14 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
            (Printf.sprintf "Type mismatch: %s vs %s" (string_of_type t1)
               (string_of_type t2)))
 
-let rec infer_expr (tenv : type_env) (e : expr) : substitution * typ =
-  match e with
-  | Int _ -> (empty_subst, TInt)
-  | Bool _ -> (empty_subst, TBool)
-  | Var name -> (empty_subst, lookup tenv name)
-  | Binop (bop, e1, e2) ->
-      let s1, t1 = infer_expr tenv e1 in
-      let env1 = apply_subst_env s1 tenv in
-      let s2, t2 = infer_expr env1 e2 in
-      let operand_type = apply_subst_type s2 t1 in
-      let combined = compose_subst s2 s1 in
-      begin match bop with
-      | Add | Mult ->
-          let s3 = unify operand_type TInt in
-          let s4 = unify (apply_subst_type s3 t2) TInt in
-          let subst = compose_subst s4 (compose_subst s3 combined) in
-          (subst, apply_subst_type subst TInt)
-      | Leq ->
-          let s3 = unify operand_type TInt in
-          let s4 = unify (apply_subst_type s3 t2) TInt in
-          let subst = compose_subst s4 (compose_subst s3 combined) in
-          (subst, apply_subst_type subst TBool)
-      end
-  | If (guard, then_branch, else_branch) ->
-      let s1, t_guard = infer_expr tenv guard in
-      let env1 = apply_subst_env s1 tenv in
-      let s_bool = unify t_guard TBool in
-      let env2 = apply_subst_env s_bool env1 in
-      let s_then, t_then = infer_expr env2 then_branch in
-      let env3 = apply_subst_env s_then env2 in
-      let s_else, t_else = infer_expr env3 else_branch in
-      let s_branch = unify (apply_subst_type s_else t_then) t_else in
-      let subst =
-        compose_subst s_branch
-          (compose_subst s_else
-             (compose_subst s_then (compose_subst s_bool s1)))
-      in
-      (subst, apply_subst_type subst t_else)
-  | Let (name, value_expr, body_expr) ->
-      let s1, value_type = infer_expr tenv value_expr in
-      let env1 = apply_subst_env s1 tenv in
-      let s2, body_type = infer_expr ((name, value_type) :: env1) body_expr in
-      let subst = compose_subst s2 s1 in
-      (subst, apply_subst_type subst body_type)
-  | Fun (param, body) ->
-      let param_type = fresh_type () in
-      let env = (param, param_type) :: tenv in
-      let s_body, body_type = infer_expr env body in
-      let param_type' = apply_subst_type s_body param_type in
-      let subst = s_body in
-      let fn_type = TFun (param_type', body_type) in
-      (subst, apply_subst_type subst fn_type)
-  | App (fn, arg) ->
-      let s_fn, fn_type = infer_expr tenv fn in
-      let env1 = apply_subst_env s_fn tenv in
-      let s_arg, arg_type = infer_expr env1 arg in
-      let result_type = fresh_type () in
-      let s_unify =
-        unify (apply_subst_type s_arg fn_type) (TFun (arg_type, result_type))
-      in
-      let subst = compose_subst s_unify (compose_subst s_arg s_fn) in
-      (subst, apply_subst_type subst result_type)
+let solve_constraints (constraints : type_constraint list) : substitution =
+  List.fold_left
+    (fun subst (lhs, rhs) ->
+      let lhs' = apply_subst_type subst lhs in
+      let rhs' = apply_subst_type subst rhs in
+      let new_subst = unify lhs' rhs' in
+      compose_subst new_subst subst)
+    empty_subst constraints
 
 let rec repl () =
   print_string "> ";
@@ -181,7 +155,18 @@ let rec repl () =
   | line -> (
       try
         let e = Eval.parse line in
-        let subst, typ = infer_expr [] e in
+        let raw_type, constraints = collect_constraints_expr [] e in
+        if constraints <> [] then (
+          Printf.printf "Raw type: %s\n"
+            (string_of_type raw_type);
+          print_endline "Constraints:";
+          List.iteri
+            (fun idx constraint_eq ->
+              Printf.printf "C%d: %s\n" (idx + 1)
+                (string_of_constraint constraint_eq))
+            constraints );
+        let subst = solve_constraints constraints in
+        let typ = apply_subst_type subst raw_type in
         print_string (string_of_subst subst);
         Printf.printf "- : %s\n" (string_of_type typ);
         repl ()
