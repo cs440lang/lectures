@@ -1,15 +1,11 @@
 open Ast
-open Typeinfer
+open Poly_typeinfer
 
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
-(* adding closures as a value type, which contains
-   - a bound variable,
-   - an expression (the body),
-   - and an environment  *)
 type env = (string * value) list
 and value = VInt of int
           | VBool of bool
@@ -19,11 +15,6 @@ let string_of_val : value -> string = function
   | VInt n -> string_of_int n
   | VBool b -> string_of_bool b
   | Closure _ -> "<fun>"
-
-(* for easily switching between scoping strategy,
-   as applied to functions *)
-type scope_rule = Lexical | Dynamic
-let scope = Lexical
 
 exception RuntimeError of string
 
@@ -40,35 +31,21 @@ let rec eval (e : expr) (env: env) : value =
       | Add, VInt a, VInt b -> VInt (a + b)
       | Mult, VInt a, VInt b -> VInt (a * b)
       | Leq, VInt a, VInt b -> VBool (a <= b)
-      | _ -> raise (RuntimeError "Invalid bop"))
+      | _ -> raise (RuntimeError "Invalid bop args"))
   | If (e1, e2, e3) -> (
       match eval e1 env with
       | VBool true -> eval e2 env
       | VBool false -> eval e3 env
       | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
-
-  (* evaluating a function gives us a closure *)
   | Fun (x, body) -> Closure (x, body, env)
-
-  (* application requires a closure on the left,
-     whose body is evaluated with its variable
-     bound to the argument in the environment *)
   | App (e1, e2) -> (
       match eval e1 env with
-      | Closure (x, body, defenv) -> (
+      | Closure (x, body, defenv) -> 
           let arg = eval e2 env in
-          let base_env = match scope with
-            | Lexical -> defenv
-            | Dynamic -> env in
-          let cenv = (x, arg) :: base_env in
-          eval body cenv)
+          eval body ((x, arg) :: defenv)
       | _ -> raise (RuntimeError "Invalid application"))
 
-(* Read a line and Parse an expression out of it,
-   Evaluate it to a value,
-   Print the value,
-   Loop  *)
 let rec repl () =
   print_string "> ";
   flush stdout;
@@ -77,6 +54,7 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
+        (* type-checking before evaluation *)
         let inferred_type = infer expr in
         let value = eval expr [] in
         Printf.printf "- : %s = %s\n"
