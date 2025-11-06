@@ -36,20 +36,47 @@ let fresh_type () = TVar (fresh_int ())
 
 (* Pretty-printing                                                           *)
 
-(* [string_of_type ty] produces an OCaml-like string for a type.  Example:
-   [string_of_type (TFun (TInt, TFun (TVar 1, TBool)))] returns
-   ["int -> 'a1 -> bool"].  Parentheses are inserted only when necessary. *)
-let rec string_of_type = function
-  | TInt -> "int"
-  | TBool -> "bool"
-  | TVar n -> Printf.sprintf "'a%d" n
+(* [collect_type_vars ty acc] gathers type variables in [ty] following their
+   order of appearance so that we can assign prettified names deterministically. *)
+let rec collect_type_vars ty acc =
+  match ty with
+  | TInt | TBool -> acc
+  | TVar v ->
+      if List.mem v acc then acc else acc @ [ v ]
   | TFun (t1, t2) ->
-      let lhs =
-        match t1 with
-        | TFun _ -> Printf.sprintf "(%s)" (string_of_type t1)
-        | _ -> string_of_type t1
-      in
-      Printf.sprintf "%s -> %s" lhs (string_of_type t2)
+      let acc' = collect_type_vars t1 acc in
+      collect_type_vars t2 acc'
+
+(* [name_of_index i] maps 0 -> ['a], 1 -> ['b], ..., 26 -> ['a1], etc. *)
+let name_of_index idx =
+  let base = Char.code 'a' in
+  let letter = Char.chr (base + (idx mod 26)) in
+  if idx < 26 then Printf.sprintf "'%c" letter
+  else Printf.sprintf "'%c%d" letter (idx / 26)
+
+(* [string_of_type ty] produces an OCaml-style string using the naming scheme
+   ['a], ['b], ..., ['a1], ['b1], ... based on first appearance in [ty].
+   Example: [string_of_type (TFun (TVar 2, TFun (TVar 0, TVar 2)))]
+   prints ["'a -> 'b -> 'a"]. *)
+let string_of_type ty =
+  let vars = collect_type_vars ty [] in
+  let mapping = List.mapi (fun idx v -> (v, name_of_index idx)) vars in
+  let rec to_string = function
+    | TInt -> "int"
+    | TBool -> "bool"
+    | TVar v -> (
+        match List.assoc_opt v mapping with
+        | Some name -> name
+        | None -> "'_" )
+    | TFun (t1, t2) ->
+        let lhs =
+          match t1 with
+          | TFun _ -> Printf.sprintf "(%s)" (to_string t1)
+          | _ -> to_string t1
+        in
+        Printf.sprintf "%s -> %s" lhs (to_string t2)
+  in
+  to_string ty
 
 (* Substitutions                                                             *)
 
