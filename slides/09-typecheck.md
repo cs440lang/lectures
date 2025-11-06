@@ -541,13 +541,13 @@ $
 
 Using the typing rules, how can we prove the following programs are well-typed?
 
-- `2 * (3 + 4)`
+- `2 <= (3 + 4)`
 
-- `if 2 <= 3 then 10 else 20`
+- `let x=5 in if x <= 10 then 20 else x`
 
 - `let f=fun x:int -> x * 10 in f (1 + 2)`
 
----
+<!-- pause -->
 
 # Proof Trees
 
@@ -565,26 +565,14 @@ Using the typing rules, how can we prove the following programs are well-typed?
 #show math.equation.where(block: true): set par(leading: 2em)
 
 $
-  "BOP-I" dfrac(
+  "BOP-B" dfrac(
     bop in {*,+} quad
-    "INT" dfrac(, Gamma tstile 2 : "int") wide
+    "INT" dfrac(, tstile 2 : "int") wide
     "BOP-I" dfrac(bop in {*,+}
-                  quad "INT" dfrac(, Gamma tstile 3 : "int")
-                  quad "INT" dfrac(, Gamma tstile 4 : "int"),
-                  Gamma tstile 3+4 : "int"),
-    Gamma tstile 2 * (3+4) : "int"
-  )\
-
-  #v(1cm) 
-
-  "IF" dfrac(
-    "BOP-B" dfrac(bop in {<=}
-                  wide "INT" dfrac(, Gamma tstile 2 : "int")
-                  wide "INT" dfrac(, Gamma tstile 3 : "int"),
-                  Gamma tstile 2 <= 3 : "bool")
-    wide quad "INT" dfrac(, Gamma tstile 10 : "int")
-         quad "INT" dfrac(, Gamma tstile 20 : "int"),
-    Gamma tstile "if" 2 <= 3 "then" 10 "else" 20 : "int"
+                  quad "INT" dfrac(, tstile 3 : "int")
+                  quad "INT" dfrac(, tstile 4 : "int"),
+                  tstile 3+4 : "int"),
+    tstile 2 <= (3+4) : "bool"
   )
 $
 ```
