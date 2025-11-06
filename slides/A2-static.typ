@@ -42,14 +42,13 @@ signatures. $Gamma$ denotes a typing context.
     is not used elsewhere],
 )
 
-#pagebreak()
+#v(1em)
 
 == Type Checking
 
-In our type-checked language, unlike SimPL and MiniML, functions must declare
-their parameter types explicitly. I.e., functions are defined thusly:
-`fun var : type -> body`. This is reflected in the "FUN" rule, below.
-
+In our type-checked language, unlike SimPL and MiniML, functions declare
+their parameter types explicitly. E.g., `fun var : type -> body`. This is
+reflected in the "FUN" rule, below.
 
 $
      "INT" & () / (Gamma tstile i in ZZ : "int") \
@@ -94,48 +93,74 @@ $
 The rules below are for type inference of MiniML.
 
 $
-     "INT" & () / (Gamma tstile i in ZZ : "int" rtstile {}) \
-           \
-  "BOOL-T" & () / (Gamma tstile "true" : "bool" rtstile {}) \
-           \
-  "BOOL-F" & () / (Gamma tstile "false" : "bool" rtstile {}) \
-           \
-     "VAR" & (Gamma(x) = tau) / (Gamma tstile x : tau rtstile {}) \
-           \
-   "BOP-I" & (bop in {+,*}
-             quad Gamma tstile e_1 : tau_1 rtstile C_1
-             quad Gamma tstile e_2 : tau_2 rtstile C_2)
-             / (Gamma tstile e_1 bop e_2 : "int"
-             rtstile C_1 union C_2
-             union { tau_1 = "int", tau_2 = "int"}) \
-           \
-   "BOP-B" & (quad Gamma tstile e_1 : tau_1 rtstile C_1
-             quad Gamma tstile e_2 : tau_2 rtstile C_2)
-             / (Gamma tstile e_1 <= e_2 : "bool"
-             rtstile C_1 union C_2
-             union { tau_1 = "int", tau_2 = "int"}) \
-           \
-      "IF" & ("fresh" alpha
-             quad Gamma tstile e_1 : tau_1 rtstile C_1
-             quad Gamma tstile e_2 : tau_2 rtstile C_2
-             quad Gamma tstile e_3 : tau_3 rtstile C_3)
-             / (Gamma tstile "if" e_1 "then" e_2 "else" e_3 : alpha
-             rtstile C_1 union C_2 union C_3
-             union { tau_1 = "bool", alpha=tau_2, alpha=tau_3}) \
-           \
-     "FUN" & ("fresh" alpha
-             quad Gamma[x mapto alpha] tstile e : tau rtstile C)
-             / (Gamma tstile "fun" x "->" e : alpha -> tau
-             rtstile C) \
-           \
-     "APP" & ("fresh" alpha
-             quad Gamma tstile e_1 : tau_1 rtstile C_1
-             quad Gamma tstile e_2 : tau_2 rtstile C_2)
-             / (Gamma tstile e_1 e_2 : alpha rtstile C_1 union C_2
-             union { tau_1 = tau_2 -> alpha}) \
-           \
+       "INT" & () / (Gamma tstile i in ZZ : "int" rtstile {}) \
+             \
+    "BOOL-T" & () / (Gamma tstile "true" : "bool" rtstile {}) \
+             \
+    "BOOL-F" & () / (Gamma tstile "false" : "bool" rtstile {}) \
+             \
+       "VAR" & (Gamma(x) = tau) / (Gamma tstile x : tau rtstile {}) \
+             \
+     "BOP-I" & (bop in {+,*}
+               quad Gamma tstile e_1 : tau_1 rtstile C_1
+               quad Gamma tstile e_2 : tau_2 rtstile C_2)
+               / (Gamma tstile e_1 bop e_2 : "int"
+               rtstile C_1 union C_2
+               union { tau_1 = "int", tau_2 = "int"}) \
+             \
+     "BOP-B" & (quad Gamma tstile e_1 : tau_1 rtstile C_1
+               quad Gamma tstile e_2 : tau_2 rtstile C_2)
+               / (Gamma tstile e_1 <= e_2 : "bool"
+               rtstile C_1 union C_2
+               union { tau_1 = "int", tau_2 = "int"}) \
+             \
+        "IF" & ("fresh" alpha
+               quad Gamma tstile e_1 : tau_1 rtstile C_1
+               quad Gamma tstile e_2 : tau_2 rtstile C_2
+               quad Gamma tstile e_3 : tau_3 rtstile C_3)
+               / (Gamma tstile "if" e_1 "then" e_2 "else" e_3 : alpha
+               rtstile C_1 union C_2 union C_3
+               union { tau_1 = "bool", alpha=tau_2, alpha=tau_3}) \
+             \
+       "FUN" & ("fresh" alpha
+               quad Gamma[x mapto alpha] tstile e : tau rtstile C)
+               / (Gamma tstile "fun" x "->" e : alpha -> tau
+               rtstile C) \
+             \
+       "APP" & ("fresh" alpha
+               quad Gamma tstile e_1 : tau_1 rtstile C_1
+               quad Gamma tstile e_2 : tau_2 rtstile C_2)
+               / (Gamma tstile e_1 e_2 : alpha rtstile C_1 union C_2
+               union { tau_1 = tau_2 -> alpha}) \
+             \
+  "LET-MONO" & (
+               Gamma tstile e_1 : tau_1 rtstile C_1
+               quad
+               Gamma[x mapto tau_1] tstile e_2 : tau_2 rtstile C_2
+               )/(
+               Gamma tstile "let" x = e_1 "in" e_2 : tau_2 rtstile C_1 union C_2
+               ) \
+             \
+  "LET-POLY" & (
+               Gamma tstile e_1 : tau_1 rtstile C_1
+               quad Gamma[x mapto pi_1] tstile e_2 : tau_2 rtstile C_2
+               ) / (
+               Gamma tstile "let" x = e_1 "in" e_2 : tau_2 rtstile C_1 union C_2
+               ) \
+             & "where" pi_1 = "Gen"(Gamma, tau_1) =
+               forall alpha_1, ..., alpha_n. tau_1
+               "and" alpha_i in ("FV"(tau_1) - "FV"(Gamma)) \
+             \
+      "INST" & (
+               Gamma(x) = forall alpha_1, ..., alpha_n. tau
+               quad
+               "fresh" beta_1, ..., beta_n
+               )/(
+               Gamma tstile x : [beta_i\/alpha_i](Gamma(x)) rtstile {}
+               )
   // "LET" & (Gamma tstile e_1 : tau_1 rtstile C_1
   // quad sigma = "unify"(C_1)
   // quad Gamma[ x mapto forall alpha . sigma(tau_1)] tstile e_2 : tau_2 rtstile C_2)
   // / (Gamma tstile "let" x = e_1 "in" e_2 : tau_2 rtstile C_1 union C_2)
 $
+
