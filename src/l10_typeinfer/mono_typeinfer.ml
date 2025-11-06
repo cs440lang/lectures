@@ -1,5 +1,12 @@
 open Ast
 
+(* This module implements a monomorphic variant of the type inference
+   machinery used in lecture. It mirrors the structure of the polymorphic
+   algorithm but drops generalisation/instantiation so that students can trace
+   constraint generation and unification in a simpler setting.  The REPL at the
+   bottom prints the raw constraints before solving, making it convenient for
+   hand-simulating each example discussed in class. *)
+
 exception TypeError of string
 
 type type_variable = int
