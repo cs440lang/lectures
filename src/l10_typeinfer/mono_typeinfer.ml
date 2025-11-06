@@ -8,6 +8,8 @@ type type_env = (string * typ) list
 type type_constraint = typ * typ
 type substitution = (type_variable * typ) list
 
+(* [string_of_type ty] renders [ty] in OCaml syntax, e.g.
+   [string_of_type (TFun (TInt, TVar 0))] = ["int -> 'a0"]. *)
 let rec string_of_type = function
   | TInt -> "int"
   | TBool -> "bool"
@@ -20,15 +22,23 @@ let rec string_of_type = function
       in
       Printf.sprintf "%s -> %s" lhs (string_of_type t2)
 
+(* [string_of_subst subst] pretty-prints the substitution, one binding per
+   line, e.g. [[ (0, TInt); (1, TBool) ]] becomes:
+   {'a0 = int
+    'a1 = bool}. *)
 let rec string_of_subst = function
   | [] -> ""
   | (n, typ) :: ss ->
       let s = Printf.sprintf "'a%d = %s\n" n (string_of_type typ) in
       s ^ string_of_subst ss
 
+(* [string_of_constraint (lhs, rhs)] shows a single equation such as
+   ["'a0 -> int ~ bool"]. *)
 let string_of_constraint (lhs, rhs) =
   Printf.sprintf "%s ~ %s" (string_of_type lhs) (string_of_type rhs)
 
+(* [fresh_int ()] supplies globally fresh integers; [fresh_var ()] wraps them
+   as type variables such as ['a3]. *)
 let fresh_int =
   let counter = ref 0 in
   fun () ->
@@ -38,11 +48,16 @@ let fresh_int =
 
 let fresh_var () = TVar (fresh_int ())
 
+(* [lookup env x] finds the monomorphic type of [x] or raises a helpful error
+   if [x] is unbound. *)
 let lookup (tenv : type_env) (name : string) : typ =
   match List.assoc_opt name tenv with
   | Some typ -> typ
   | None -> raise (TypeError (Printf.sprintf "Unbound variable %s" name))
 
+(* [collect_constraints_expr env e] walks [e], produces a raw type, and the
+   list of constraints needed to justify that type. All unifications are
+   deferred so that students can see the full system. *)
 let rec collect_constraints_expr (tenv : type_env) (e : expr) :
     typ * type_constraint list =
   match e with
@@ -64,9 +79,7 @@ let rec collect_constraints_expr (tenv : type_env) (e : expr) :
       let t1, c1 = collect_constraints_expr tenv e1 in
       let t2, c2 = collect_constraints_expr tenv e2 in
       let t3, c3 = collect_constraints_expr tenv e3 in
-      let constraints =
-        c1 @ c2 @ c3 @ [ (t1, TBool); (t, t2); (t, t3) ]
-      in
+      let constraints = c1 @ c2 @ c3 @ [ (t1, TBool); (t, t2); (t, t3) ] in
       (t, constraints)
   | Let (x, e1, e2) ->
       let t1, c1 = collect_constraints_expr tenv e1 in
@@ -81,13 +94,14 @@ let rec collect_constraints_expr (tenv : type_env) (e : expr) :
       let t = fresh_var () in
       let t1, c1 = collect_constraints_expr tenv e1 in
       let t2, c2 = collect_constraints_expr tenv e2 in
-      let constraints =
-        c1 @ c2 @ [ (t1, TFun (t2, t)) ]
-      in
+      let constraints = c1 @ c2 @ [ (t1, TFun (t2, t)) ] in
       (t, constraints)
 
 let empty_subst : substitution = []
 
+(* [apply_subst_type subst ty] replaces every variable mentioned in [subst]
+   throughout [ty].  Example: applying [[ (0, TInt) ]] to
+   [TFun (TVar 0, TVar 1)] results in [TFun (TInt, TVar 1)]. *)
 let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
   match ty with
   | TInt -> TInt
@@ -101,15 +115,23 @@ let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
       | None -> TVar v
       | Some ty' -> apply_subst_type subst ty')
 
+(* [compose_subst s2 s1] yields the substitution that first applies [s1] and
+   then [s2].  Example: composing [[ (0, TVar 1) ]] with [[ (1, TInt) ]]
+   produces [[ (1, TInt); (0, TInt) ]]. *)
 let compose_subst (s2 : substitution) (s1 : substitution) : substitution =
   let s1' = List.map (fun (v, ty) -> (v, apply_subst_type s2 ty)) s1 in
   s2 @ s1'
 
+(* [occurs v ty] implements the occurs check: it returns [true] if [v] appears
+   somewhere inside [ty], preventing equations such as ['a = 'a -> 'b]. *)
 let rec occurs (v : type_variable) = function
   | TInt | TBool -> false
   | TVar v' -> v = v'
   | TFun (t1, t2) -> occurs v t1 || occurs v t2
 
+(* [bind_variable v ty] produces the substitution linking [v] with [ty],
+   while refusing to construct infinite types.  Example:
+   [bind_variable 0 TInt] = [[ (0, TInt) ]]. *)
 let bind_variable (v : type_variable) (ty : typ) : substitution =
   match ty with
   | TVar v' when v = v' -> empty_subst
@@ -121,6 +143,9 @@ let bind_variable (v : type_variable) (ty : typ) : substitution =
                 (string_of_type (TVar v)) (string_of_type ty)))
       else [ (v, ty) ]
 
+(* [unify t1 t2] computes the substitution that makes [t1] and [t2] equal.
+   Example: unifying [TFun (TVar 0, TInt)] with [TFun (TBool, TVar 1)] yields
+   [[ (1, TInt); (0, TBool) ]]. *)
 let rec unify (t1 : typ) (t2 : typ) : substitution =
   match (t1, t2) with
   | TInt, TInt -> empty_subst
@@ -138,6 +163,10 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
            (Printf.sprintf "Type mismatch: %s vs %s" (string_of_type t1)
               (string_of_type t2)))
 
+(* [solve_constraints constraints] folds [unify] over the constraint list,
+   showing the order in which Algorithm W would solve them by hand.  Using
+   [[ (TVar 0, TInt); (TVar 0, TVar 1) ]] produces the substitution
+   [[ (1, TInt); (0, TInt) ]]. *)
 let solve_constraints (constraints : type_constraint list) : substitution =
   List.fold_left
     (fun subst (lhs, rhs) ->
@@ -147,6 +176,8 @@ let solve_constraints (constraints : type_constraint list) : substitution =
       compose_subst new_subst subst)
     empty_subst constraints
 
+(* A REPL that prints out the raw type and constraints for each expression
+   entered so we can double-check / attempt unification. *)
 let rec repl () =
   print_string "> ";
   flush stdout;
@@ -157,14 +188,13 @@ let rec repl () =
         let e = Eval.parse line in
         let raw_type, constraints = collect_constraints_expr [] e in
         if constraints <> [] then (
-          Printf.printf "Raw type: %s\n"
-            (string_of_type raw_type);
+          Printf.printf "Raw type: %s\n" (string_of_type raw_type);
           print_endline "Constraints:";
           List.iteri
             (fun idx constraint_eq ->
               Printf.printf "C%d: %s\n" (idx + 1)
                 (string_of_constraint constraint_eq))
-            constraints );
+            constraints);
         let subst = solve_constraints constraints in
         let typ = apply_subst_type subst raw_type in
         print_string (string_of_subst subst);

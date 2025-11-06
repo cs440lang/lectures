@@ -17,11 +17,11 @@ type substitution = (type_variable * typ) list
 
 (* Fresh type variables                                                      *)
 
-(* [fresh_type_variable ()] returns an integer identifier that is unique for
+(* [fresh_int ()] returns an integer identifier that is unique for
    every call during a single run.  This acts as the "name supply" in Algorithm
    W.  Example: calling it three times produces the sequence 0, 1, 2, which are
    later rendered as the schematic type variables `'a0`, `'a1`, ... *)
-let fresh_type_variable =
+let fresh_int =
   let counter = ref 0 in
   fun () ->
     let v = !counter in
@@ -32,7 +32,7 @@ let fresh_type_variable =
    fresh types when inferring the type of a function parameter or an unknown
    application result.  Example: [fresh_type ()] might yield [TVar 3], which
    stands in for the yet-unknown type `'a3`. *)
-let fresh_type () = TVar (fresh_type_variable ())
+let fresh_type () = TVar (fresh_int ())
 
 (* Pretty-printing                                                           *)
 
@@ -233,34 +233,34 @@ let rec infer_expr (tenv : type_env) (e : expr) : substitution * typ =
   match e with
   | Int _ -> (empty_subst, TInt)
   | Bool _ -> (empty_subst, TBool)
-  | Var name ->
-      let scheme = lookup tenv name in
+  | Var x ->
+      let scheme = lookup tenv x in
       (empty_subst, instantiate scheme)
-  | Let (name, value_expr, body_expr) ->
-      let s1, value_type = infer_expr tenv value_expr in
+  | Let (name, e1, e2) ->
+      let s1, t1 = infer_expr tenv e1 in
       let env1 = apply_subst_env s1 tenv in
-      let scheme = generalize env1 value_type in
+      let scheme = generalize env1 t1 in
       let env2 = (name, scheme) :: env1 in
-      let s2, body_type = infer_expr env2 body_expr in
+      let s2, t2 = infer_expr env2 e2 in
       let subst = compose_subst s2 s1 in
-      (subst, apply_subst_type subst body_type)
-  | Fun (param, body) ->
-      let param_type = fresh_type () in
-      let env' = (param, Forall ([], param_type)) :: tenv in
-      let s_body, body_type = infer_expr env' body in
-      let param_type' = apply_subst_type s_body param_type in
-      let subst = s_body in
-      let fn_type = TFun (param_type', body_type) in
+      (subst, apply_subst_type subst t2)
+  | Fun (x, e) ->
+      let tx = fresh_type () in
+      let env' = (x, Forall ([], tx)) :: tenv in
+      let se, te = infer_expr env' e in
+      let tx' = apply_subst_type se tx in
+      let subst = se in
+      let fn_type = TFun (tx', te) in
       (subst, apply_subst_type subst fn_type)
-  | App (fn, arg) ->
-      let s_fn, fn_type = infer_expr tenv fn in
-      let env1 = apply_subst_env s_fn tenv in
-      let s_arg, arg_type = infer_expr env1 arg in
+  | App (e1, e2) ->
+      let s1, t1 = infer_expr tenv e1 in
+      let env1 = apply_subst_env s1 tenv in
+      let s2, t2 = infer_expr env1 e2 in
       let result_type = fresh_type () in
       let s_unify =
-        unify (apply_subst_type s_arg fn_type) (TFun (arg_type, result_type))
+        unify (apply_subst_type s2 t1) (TFun (t2, result_type))
       in
-      let subst = compose_subst s_unify (compose_subst s_arg s_fn) in
+      let subst = compose_subst s_unify (compose_subst s2 s1) in
       (subst, apply_subst_type subst result_type)
   | _ -> failwith "Unimplemented"
 
