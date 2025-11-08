@@ -7,7 +7,7 @@ open Ast
 
 exception TypeError of string
 
-(* Type representation                                                       *)
+(* Type representation *******************************************************)
 
 type type_variable = int
 type typ = TInt | TBool | TFun of typ * typ | TVar of type_variable
@@ -15,7 +15,7 @@ type type_scheme = Forall of type_variable list * typ
 type type_env = (string * type_scheme) list
 type substitution = (type_variable * typ) list
 
-(* Fresh type variables                                                      *)
+(* Fresh type variables ******************************************************)
 
 (* [fresh_int ()] returns an integer identifier that is unique for
    every call during a single run.  This acts as the "name supply" in Algorithm
@@ -34,7 +34,7 @@ let fresh_int =
    stands in for the yet-unknown type `'a3`. *)
 let fresh_type () = TVar (fresh_int ())
 
-(* Pretty-printing                                                           *)
+(* Pretty-printing ***********************************************************)
 
 (* [collect_type_vars ty acc] gathers type variables in [ty] following their
    order of appearance so that we can assign prettified names deterministically. *)
@@ -78,7 +78,7 @@ let string_of_type ty =
   in
   to_string ty
 
-(* Substitutions                                                             *)
+(* Substitutions *************************************************************)
 
 let empty_subst : substitution = []
 
@@ -132,7 +132,7 @@ let compose_subst (s2 : substitution) (s1 : substitution) : substitution =
   let s1' = List.map (fun (v, ty) -> (v, apply_subst_type s2 ty)) s1 in
   s2 @ s1'
 
-(* Free type variables                                                       *)
+(* Free type variables *******************************************************)
 
 module IntSet = Set.Make (Int)
 
@@ -160,7 +160,7 @@ let free_type_vars_env (env : type_env) =
     (fun acc (_, scheme) -> IntSet.union acc (free_type_vars_scheme scheme))
     IntSet.empty env
 
-(* Generalisation and instantiation                                          *)
+(* Generalisation and instantiation ******************************************)
 
 (* [generalize env ty] abstracts the type variables in [ty] that are not
    already fixed by the environment, producing a polymorphic [type_scheme].
@@ -183,7 +183,7 @@ let instantiate (Forall (vars, ty) : type_scheme) : typ =
   let subst = List.map (fun v -> (v, fresh_type ())) vars in
   apply_subst_type subst ty
 
-(* Unification                                                               *)
+(* Unification ***************************************************************)
 
 (* [occurs v ty] checks whether the type variable [v] appears inside [ty].
    This is the "occurs check" that prevents us from constructing infinite
@@ -234,7 +234,7 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
            (Printf.sprintf "Type mismatch: %s vs %s" (string_of_type t1)
               (string_of_type t2)))
 
-(* Type inference (Algorithm W)                                              *)
+(* Type inference (Algorithm W) **********************************************)
 
 (* [lookup env name] retrieves the type scheme associated with [name].
    Example: if [env = [ ("x", Forall ([], TInt)) ]], then

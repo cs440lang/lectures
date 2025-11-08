@@ -15,6 +15,21 @@ type type_env = (string * typ) list
 type type_constraint = typ * typ
 type substitution = (type_variable * typ) list
 
+(* Fresh type variables ******************************************************)
+
+(* [fresh_int ()] supplies globally fresh integers; [fresh_var ()] wraps them
+   as type variables such as ['a3]. *)
+let fresh_int =
+  let counter = ref 0 in
+  fun () ->
+    let v = !counter in
+    incr counter;
+    v
+
+let fresh_var () = TVar (fresh_int ())
+
+(* Pretty printing ***********************************************************)
+
 (* [string_of_type ty] renders [ty] in OCaml syntax, e.g.
    [string_of_type (TFun (TInt, TVar 0))] = ["int -> 'a0"]. *)
 let rec string_of_type = function
@@ -29,6 +44,11 @@ let rec string_of_type = function
       in
       Printf.sprintf "%s -> %s" lhs (string_of_type t2)
 
+(* [string_of_constraint (lhs, rhs)] shows a single equation such as
+   ["'a0 -> int ~ bool"]. *)
+let string_of_constraint (lhs, rhs) =
+  Printf.sprintf "%s ~ %s" (string_of_type lhs) (string_of_type rhs)
+
 (* [string_of_subst subst] pretty-prints the substitution, one binding per
    line, e.g. [[ (0, TInt); (1, TBool) ]] becomes:
    {'a0 = int
@@ -39,21 +59,7 @@ let rec string_of_subst = function
       let s = Printf.sprintf "'a%d = %s\n" n (string_of_type typ) in
       s ^ string_of_subst ss
 
-(* [string_of_constraint (lhs, rhs)] shows a single equation such as
-   ["'a0 -> int ~ bool"]. *)
-let string_of_constraint (lhs, rhs) =
-  Printf.sprintf "%s ~ %s" (string_of_type lhs) (string_of_type rhs)
-
-(* [fresh_int ()] supplies globally fresh integers; [fresh_var ()] wraps them
-   as type variables such as ['a3]. *)
-let fresh_int =
-  let counter = ref 0 in
-  fun () ->
-    let v = !counter in
-    incr counter;
-    v
-
-let fresh_var () = TVar (fresh_int ())
+(* Constraint generation *****************************************************)
 
 (* [lookup env x] finds the monomorphic type of [x] or raises a helpful error
    if [x] is unbound. *)
@@ -104,6 +110,8 @@ let rec collect_constraints_expr (tenv : type_env) (e : expr) :
       let constraints = c1 @ c2 @ [ (t1, TFun (t2, t)) ] in
       (t, constraints)
 
+(* Substitutions *************************************************************)
+
 let empty_subst : substitution = []
 
 (* [apply_subst_type subst ty] replaces every variable mentioned in [subst]
@@ -122,12 +130,7 @@ let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
       | None -> TVar v
       | Some ty' -> apply_subst_type subst ty')
 
-(* [compose_subst s2 s1] yields the substitution that first applies [s1] and
-   then [s2].  Example: composing [[ (0, TVar 1) ]] with [[ (1, TInt) ]]
-   produces [[ (1, TInt); (0, TInt) ]]. *)
-let compose_subst (s2 : substitution) (s1 : substitution) : substitution =
-  let s1' = List.map (fun (v, ty) -> (v, apply_subst_type s2 ty)) s1 in
-  s2 @ s1'
+(* Unification ***************************************************************)
 
 (* [occurs v ty] implements the occurs check: it returns [true] if [v] appears
    somewhere inside [ty], preventing equations such as ['a = 'a -> 'b]. *)
@@ -162,7 +165,7 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
       let b1' = apply_subst_type s1 b1 in
       let b2' = apply_subst_type s1 b2 in
       let s2 = unify b1' b2' in
-      compose_subst s2 s1
+      s1 @ s2
   | TVar v, ty | ty, TVar v -> bind_variable v ty
   | _ ->
       raise
@@ -180,7 +183,7 @@ let solve_constraints (constraints : type_constraint list) : substitution =
       let lhs' = apply_subst_type subst lhs in
       let rhs' = apply_subst_type subst rhs in
       let new_subst = unify lhs' rhs' in
-      compose_subst new_subst subst)
+      subst @ new_subst)
     empty_subst constraints
 
 (* A REPL that prints out the raw type and constraints for each expression
