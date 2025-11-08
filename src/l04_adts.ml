@@ -1,4 +1,4 @@
-(* tuples *)
+(* Tuples ********************************************************************)
 
 let pt : float * float = (2.17, 3.14)
 
@@ -19,7 +19,7 @@ let rec ll : string list_node = { data="lions";
                                          next={ data="bears";
                                                 next=ll }}}
 
-(* type synonyms *)
+(* Type Synonyms *************************************************************)
 
 type point2d = float * float
 
@@ -37,7 +37,7 @@ let m' : float matrix = [[1.;2.;3.];
                          [4.;5.;6.];
                          [7.;8.;9.]]
 
-(* Algebraic Data Types - ADTs *)
+(* Algebraic Data Types - ADTs ***********************************************)
 
 (* simple enumeration-like type *)
 type color = Red | Blue | Green 
@@ -92,7 +92,7 @@ let rec int_list_from_range m n =
   if m = n then Null
   else Cons (m, int_list_from_range (m+1) n) 
 
-(* Polymorphic types *) 
+(* Polymorphic types *********************************************************) 
 
 type 'a pbox = PBox of 'a
 

@@ -5,6 +5,8 @@ let parse (s : string) : expr =
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
+(* Pretty-Printing ***********************************************************)
+
 let string_of_expr (e : expr) : string =
   let rec aux ctx = function
     (* ctx indicates context/precedence, used to parenthesize
@@ -20,6 +22,8 @@ let string_of_expr (e : expr) : string =
         let s = Printf.sprintf "%s %s" (aux 1 e1) (aux 2 e2) in
         if ctx = 2 then "(" ^ s ^ ")" else s
   in aux 0 e
+
+(* Substitution  *************************************************************)
 
 (* subst v x e = [v/x] e
  * e.g.,
@@ -37,6 +41,8 @@ let rec subst (v : expr) (x : string) (e : expr) : expr =
   (* Broken! Need to consider variable capture. *)
   | Abs (y, body) -> if x = y then e
                      else Abs (y, subst v x body) 
+
+(* Evaluation ****************************************************************)
   
 (* normal-order (leftmost-outermost) step function
  * - if a redex exists in arg e, perform it and return Some e'
@@ -81,6 +87,8 @@ let rec eval_normal (e : expr) : expr =
   match step_normal e with
   | Some e' -> eval_normal e'
   | None -> e
+
+(* REPL **********************************************************************)
 
 (* Read a line and Parse an expression out of it,
    Evaluate it to a value,
