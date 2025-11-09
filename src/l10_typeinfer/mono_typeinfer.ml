@@ -47,7 +47,7 @@ let rec string_of_type = function
 (* [string_of_constraint (lhs, rhs)] shows a single equation such as
    ["'a0 -> int ~ bool"]. *)
 let string_of_constraint (lhs, rhs) =
-  Printf.sprintf "%s ~ %s" (string_of_type lhs) (string_of_type rhs)
+  Printf.sprintf "%s = %s" (string_of_type lhs) (string_of_type rhs)
 
 (* [string_of_subst subst] pretty-prints the substitution, one binding per
    line, e.g. [[ (0, TInt); (1, TBool) ]] becomes:
@@ -56,7 +56,7 @@ let string_of_constraint (lhs, rhs) =
 let rec string_of_subst = function
   | [] -> ""
   | (n, typ) :: ss ->
-      let s = Printf.sprintf "'a%d = %s\n" n (string_of_type typ) in
+      let s = Printf.sprintf "'a%d ↦ %s\n" n (string_of_type typ) in
       s ^ string_of_subst ss
 
 (* Constraint generation *****************************************************)
