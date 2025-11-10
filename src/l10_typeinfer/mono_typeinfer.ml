@@ -187,8 +187,10 @@ let solve_constraints (constraints : type_constraint list) : substitution =
     empty_subst constraints
 
 (* A REPL that prints out the raw type and constraints for each expression
-   entered so we can double-check / attempt unification. *)
-let rec repl () =
+   entered so we can double-check / attempt unification. By default, it
+   will not show the "solved" final type. To get it to do so, call it
+   like so: [repl ~solve:true ()]*)
+let rec repl ?(solve=false) () =
   print_string "> ";
   flush stdout;
   match read_line () with
@@ -205,11 +207,13 @@ let rec repl () =
               Printf.printf "C%d: %s\n" (idx + 1)
                 (string_of_constraint constraint_eq))
             constraints);
-        let subst = solve_constraints constraints in
-        let typ = apply_subst_type subst raw_type in
-        print_string (string_of_subst subst);
-        Printf.printf "- : %s\n" (string_of_type typ);
-        repl ()
+        if solve then (
+          let subst = solve_constraints constraints in
+          let typ = apply_subst_type subst raw_type in
+          print_string (string_of_subst subst);
+          Printf.printf "- : %s\n" (string_of_type typ)
+        );
+        repl ~solve:solve ()
       with TypeError msg ->
         print_endline msg;
-        repl ())
+        repl ~solve:solve ())
