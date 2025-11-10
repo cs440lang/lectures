@@ -9,11 +9,11 @@ exception TypeError of string
 
 (* Type representation *******************************************************)
 
-type type_variable = int
-type typ = TInt | TBool | TFun of typ * typ | TVar of type_variable
-type type_scheme = Forall of type_variable list * typ
+type type_var = int
+type typ = TInt | TBool | TFun of typ * typ | TVar of type_var
+type type_scheme = Forall of type_var list * typ
 type type_env = (string * type_scheme) list
-type substitution = (type_variable * typ) list
+type substitution = (type_var * typ) list
 
 (* Fresh type variables ******************************************************)
 
@@ -188,7 +188,7 @@ let instantiate (Forall (vars, ty) : type_scheme) : typ =
 (* [occurs v ty] checks whether the type variable [v] appears inside [ty].
    This is the "occurs check" that prevents us from constructing infinite
    types, such as trying to solve `'a = 'a -> 'b`. *)
-let rec occurs (v : type_variable) = function
+let rec occurs (v : type_var) = function
   | TInt | TBool -> false
   | TVar v' -> v = v'
   | TFun (t1, t2) -> occurs v t1 || occurs v t2
@@ -199,7 +199,7 @@ let rec occurs (v : type_variable) = function
    binding [v = 0] with [ty = TInt] yields the substitution [ [ (0, TInt) ] ],
    but binding [v = 0] with [ty = TFun (TVar 0, TInt)] raises [TypeError]
    because `'a0` would appear on both sides. *)
-let bind_variable (v : type_variable) (ty : typ) : substitution =
+let bind_variable (v : type_var) (ty : typ) : substitution =
   match ty with
   | TVar v' when v = v' -> empty_subst
   | _ ->

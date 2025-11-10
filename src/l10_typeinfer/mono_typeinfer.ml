@@ -9,11 +9,11 @@ open Ast
 
 exception TypeError of string
 
-type type_variable = int
-type typ = TInt | TBool | TFun of typ * typ | TVar of type_variable
+type type_var = int
+type typ = TInt | TBool | TFun of typ * typ | TVar of type_var
 type type_env = (string * typ) list
 type type_constraint = typ * typ
-type substitution = (type_variable * typ) list
+type substitution = (type_var * typ) list
 
 (* Fresh type variables ******************************************************)
 
@@ -71,15 +71,15 @@ let lookup (tenv : type_env) (name : string) : typ =
 (* [collect_constraints_expr env e] walks [e], produces a raw type, and the
    list of constraints needed to justify that type. All unifications are
    deferred so that students can see the full system. *)
-let rec collect_constraints_expr (tenv : type_env) (e : expr) :
+let rec collect_constraints (tenv : type_env) (e : expr) :
     typ * type_constraint list =
   match e with
   | Int _ -> (TInt, [])
   | Bool _ -> (TBool, [])
   | Var x -> (lookup tenv x, [])
   | Binop (bop, e1, e2) -> (
-      let t1, c1 = collect_constraints_expr tenv e1 in
-      let t2, c2 = collect_constraints_expr tenv e2 in
+      let t1, c1 = collect_constraints tenv e1 in
+      let t2, c2 = collect_constraints tenv e2 in
       match bop with
       | Add | Mult ->
           let constraints = c1 @ c2 @ [ (t1, TInt); (t2, TInt) ] in
@@ -89,24 +89,24 @@ let rec collect_constraints_expr (tenv : type_env) (e : expr) :
           (TBool, constraints))
   | If (e1, e2, e3) ->
       let t = fresh_var () in
-      let t1, c1 = collect_constraints_expr tenv e1 in
-      let t2, c2 = collect_constraints_expr tenv e2 in
-      let t3, c3 = collect_constraints_expr tenv e3 in
+      let t1, c1 = collect_constraints tenv e1 in
+      let t2, c2 = collect_constraints tenv e2 in
+      let t3, c3 = collect_constraints tenv e3 in
       let constraints = c1 @ c2 @ c3 @ [ (t1, TBool); (t, t2); (t, t3) ] in
       (t, constraints)
   | Let (x, e1, e2) ->
-      let t1, c1 = collect_constraints_expr tenv e1 in
-      let t2, c2 = collect_constraints_expr ((x, t1) :: tenv) e2 in
+      let t1, c1 = collect_constraints tenv e1 in
+      let t2, c2 = collect_constraints ((x, t1) :: tenv) e2 in
       (t2, c1 @ c2)
   | Fun (x, e) ->
       let tx = fresh_var () in
       let env = (x, tx) :: tenv in
-      let te, constraints = collect_constraints_expr env e in
+      let te, constraints = collect_constraints env e in
       (TFun (tx, te), constraints)
   | App (e1, e2) ->
       let t = fresh_var () in
-      let t1, c1 = collect_constraints_expr tenv e1 in
-      let t2, c2 = collect_constraints_expr tenv e2 in
+      let t1, c1 = collect_constraints tenv e1 in
+      let t2, c2 = collect_constraints tenv e2 in
       let constraints = c1 @ c2 @ [ (t1, TFun (t2, t)) ] in
       (t, constraints)
 
@@ -117,35 +117,35 @@ let empty_subst : substitution = []
 (* [apply_subst_type subst ty] replaces every variable mentioned in [subst]
    throughout [ty].  Example: applying [[ (0, TInt) ]] to
    [TFun (TVar 0, TVar 1)] results in [TFun (TInt, TVar 1)]. *)
-let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
+let rec apply_subst (subst : substitution) (ty : typ) : typ =
   match ty with
   | TInt -> TInt
   | TBool -> TBool
   | TFun (t1, t2) ->
-      let t1' = apply_subst_type subst t1 in
-      let t2' = apply_subst_type subst t2 in
+      let t1' = apply_subst subst t1 in
+      let t2' = apply_subst subst t2 in
       TFun (t1', t2')
   | TVar v -> (
       match List.assoc_opt v subst with
       | None -> TVar v
-      | Some ty' -> apply_subst_type subst ty')
+      | Some ty' -> apply_subst subst ty')
 
 (* [compose_subst s2 s1] applies [s2] after [s1].  Operationally, we first
    push [s2] through the range of [s1] and then append the mappings of [s2].
    This makes composition associative in the same direction that Algorithm W
    generates substitutions.  Example: composing
    [s1 = [ (0, TVar 1) ]] with [s2 = [ (1, TInt) ]] yields
-   [ [ (1, TInt); (0, TInt) ] ], which when applied behaves as expected:
+   [ [ (0, TInt), (1, TInt) ] ], which when applied behaves as expected:
    `'a0` ultimately becomes `int`. *)
 let compose_subst (s2 : substitution) (s1 : substitution) : substitution =
-  let s1' = List.map (fun (v, ty) -> (v, apply_subst_type s2 ty)) s1 in
-  s2 @ s1'
+  let s1' = List.map (fun (v, ty) -> (v, apply_subst s2 ty)) s1 in
+  s1' @ s2
 
 (* Unification ***************************************************************)
 
 (* [occurs v ty] implements the occurs check: it returns [true] if [v] appears
    somewhere inside [ty], preventing equations such as ['a = 'a -> 'b]. *)
-let rec occurs (v : type_variable) = function
+let rec occurs (v : type_var) = function
   | TInt | TBool -> false
   | TVar v' -> v = v'
   | TFun (t1, t2) -> occurs v t1 || occurs v t2
@@ -153,7 +153,7 @@ let rec occurs (v : type_variable) = function
 (* [bind_variable v ty] produces the substitution linking [v] with [ty],
    while refusing to construct infinite types.  Example:
    [bind_variable 0 TInt] = [[ (0, TInt) ]]. *)
-let bind_variable (v : type_variable) (ty : typ) : substitution =
+let bind_variable (v : type_var) (ty : typ) : substitution =
   match ty with
   | TVar v' when v = v' -> empty_subst
   | _ ->
@@ -173,8 +173,8 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
   | TBool, TBool -> empty_subst
   | TFun (a1, b1), TFun (a2, b2) ->
       let s1 = unify a1 a2 in
-      let b1' = apply_subst_type s1 b1 in
-      let b2' = apply_subst_type s1 b2 in
+      let b1' = apply_subst s1 b1 in
+      let b2' = apply_subst s1 b2 in
       let s2 = unify b1' b2' in
       compose_subst s2 s1
   | TVar v, ty | ty, TVar v -> bind_variable v ty
@@ -191,8 +191,8 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
 let solve_constraints (constraints : type_constraint list) : substitution =
   List.fold_left
     (fun subst (lhs, rhs) ->
-      let lhs' = apply_subst_type subst lhs in
-      let rhs' = apply_subst_type subst rhs in
+      let lhs' = apply_subst subst lhs in
+      let rhs' = apply_subst subst rhs in
       let new_subst = unify lhs' rhs' in
       compose_subst new_subst subst)
     empty_subst constraints
@@ -209,7 +209,7 @@ let rec repl ?(solve=false) () =
   | line -> (
       try
         let e = Eval.parse line in
-        let raw_type, constraints = collect_constraints_expr [] e in
+        let raw_type, constraints = collect_constraints [] e in
         if constraints <> [] then (
           Printf.printf "Raw type: %s\n" (string_of_type raw_type);
           print_endline "Constraints:";
@@ -220,7 +220,7 @@ let rec repl ?(solve=false) () =
             constraints);
         if solve then (
           let subst = solve_constraints constraints in
-          let typ = apply_subst_type subst raw_type in
+          let typ = apply_subst subst raw_type in
           print_endline "Substitutions:";
           print_string (string_of_subst subst);
           Printf.printf "- : %s\n" (string_of_type typ)
