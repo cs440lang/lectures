@@ -130,6 +130,17 @@ let rec apply_subst_type (subst : substitution) (ty : typ) : typ =
       | None -> TVar v
       | Some ty' -> apply_subst_type subst ty')
 
+(* [compose_subst s2 s1] applies [s2] after [s1].  Operationally, we first
+   push [s2] through the range of [s1] and then append the mappings of [s2].
+   This makes composition associative in the same direction that Algorithm W
+   generates substitutions.  Example: composing
+   [s1 = [ (0, TVar 1) ]] with [s2 = [ (1, TInt) ]] yields
+   [ [ (1, TInt); (0, TInt) ] ], which when applied behaves as expected:
+   `'a0` ultimately becomes `int`. *)
+let compose_subst (s2 : substitution) (s1 : substitution) : substitution =
+  let s1' = List.map (fun (v, ty) -> (v, apply_subst_type s2 ty)) s1 in
+  s2 @ s1'
+
 (* Unification ***************************************************************)
 
 (* [occurs v ty] implements the occurs check: it returns [true] if [v] appears
@@ -165,7 +176,7 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
       let b1' = apply_subst_type s1 b1 in
       let b2' = apply_subst_type s1 b2 in
       let s2 = unify b1' b2' in
-      s1 @ s2
+      compose_subst s2 s1
   | TVar v, ty | ty, TVar v -> bind_variable v ty
   | _ ->
       raise
@@ -183,7 +194,7 @@ let solve_constraints (constraints : type_constraint list) : substitution =
       let lhs' = apply_subst_type subst lhs in
       let rhs' = apply_subst_type subst rhs in
       let new_subst = unify lhs' rhs' in
-      subst @ new_subst)
+      compose_subst new_subst subst)
     empty_subst constraints
 
 (* A REPL that prints out the raw type and constraints for each expression
@@ -210,6 +221,7 @@ let rec repl ?(solve=false) () =
         if solve then (
           let subst = solve_constraints constraints in
           let typ = apply_subst_type subst raw_type in
+          print_endline "Substitutions:";
           print_string (string_of_subst subst);
           Printf.printf "- : %s\n" (string_of_type typ)
         );
