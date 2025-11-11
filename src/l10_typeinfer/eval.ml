@@ -1,5 +1,5 @@
 open Ast
-open Typecheck
+open Poly_typeinfer
 
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
@@ -38,7 +38,7 @@ let rec eval (e : expr) (env: env) : value =
       | VBool false -> eval e3 env
       | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
-  | Fun (x, _, body) -> Closure (x, body, env)
+  | Fun (x, body) -> Closure (x, body, env)
   | App (e1, e2) -> (
       match eval e1 env with
       | Closure (x, body, defenv) -> 
@@ -55,10 +55,10 @@ let rec repl () =
       try
         let expr = parse line in
         (* type-checking before evaluation *)
-        let typ = typeof expr [] in
+        let inferred_type = infer expr in
         let value = eval expr [] in
         Printf.printf "- : %s = %s\n"
-          (string_of_type typ)
+          (string_of_type inferred_type)
           (string_of_val value);
         repl ()
       with
