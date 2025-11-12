@@ -6,28 +6,12 @@ author: "Michael Lee"
 
 # Agenda
 
-- Type Inference by Example
+- Inference by Example
 - Type Variables and Constraints
-- Constrained Typing Judgements
-- Monomorphic Type Inference Rules
+- Constrained Typing Judgments
+- Monomorphic Type Inference
 - Solving Constraints with Unification
-- Polymorphic Type Inference Rules
-
----
-
-# From Explicit Type Checking to Type Inference
-
-**Explicit Type Checking**
-
-- Programmer provides *type annotations*.
-- System verifies expressions are *consistent* with annotations.
-
-<!-- pause -->
-
-**Type Inference**
-
-- Programmer provides *no* (or few) annotations.
-- System infers the *most general type* for each expression.
+- Polymorphic Type Inference
 
 ---
 
@@ -43,6 +27,36 @@ How can we infer their types?
 
 - `fun f -> fun x -> f (f x)`
 
+<!--
+speaker_note: |
+  fun x -> x
+  - raw type: 'a -> 'a
+  - no constraints/substitution
+  - final type: 'a -> 'a
+
+  fun x -> x + 1
+  - raw type: 'a -> int
+  - gathered constraints { 'a=int,
+                           int=int }
+  - computed substitution { 'a |-> int }
+  - final type: int -> int
+
+  fun f -> fun x -> f x
+  - raw type: 'a -> 'b -> 'c
+  - gathered constraints { 'a = 'b -> 'c }
+  - computed substitution { 'a |-> 'b -> 'c }
+  - final type: ('b -> 'c) -> 'b -> 'c
+
+  fun f -> fun x -> f (f x)
+  - raw type: 'a -> 'b -> 'c
+  - gathered constraints { 'a = 'b -> 'd,
+                           'a = 'd -> 'c }
+  - computed substitution { 'a |-> 'c -> 'c,
+                            'b |-> 'c,
+                            'd |-> 'c  }
+  - final type: ('c -> 'c) -> 'c -> 'c
+-->
+
 ---
 
 # From Examples to Mechanism
@@ -53,6 +67,16 @@ To infer types, we:
 2. Collect *constraints* over those variables
 3. *Solve* those constraints to obtain a substitution
 4. Apply the *substitution* to get the final inferred type
+
+<!--
+speaker_note: |
+  Intuitively, we do ...
+  1. Going "up" the proof tree
+  2. Going "down" the proof tree; this is the tree's "output"
+  3. This is the unification algorithm, which we'll cover later
+    - if it fails, the expression is ill-typed!
+  4. We apply substitution to the raw type from the tree
+-->
 
 ---
 
@@ -79,12 +103,12 @@ type typ = TInt
 
 # Creating "Fresh" Type Variables
 
-When introducing a new type variable, it must be *fresh* -- i.e., it cannot be
-used/constrained elsewhere in the environment. (Why?)
+New type variables must be *fresh* -- i.e., they cannot be used/constrained
+elsewhere in the environment. (Why?)
 
 <!-- pause -->
 
-In our code, we do this by simply making `type_vars` sequential `int`s.
+Our implementation simply makes `type_var`s sequential `int`s.
 
 ```ocaml
 type type_var = int
@@ -98,6 +122,10 @@ let fresh_int =
 
 let fresh_var () = TVar (fresh_int ())
 ```
+
+<!-- pause -->
+
+So, `TVar 0` = `ɑ`, `TVar 1` = `β`, `TVar 2` = `ɣ`, ...
 
 ---
 
@@ -117,9 +145,9 @@ type type_constraint = typ * typ
 
 ---
 
-# Constrained Typing Judgements
+# Constrained Typing Judgments
 
-We update our typing judgement to:
+We update our typing judgment to:
 
 ```typst +render +width:40%
 #let tstile = sym.tack.r
@@ -385,8 +413,8 @@ $
 ```ocaml
 | App (e1, e2) ->
     let t = fresh_var () in
-    let t1, c1 = collect_constraints_expr tenv e1 in
-    let t2, c2 = collect_constraints_expr tenv e2 in
+    let t1, c1 = collect_constraints tenv e1 in
+    let t2, c2 = collect_constraints tenv e2 in
     (t, c1 @ c2 @ [ (t1, TFun (t2, t)) ])
 ```
 
@@ -410,12 +438,12 @@ What constraints do the following generate?
 
 # Solving Constraints
 
-**Goal:** find a *substitution* `S` such that `S`(`τ₁`) = `S`(`τ₂`) for every
-constraint `τ₁` = `τ₂`.
+Goal: find a *substitution* `S` where `S`(`τ₁`) = `S`(`τ₂`) for all constraints
+`τ₁` = `τ₂`.
 
 - Where a substitution maps type variables to types
 
-  - i.e., `S` = { `α₁ ↦ τ₁`, `ɑ₂ ↦ τ₂`, ..., `ɑₙ ↦ τₙ` }
+  - i.e., `S` = { `α₁ ↦ τ₁`, `ɑ₂ ↦ τ₂`, ... }
 
 <!-- pause -->
 
@@ -428,7 +456,7 @@ constraint `τ₁` = `τ₂`.
 
 <!-- pause -->
 
-*Unification* is an algorithm that solves this problem.
+**Unification** is an algorithm that solves this problem.
 
 ---
 
@@ -438,9 +466,9 @@ constraint `τ₁` = `τ₂`.
 
 1. `Unify`(`τ`, `τ`) = {}
 
-2. `Unify`(`α`, `τ`) or `Unify`(`τ`, `α`) = { `α ↦ τ` } if `α` ∉ free(`τ`)
+2. `Unify`(`α`, `τ`) or `Unify`(`τ`, `α`) = { `α ↦ τ` } if `α` ∉ `τ`
 
-   - if `α` ∈ free(`τ`), "infinite type" failure
+   - if `α` ∈ `τ`, "infinite type" failure (why?)
 
 3. `Unify`(`τ1 → τ2`, `τ3 → τ4`) = `S2` ∘ `S1`
 
@@ -453,9 +481,9 @@ constraint `τ₁` = `τ₂`.
 <!--
 speaker_note: |
 
-  The requirement that `α` ∉ free(`τ`) prevents "infinite types"
+  The test that `α` ∉ `τ` is known as an "occurs test"
 
-  - e.g., the constraint α = α -> int
+  - e.g., see the constraint α = α -> int
 
   Rule 3 introduces the idea of *composing* substitutions
 -->
@@ -474,7 +502,7 @@ To solve a list of constraints {`τ₁` = `τ₂`, ... },
 
 3. Continue until all constraints are processed or failure
 
-If unification completes, it yields the *most general unifier* (MGU): the
+If unification completes, it yields the *most general unifier* (*MGU*): the
 substitution that solves all constraints without being overly specific.
 
 - Intuition: `fun x -> x` should have type `α → α`, not `int → int`
@@ -537,10 +565,26 @@ Find the MGU for each constraint set, or explain why unification fails.
 
 <!--
 speaker_note: |
-
-  Remember that you can check your substitutions by running them on the
+  Remember that you can check your substitutions by applying them to the
   constraints!
 
+  Solutions:
+  (1) { 'a |-> bool, 'b |-> bool }
+
+  (2) { 'a |-> bool, 'b |-> int }
+
+  (3) { 'a |-> int -> bool,
+        'b |-> int,
+        'c |-> bool }
+
+  (4) type mismatch failure (bool = int)
+
+  (5) { 'a |-> ('e -> int) -> 'e,
+        'b |-> 'e -> int,
+        'd |-> 'e -> int,
+        'c |-> 'e }
+
+  (6) infinite type failure
 -->
 
 ---
@@ -567,6 +611,97 @@ let rec unify (t1 : typ) (t2 : typ) : substitution =
 
 ---
 
+# Implementing Unification
+
+```ocaml
+let solve_constraints constraints =
+  List.fold_left
+    (fun subst (lhs, rhs) ->
+      let lhs' = apply_subst subst lhs in
+      let rhs' = apply_subst subst rhs in
+      let new_subst = unify lhs' rhs' in
+      compose_subst new_subst subst)
+    empty_subst constraints
+```
+
+<!--
+speaker_note: |
+  To run the REPL with automated unification of constraints on, do:
+
+  > dune utop
+  # L10_typeinfer.Mono_typeinfer.repl ~solve:true ();;
+-->
+
+---
+
+# Beyond Type Inference: Unification
+
+Unification is a *general mechanism for solving symbolic equations*.
+
+<!-- pause -->
+
+Broad application -- at the crossroads of *logic*, *algebra*, *programming
+languages*, and *AI*!
+
+- Logic programming / Automated reasoning (e.g., Prolog)
+
+- Theorem proving and Constraint solvers
+
+- Term rewriting and Symbolic computation
+
+- Linguistics: unification grammars
+
+- AI: rule-based systems and ontology reasoning
+
+<!--
+speaker_note: |
+  Historical and Conceptual Timeline of Unification
+
+  - 1930s – Foundations:
+    Early work in mathematical logic by Jacques Herbrand and others on symbolic
+    substitution in first-order logic laid the groundwork for reasoning about
+    equality between terms.
+
+  - 1965 – Automated Reasoning:
+    J. Alan Robinson introduced unification in his *resolution principle* for
+    first-order logic, making it the key step in automated theorem proving.
+    Two formulas can be resolved if their predicates can be unified, i.e.,
+    made identical under some substitution.
+
+  - 1970s – Logic Programming:
+    The creators of *Prolog* took unification from theorem proving and made
+    it the engine of execution. When Prolog answers a query, it repeatedly
+    performs unification between the query and program clauses, instantiating
+    variables as it goes.
+
+  - 1978 – Type Systems:
+    Robin Milner applied the same idea to **type inference**. Instead of
+    unifying logical terms, his algorithm unified *type expressions*, allowing a
+    compiler to infer the most general type of an expression automatically. This
+    became the basis of the **Hindley–Milner type system**, used in ML, OCaml,
+    and Haskell.
+
+  - 1980s–Present – Constraint Solvers and Beyond:
+    Unification was generalized to constraint solving and symbolic reasoning.
+    Modern SMT solvers (like Z3 and CVC5), theorem provers, and term-rewriting
+    systems all rely on variants of unification to reconcile symbolic structures
+    under constraints.
+
+  - Today – Across Disciplines:
+    Unification remains a central idea not only in type systems, logic, and
+    AI, but also in natural-language processing (unification-based grammars),
+    symbolic algebra systems, and formal verification.
+
+  **Takeaway:**
+  What began as a logic technique for proving theorems evolved into a universal
+  mechanism for *symbolic constraint solving*. Whether the “symbols” are logical
+  predicates, program types, linguistic features, or algebraic expressions,
+  unification is the tool that finds consistent substitutions to make
+  structures agree.
+-->
+
+---
+
 # The Problem with Let
 
 What types do we infer for the following?
@@ -583,51 +718,78 @@ let id = fun x -> x in let a = id 10 in id true
 
 ---
 
-# Monomorphic vs. Polymorphic Type Inference
+# Monomorphic vs. Polymorphic Type Systems
+
+<!-- incremental_lists: true -->
+
+Thus far, a type variable has acted as an *existential placeholder*
+
+- e.g., in `id : α -> α`, `α` means *some (single) unknown type*
+
+- Once we apply the function to a concrete type, it is fixed
+
+- `Γ` maps variables to *monotypes*; the system is *monomorphic*
+
+Polymorphism must allow a type variable to mean *any type*
+
+- e.g., so `id 42` (`α` = `int`) and `id true` (`α` = `bool`) can coexist
+
+- Type variables should be *universally quantified*
 
 ---
 
-# Introducing Type Schemes
+# Mechanism: *Type Scheme*
 
-A **type scheme** represents polymorphic types:
+A **type scheme** explicitly quantifies type variables in a type.
 
-```
-π ::= ∀ α₁ ... αₙ. τ
-```
-
-Free type variables of `τ` not appearing in Γ are *generalized*.
-
-Instantiation replaces quantified variables with fresh ones.
-
----
-
-# Instantiation (Updated `VAR`)
-
-We instantiate a *monotype* from the type scheme on variable lookup.
-
-```typst +render +width:85%
-#let mapto = sym.arrow.r.bar
-#let tstile = sym.tack.r
-#let rtstile = sym.tack.l
-
+```typst +render +width:40%
 $
-  "VAR" & (
-          Gamma(x) = pi
-          quad tau = bold("Instantiate")(pi)
-          )/(
-          Gamma tstile x : tau rtstile {}
-          ) \
-        & "where" bold("Instantiate")(forall alpha_1, ..., alpha_n.tau)
-          = ["fresh"(beta_i) \/ alpha_i] tau
+pi = forall alpha_1, ..., alpha_n . tau
 $
 ```
 
+<!-- pause -->
+
+E.g., for `id`, we have the type scheme:
+
+```typst +render +width:30%
+$
+ "id" : forall alpha . alpha -> alpha 
+$
+```
+
 ---
 
-# Generalization (Updated `LET`)
+# Updating Γ with Type Schemes
 
-We generalize a type scheme from an inferred monotype and bind it to the
-variable in the environment.
+In a polymorphic type system, `Γ` maps variables to type schemes.
+
+```ocaml
+type type_scheme = Forall of type_var list * typ
+
+type type_env = (string * type_scheme) list
+
+let lookup (env : type_env) (name : string) : type_scheme =
+  match List.assoc_opt name env with
+  | Some scheme -> scheme
+  | None -> raise (TypeError "Unbound variable")
+```
+
+---
+
+# Let-Generalization
+
+To support polymorphism via a `let x=e₁ in e₂` expression:
+
+1. Infer a monotype `τ₁` for `e₁`
+
+2. *Generalize* a type scheme `π₁` from `τ₁`
+
+   - Quantify type vars that aren't free in the environment
+
+3. Evaluate `e₂` in the environment extended with `x: π₁`
+
+<!-- pause -->
 
 ```typst +render +width:100%
 #let mapto = sym.arrow.r.bar
@@ -650,24 +812,184 @@ $
 
 ---
 
-# The Hindley-Milner Type System
+# Let-Generalization
 
-We have arrived at the Hindley–Milner (HM) type system, which provides a
-foundation for polymorphic type inference:
+## Examples
 
-- each well-typed expression has a principal type scheme (the most general
-  type).
+What type schemes are introduced by the following `let` forms?
 
-- type inference can be fully automated, without explicit annotation ("Algorithm
-  W")
+- `let id = fun x -> x in ...`
+
+- `let fst = fun x y -> x in ...`
+
+- `fun x -> let f = fun g -> g x in ...`
+
+<!--
+speaker_note: |
+  `let id = fun x -> x in ...`
+  - id : forall a. (a -> a)
+
+  `let fst = fun x y -> x in ...`
+  - fst : forall a,b. (a -> b -> a)
+
+  `fun x -> let f = fun g -> g x in ...`
+  - f : forall b. ((a -> b) -> b)
+-->
+
+---
+
+# Instantiation
+
+When looking up a variable, we *instantiate* a monotype from its type scheme
+
+- Every quantified type variable is replaced with a fresh one
+
+<!--
+speaker_note: |
+  Intuitively, a type scheme represents a *family of types*. Each time we use
+  it, we create a new member of the family, differing only by the fresh type
+  variable(s).
+-->
 
 <!-- pause -->
+
+```typst +render +width:85%
+#let mapto = sym.arrow.r.bar
+#let tstile = sym.tack.r
+#let rtstile = sym.tack.l
+
+$
+  "VAR" & (
+          Gamma(x) = pi
+          quad tau = bold("Instantiate")(pi)
+          )/(
+          Gamma tstile x : tau rtstile {}
+          ) \
+        & "where" bold("Instantiate")(forall alpha_1, ..., alpha_n.tau)
+          = ["fresh"(beta_i) \/ alpha_i] tau
+$
+```
+
+<!-- incremental_lists: true -->
+
+- e.g., `Instantiate`( `∀ α. α → α` ) = `β → β` (assuming `β` fresh)
+
+- e.g., `Instantiate`( `∀ α,β. α → β` ) = `γ → δ` (assuming `γ`, `δ` fresh)
+
+- e.g., `Instantiate`( `∀ α. α → β` ) = `γ → β` (assuming `γ` fresh)
+
+---
+
+# The Hindley-Milner Type System
+
+We have replicated the *Hindley–Milner* (HM) type system, which provides a
+foundation for polymorphic type inference:
+
+<!-- incremental_lists: true -->
+
+- Every well-typed expression has a *principal type scheme* (the most general
+  type).
+
+- Type inference can be fully automated, without explicit annotation ("Algorithm
+  W")
 
 HM forms the basis of the type systems in ML, OCaml, Haskell, and many other
 functional languages.
 
 ---
 
-# Algorithm W Overview
+# From Monomorphic Inference to Algorithm W
 
-Algorithm W performs *type inference with let-polymorphism* recursively.
+Our monomorphic type inference worked in two phases:
+
+1. *Collect constraints* for each expression.
+2. *Unify* the constraints to solve for all type variables.
+
+<!-- pause -->
+
+Algorithm W extends monomorphic inference by combining *constraint generation,
+unification, and polymorphism* into a *single recursive process*.
+
+---
+
+# Algorithm W: Intuition
+
+When inferring the type of an expression `e`:
+
+1. Generate and solve constraints on the fly.
+   - Each recursive call returns a *substitution* and a *type*.
+   - Substitutions are composed as we return upward.
+
+2. At `let`-bindings, generalize.
+
+3. At variable use, instantiate.
+
+The result: a single pass that *infers types and manages polymorphism* without
+ever building a separate constraint list.
+
+---
+
+# Algorithm W: Implementation
+
+```ocaml
+let rec infer_expr tenv e =
+  match e with
+  | Int _ -> (empty_subst, TInt)
+  | Bool _ -> (empty_subst, TBool)
+  | Var x ->
+      let scheme = lookup tenv x in
+      (empty_subst, instantiate scheme)
+  | Let (x, e1, e2) ->
+      let s1, t1 = infer_expr tenv e1 in
+      let env1 = apply_subst_env s1 tenv in
+      let scheme = generalize env1 t1 in
+      let env2 = (x, scheme) :: env1 in
+      let s2, t2 = infer_expr env2 e2 in
+      let subst = compose_subst s2 s1 in
+      (subst, apply_subst_type subst t2)
+  ...
+```
+
+---
+
+# Demo
+
+```ocaml
+dune utop
+# L10_typeinfer.Eval.repl ();;
+```
+
+<!--
+speaker_note: |
+  Try our earlier examples!
+
+  let id = fun x -> x in id
+
+  let id = fun x -> x in id 10
+
+  let id = fun x -> x in let a = id 10 in id
+
+  let id = fun x -> x in let a = id 10 in id true
+-->
+
+---
+
+# What did we learn?
+
+<!-- incremental_lists: true -->
+
+- Type inference rules generate *constraints* alongside types
+- *Type variables* are placeholders for unknown types
+- *Unification* produces the most general unifier (MGU)
+- *let-generalization* introduces polymorphism via quantification
+- The resulting system is the **Hindley–Milner type system**
+- *Algorithm W* automates it all
+
+Type inference reasons about programs symbolically. *It’s a proof system
+embedded into the compiler*!
+
+<!--
+speaker_note: |
+  Type inference reasons about programs symbolically — it’s logic running inside
+  the compiler.
+-->
