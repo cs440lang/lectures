@@ -950,6 +950,17 @@ let rec infer_expr tenv e =
   ...
 ```
 
+<!--
+speaker_note: |
+  - the Var rule instantiates the scheme found in the environment
+  - the Let rule generalizes a scheme from the inferred monotype
+  - note how (in handling Let), we immediately apply substitutions obtained
+    from recursive calls to types and environments, and we compose the
+    substitutions to return them
+  - we provide Var, Let, Fun, App (and helper functions) -- you'll need to
+    finish the implementation of Algorithm W!
+-->
+
 ---
 
 # Demo
