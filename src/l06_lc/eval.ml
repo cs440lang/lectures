@@ -82,8 +82,8 @@ let rec step_normal : expr -> expr option = function
 
 (* normal-order multi-step eval
  * - step until no more redexes remain, return resulting expr *)
-let rec eval_normal (e : expr) : expr =
-  print_endline (string_of_expr e) ;
+let rec eval_normal ?(trace=false) (e : expr) : expr =
+  if trace then print_endline (string_of_expr e) ;
   match step_normal e with
   | Some e' -> eval_normal e'
   | None -> e
@@ -94,7 +94,7 @@ let rec eval_normal (e : expr) : expr =
    Evaluate it to a value,
    Print the value,
    Loop  *)
-let rec repl () =
+let rec repl ?(trace=false) () =
   print_string "> ";
   flush stdout;
   match read_line () with
@@ -102,7 +102,7 @@ let rec repl () =
   | line -> (
       try
         let expr = parse line in
-        let value = eval_normal expr in
+        let value = eval_normal ~trace:trace expr in
         print_endline (string_of_expr value);
         repl ()
       with
