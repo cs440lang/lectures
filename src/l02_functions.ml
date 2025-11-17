@@ -3,6 +3,8 @@
    - Anonymous functions (lambdas)
    - Function types
    - Top-level and local named functions
+     - Type annotation
+     - Documentation
    - Currying & Partial Application
    - Polymorphic functions
    - Recursion & Tail Recursion
@@ -19,12 +21,34 @@ let foo x y z = (2*x + y) * z
 let r = let loc_fn x = x*x in
         loc_fn 10
 
+(** [days m y] returns the number of days in month [m] of year [y].
+    Requires: 1 <= [m] <= 12 *)
+let days (m: int) (y: int) : int =
+  if m = 2 then
+   if y mod 4 = 0 then 29 else 28
+  else if m = 4 || m = 6
+          || m = 9 || m = 11 then 30
+  else if m >= 1 && m <= 12 then 31
+  else invalid_arg "Invalid month!"
+
+(** [quadratic_roots a b c] returns the two real roots of the quadratic
+    equation ax^2 + bx + c = 0. Requires: [b]^2-4*[a]*[c] >= 0. *)
+let quadratic_roots (a: float) (b: float) (c: float) : float * float  =
+  let disc = (b *. b) -. (4. *. a *. c) in
+  if disc < 0. then failwith "No real roots"
+  else let sqrt_disc = sqrt disc in
+       let r1 = (-.b +. sqrt_disc) /. (2. *. a) in
+       let r2 = (-.b -. sqrt_disc) /. (2. *. a) in
+       (r1, r2)
+
 (* Currying & Partial Application ********************************************)
 
+(* compare to [foo] from before *)
 let foo' = fun x ->
             fun y ->
             fun z -> (2*x + y) * z
 
+(* demonstrates simple pattern matching on input tuples *)
 let dist (x1,y1) (x2,y2) =
   sqrt ((x2-.x1)**2.+.(y2-.y1)**2.)
 

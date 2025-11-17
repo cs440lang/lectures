@@ -26,7 +26,7 @@ let class_name' =
 let f = let c = 32. in
         c *. 9. /. 5. +. 32. 
 
-let (r1,r2) =
+let (r1,r2) : float * float =
   let a = 1. in
   let b = 1. in
   let c = -2. in
@@ -50,19 +50,3 @@ let days =
             || month = 9 || month = 11 then 30
     else if month >= 1 && month <= 12 then 31
     else invalid_arg "Invalid month!"
-
-let days' month year =
-  if month = 2 then
-   if year mod 4 = 0 then 29 else 28
-  else if month = 4 || month = 6
-          || month = 9 || month = 11 then 30
-  else if month >= 1 && month <= 12 then 31
-  else invalid_arg "Invalid month!"
-
-let quadratic_roots a b c =
-  let disc = (b *. b) -. (4. *. a *. c) in
-  if disc < 0. then failwith "No real roots"
-  else let sqrt_disc = sqrt disc in
-       let r1 = (-.b +. sqrt_disc) /. (2. *. a) in
-       let r2 = (-.b -. sqrt_disc) /. (2. *. a) in
-       (r1, r2)
