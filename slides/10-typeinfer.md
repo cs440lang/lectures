@@ -764,6 +764,8 @@ $
 
 In a polymorphic type system, `Γ` maps variables to type schemes.
 
+<!-- pause -->
+
 ```ocaml
 type type_scheme = Forall of type_var list * typ
 
@@ -781,6 +783,8 @@ let lookup (env : type_env) (name : string) : type_scheme =
 
 To support polymorphism via a `let x=e₁ in e₂` expression:
 
+<!-- incremental_lists: true -->
+
 1. Infer a monotype `τ₁` for `e₁`
 
 2. *Generalize* a type scheme `π₁` from `τ₁`
@@ -788,8 +792,6 @@ To support polymorphism via a `let x=e₁ in e₂` expression:
    - Quantify type vars that aren't free in the environment
 
 3. Evaluate `e₂` in the environment extended with `x: π₁`
-
-<!-- pause -->
 
 ```typst +render +width:100%
 #let mapto = sym.arrow.r.bar
@@ -842,7 +844,9 @@ speaker_note: |
 
 When looking up a variable, we *instantiate* a monotype from its type scheme
 
-- Every quantified type variable is replaced with a fresh one
+<!-- pause -->
+
+- Replacing every quantified type variable with a fresh one
 
 <!--
 speaker_note: |
@@ -882,13 +886,16 @@ $
 
 # The Hindley-Milner Type System
 
-We have replicated the *Hindley–Milner* (HM) type system, which provides a
+We have now replicated the *Hindley–Milner* (HM) type system, which provides a
 foundation for polymorphic type inference:
 
 <!-- incremental_lists: true -->
 
 - Every well-typed expression has a *principal type scheme* (the most general
   type).
+
+- Let-generalization and variable instantiation support *parametric
+  polymorphism*
 
 - Type inference can be fully automated, without explicit annotation ("Algorithm
   W")
@@ -914,15 +921,17 @@ unification, and polymorphism* into a *single recursive process*.
 
 # Algorithm W: Intuition
 
-When inferring the type of an expression `e`:
+To infer the type of an expression `e`:
 
-1. Generate and solve constraints on the fly.
-   - Each recursive call returns a *substitution* and a *type*.
-   - Substitutions are composed as we return upward.
+1. Generate and solve constraints on the fly:
+   - Each recursive call returns a *substitution* and a *type*
+   - Substitutions are composed as we return upward
 
-2. At `let`-bindings, generalize.
+2. At `let`-bindings, generalize
 
-3. At variable use, instantiate.
+3. At variable use, instantiate
+
+<!-- pause -->
 
 The result: a single pass that *infers types and manages polymorphism* without
 ever building a separate constraint list.
