@@ -1,24 +1,34 @@
+(** An environment-based variant of the SimPL interpreter. Replaces
+    substitution with an explicit environment, illustrating big-step
+    evaluation with state threaded through function calls. *)
+
 open Ast
 
+(** [parse s] lexes and parses a simple expression with variables from [s],
+    raising [Parser.Error] on malformed input. *)
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
-(* type representing an evaluated value  *)
 type value = VInt of int | VBool of bool
+(** Values produced by interpretation. *)
 
+(** [string_of_val v] renders a run-time [value] for display in the REPL. *)
 let string_of_val : value -> string = function
   | VInt n -> string_of_int n
   | VBool b -> string_of_bool b
 
-(* we represent an environment as an associative list
-   of name-value mappings  *)
 type env = (string * value) list
+(** Environment mapping identifiers to their run-time values. Newer bindings
+    appear earlier in the list. *)
 
 exception RuntimeError of string
+(** Raised when evaluation encounters an ill-formed operation or unbound
+    variable. *)
 
-(* big-step evaluation using an environment *)
+(** [eval e env] evaluates [e] under environment [env] using big-step
+    semantics. *)
 let rec eval (e : expr) (env: env) : value =
   match e with
   | Int i -> VInt i
@@ -40,10 +50,9 @@ let rec eval (e : expr) (env: env) : value =
       | _ -> raise (RuntimeError "Invalid guard"))
   | Let (x, e1, e2) -> eval e2 ((x, eval e1 env) :: env)
 
-(* Read a line and Parse an expression out of it,
-   Evaluate it to a value,
-   Print the value,
-   Loop  *)
+(** [repl ()] runs the interactive interpreter: it parses a line, evaluates
+    it in the empty environment, prints the resulting value, and repeats until
+    a blank line is provided. *)
 let rec repl () =
   print_string "> ";
   flush stdout;

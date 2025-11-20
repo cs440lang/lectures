@@ -1,5 +1,11 @@
+(** A substitution-based interpreter for SimPL: integers, booleans,
+    arithmetic, comparison, conditionals, and [let]. Demonstrates both
+    small-step and big-step semantics over the same AST. *)
+
 open Ast
 
+(** [parse s] lexes and parses a SimPL expression from [s], raising
+    [Parser.Error] on malformed input. *)
 let parse (s : string) : expr =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
@@ -7,6 +13,8 @@ let parse (s : string) : expr =
 
 (* Pretty-Printing ***********************************************************)
 
+(** [string_of_expr e] renders the abstract syntax tree [e] in a readable
+    concrete form, fully parenthesized to make evaluation order explicit. *)
 let rec string_of_expr : expr -> string = function
   | Int n -> string_of_int n
   | Bool b -> string_of_bool b
@@ -24,7 +32,8 @@ let rec string_of_expr : expr -> string = function
 
 (* Substitution  *************************************************************)
 
-(* subst v x e = [v/x] e *)
+(** [subst v x e] computes [[v/x]e], replacing free occurrences of [x] in [e]
+    with [v] and leaving bound instances untouched. *)
 let rec subst (v : expr) (x : string) (e : expr) : expr =
   match e with
   | Bool _ -> e
@@ -39,9 +48,11 @@ let rec subst (v : expr) (x : string) (e : expr) : expr =
 (* Small-Step Evaluation *****************************************************)
 
 exception RuntimeError of string
+(** Raised when an operation is applied to arguments of the wrong shape
+    (e.g., adding a boolean). *)
 
-(* small-step reduction of a given expression e;
-   returns Some e' if a redex exists, None otherwise *)
+(** [step e] performs one small-step reduction of [e], returning [Some e']
+    for a single reduction or [None] if [e] is a value (or stuck). *)
 let rec step : expr -> expr option = function
   | Int _ | Bool _ | Var _ -> None
   | Binop (bop, e1, e2) -> (
@@ -69,13 +80,16 @@ let rec step : expr -> expr option = function
       | Some e1' -> Some (Let (x, e1', e2))
       | None -> Some (subst e1 x e2))
 
-(* single-step reduce until we get a value *)
+(** [multistep e] repeatedly applies [step] until a value is reached,
+    printing each intermediate expression along the way. *)
 let rec multistep (e : expr) : expr =
   print_endline (string_of_expr e);
   match step e with None -> e | Some e' -> multistep e'
 
 (* Big-Step Evaluation *******************************************************)
 
+(** [eval e] computes the value of [e] using big-step semantics, raising
+    [RuntimeError] on unbound variables or malformed primitive operations. *)
 let rec eval (e : expr) : expr =
   match e with
   | Int _ | Bool _ -> e
@@ -95,6 +109,9 @@ let rec eval (e : expr) : expr =
 
 (* REPL **********************************************************************)
 
+(** [repl ()] runs a read-eval-print loop that parses input, evaluates it
+    with [multistep], prints the resulting value, and repeats until a blank
+    line is entered. *)
 let rec repl () =
   print_string "> ";
   flush stdout;

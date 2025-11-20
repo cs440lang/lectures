@@ -1,9 +1,15 @@
 open Ast
 
 type tenv = (string * typ) list
+(** Type environment mapping variable names to their types, most recent binding
+    first. *)
 
 exception TypeError of string
+(** Raised when static checking encounters an ill-typed expression. *)
 
+(** [string_of_type t] pretty-prints a [typ] using ML-style arrows. Nested
+    function domains are parenthesized on the left so that
+    [TFun (TFun (TInt, TBool), TInt)] renders as "(int -> bool) -> int". *)
 let rec string_of_type : typ -> string = function
   | TInt -> "int"
   | TBool -> "bool"
@@ -15,6 +21,12 @@ let rec string_of_type : typ -> string = function
       in
       Printf.sprintf "%s -> %s" lhs (string_of_type t2)
 
+(** [typeof e tenv] computes the static type of expression [e] under type
+    environment [tenv], raising [TypeError] if [e] is ill-typed. Examples:
+    - [typeof (Int 42) [] = TInt]
+    - [typeof (Fun ("x", TInt, Var "x")) [] = TFun (TInt, TInt)]
+    - [typeof (App (Fun ("x", TInt, Bool true), Int 0)) []] raises [TypeError].
+*)
 let rec typeof (e : expr) (tenv : tenv) =
   match e with
   | Int _ -> TInt
@@ -49,9 +61,11 @@ let rec typeof (e : expr) (tenv : tenv) =
       let t2 = typeof e2 tenv in
       match t1 with
       | TFun (t, t') ->
-          if t = t2 then t'
-          else raise (TypeError "Function/Arg type mismatch")
+          if t = t2 then t' else raise (TypeError "Function/Arg type mismatch")
       | _ -> raise (TypeError "Non-function type being applied"))
 
+(** [typecheck e] validates [e] in the empty environment, propagating
+    [TypeError] on failure and returning [e] unchanged on success. *)
 let typecheck e =
-  let _ = typeof e [] in e
+  let _ = typeof e [] in
+  e
