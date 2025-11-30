@@ -31,27 +31,121 @@ Much of modern PL research is motivated by the *Curry-Howard Correspondence*
 
 ---
 
-## Curry-Howard Correspondence
+# Curry–Howard Correspondence
 
-Foundational relationship between *formal logic and computation*
-
-<!-- alignment: center -->
-
-Propositions in logic ⇔ Types in a language
-
-Mathematical proofs ⇔ Computer programs
-
-<!-- alignment: left -->
+A foundational connection between *logic* and *computation*.
 
 <!-- pause -->
 
-Writing a program that typechecks is equivalent to constructing a proof
+Also known as:
 
-<!-- incremental_lists: true -->
+- *Propositions-as-Types*
+- *Proofs-as-Programs*
 
-- Since programs are proofs, type systems can *enforce correctness*
+<!-- pause -->
 
-- Typechecking becomes a form of *automated proof checking*
+Not just a fanciful philosophical notion! It has direct consequences for
+language design and verification.
+
+---
+
+# Curry–Howard Correspondence
+
+## Propositions ⇔ Types
+
+We can "translate" between types and logical propositions:
+
+<!-- pause -->
+
+<!-- alignment: center -->
+
+| Programming | Logic   |
+| ----------- | ------- |
+| 'a, 'b, 'c  | A, B, C |
+| 'a -> 'b    | A ⇒ B   |
+| 'a * 'b     | A ∧ B   |
+| 'a \| 'b    | A ∨ B   |
+
+---
+
+# Curry–Howard Correspondence
+
+## Propositions ⇔ Types
+
+E.g., `fst` (and `snd`) ⇔ conjunction elimination
+
+```typst +render +width:70%
+#let tstile = sym.tack.r
+$
+"fst ::" (alpha * beta) -> alpha
+wide <=> wide
+A and B => A
+$
+```
+
+<!-- pause -->
+
+E.g., function application rule ⇔ modus ponens
+
+```typst +render +width:100%
+#let tstile = sym.tack.r
+$
+"APP"  (Gamma tstile e_1 : alpha -> beta
+        quad Gamma tstile e_2 : alpha)
+        / (Gamma tstile e_1 e_2 : beta)
+
+wide <=> wide
+
+(A => B quad A) / (B) "MP"
+$
+```
+
+---
+
+# Curry–Howard Correspondence
+
+## Proofs ⇔ Programs
+
+<!-- pause -->
+
+A well-typed program proves the proposition represented by its type
+
+- By providing evidence of a value that *inhabits* the type
+
+<!-- pause -->
+
+When you write a program, you are building a *constructive proof*
+
+---
+
+# Curry–Howard Correspondence
+
+## Evaluation ⇔ Proof Normalization
+
+Evaluating a program = simplifying a proof
+
+<!-- pause -->
+
+- β-reductions, substitutions, etc., leave proofs logically unchanged
+  (preservation) but more streamlined
+
+---
+
+# Curry–Howard Correspondence
+
+## Why do we care?
+
+<!-- pause -->
+
+A more expressive type system gives us a richer logical vocabulary
+
+- Motivation for advanced type systems
+
+<!-- pause -->
+
+Typechecking = automated proof checking
+
+- Program synthesis can be viewed as automated proof derivation
 
 ---
 
@@ -328,7 +422,8 @@ These are not historical. This *is* the modern toolkit.
 - *Personal projects*: play with advanced types/type-systems or experimental
   languages for a glimpse of the future
 
-- *Undergraduate research*: talk to PL research faculty (Dr. Farzaneh)
+- *Undergraduate research*: talk to PL faculty (Dr. Derakhshan and Dr. Korel)
+  for research opportunities
 
 ---
 
