@@ -148,15 +148,6 @@ inference. Note that for polymorphic type inference, $Gamma$ maps a variable to
 a type scheme $pi$ (instead of a monotype $tau$).
 
 $
-  "VAR" & (
-          Gamma(x) = pi
-          quad tau = bold("Instantiate")(pi)
-          )/(
-          Gamma tstile x : tau rtstile {}
-          ) \
-        & "where" bold("Instantiate")(forall alpha_1, ..., alpha_n.tau)
-          = ["fresh"(beta_i) \/ alpha_i] tau \
-        \
   "LET" & (
           Gamma tstile e_1 : tau_1 rtstile C_1
           quad pi_1 = bold("Generalize")(Gamma, tau_1)
@@ -166,6 +157,15 @@ $
           ) \
         & "where" bold("Generalize")(Gamma, tau) =
           forall alpha_1, ..., alpha_n. tau
-          and alpha_i in ("free"(tau) - "free"(Gamma)) \
+          "where" alpha_i in ("free"(tau) - "free"(Gamma)) \
+        \
+  "VAR" & (
+          Gamma(x) = pi
+          quad tau = bold("Instantiate")(pi)
+          )/(
+          Gamma tstile x : tau rtstile {}
+          ) \
+        & "where" bold("Instantiate")(forall alpha_1, ..., alpha_n.tau)
+          = ["fresh"(beta_i) \/ alpha_i] tau \
         \
 $
