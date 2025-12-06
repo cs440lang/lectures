@@ -16,7 +16,7 @@ author: "Michael Lee"
 
 - High-level interpreter & compiler concepts
 - Operational semantics
-- Interpreter implementation
+- Evaluator implementation
 - Explicit type checking
 - Type inference
 
@@ -47,7 +47,7 @@ author: "Michael Lee"
 
 # Final Exam Coverage
 
-## Interpreter Implementation
+## Evaluator Implementation
 
 - Operations semantics rules -> `eval`
 - Substitution-model evaluation
@@ -129,7 +129,7 @@ Solutions:
 
 ## Sample Derivation/Proof Questions
 
-### 2. Interpreter implementation
+### 2. Evaluator implementation
 
 Implement the new MiniML construct `not e`, with the AST form:
 
@@ -159,7 +159,7 @@ $
 
 ## Sample Derivation/Proof Questions
 
-### 2. Interpreter implementation (Solution)
+### 2. Evaluator implementation (Solution)
 
 ```ocaml {3-7}
 let rec eval (e : expr) (env : env) : value =
