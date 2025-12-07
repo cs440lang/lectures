@@ -892,7 +892,7 @@ foundation for polymorphic type inference:
 <!-- incremental_lists: true -->
 
 - Every well-typed expression has a *principal type scheme* (the most general
-  type).
+  type)
 
 - Let-generalization and variable instantiation support *parametric
   polymorphism*
@@ -901,7 +901,7 @@ foundation for polymorphic type inference:
   W")
 
 HM forms the basis of the type systems in ML, OCaml, Haskell, and many other
-functional languages.
+functional languages
 
 ---
 
@@ -909,12 +909,34 @@ functional languages.
 
 Our monomorphic type inference worked in two phases:
 
-1. *Collect constraints* for each expression.
-2. *Unify* the constraints to solve for all type variables.
+1. *Collect constraints* for each expression
+2. *Unify* the constraints to obtain a substitution
 
 <!-- pause -->
 
-Algorithm W extends monomorphic inference by combining *constraint generation,
+This was possible because:
+
+- Each variable has exactly one type, which never changes
+- Constraints don't depend on solving earlier constraints
+- Substitutions aren't required during constraint generation
+
+---
+
+# From Monomorphic Inference to Algorithm W
+
+For polymorphic type inference of `let f = e1 in e2`, we must:
+
+<!-- incremental_lists: true -->
+
+- Infer the type of `e1` (obtaining a substitution)
+- Apply the resulting substitution to Γ
+- Generalize `e1`'s type and infer the type of `e2` in the extended Γ
+
+I.e., we must unify and apply substitutions iteratively
+
+<!-- pause -->
+
+Algorithm W extends monomorphic inference by *combining constraint generation,
 unification, and polymorphism* into a *single recursive process*.
 
 ---
@@ -927,9 +949,9 @@ To infer the type of an expression `e`:
    - Each recursive call returns a *substitution* and a *type*
    - Substitutions are composed as we return upward
 
-2. At `let`-bindings, generalize
+2. At `let`-bindings, *generalize*
 
-3. At variable use, instantiate
+3. At variable use, *instantiate*
 
 <!-- pause -->
 
