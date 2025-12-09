@@ -1,5 +1,5 @@
 (library
- (name l07b_simplenv))
+ (name l08_lc))
 
 (menhir
  (modules parser))

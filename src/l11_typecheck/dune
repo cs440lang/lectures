@@ -1,5 +1,5 @@
 (library
- (name l09_typecheck))
+ (name l11_typecheck))
 
 (menhir
  (modules parser))

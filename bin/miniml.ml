@@ -1,4 +1,4 @@
-open L08_miniml.Eval
+open L10_miniml.Eval
 
 let rec repl () =
   print_string "> ";
@@ -15,7 +15,7 @@ let rec repl () =
       | RuntimeError msg ->
           Printf.printf "Runtime Error: %s\n" msg;
           repl ()
-      | L08_miniml.Parser.Error ->
+      | L10_miniml.Parser.Error ->
           print_endline "Parse error.";
           repl ())
 

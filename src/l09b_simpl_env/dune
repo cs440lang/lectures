@@ -1,5 +1,5 @@
 (library
- (name l08_miniml))
+ (name l09b_simplenv))
 
 (menhir
  (modules parser))

@@ -1,5 +1,5 @@
 (library
- (name l06_lc))
+ (name l10_miniml))
 
 (menhir
  (modules parser))

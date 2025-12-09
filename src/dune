@@ -1,12 +1,12 @@
 (library
  (name demos)
  (libraries
-  l06_lc
-  l07a_simpl
-  l07b_simplenv
-  l08_miniml
-  l09_typecheck
-  l10_typeinfer)
+  l08_lc
+  l09a_simpl
+  l09b_simplenv
+  l10_miniml
+  l11_typecheck
+  l12_typeinfer)
  (wrapped false)
  (flags
   (:standard -w -27-39)))
