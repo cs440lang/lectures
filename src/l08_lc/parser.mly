@@ -8,9 +8,10 @@
  *
  * The rules below implement this BNF:
  *
- *   <expr> ::= λ<var>.<expr> | <app>
- *   <app>  ::= <app> <atom> | <atom>
- *   <atom> ::= <var> | ( <expr> )
+ *   <expr>   ::= λ<var>.<expr> | <app>
+ *   <app>    ::= <app> <apparg> | <atom>
+ *   <apparg> ::= <atom> | λ<var>.<expr>
+ *   <atom>   ::= <var> | ( <expr> )
  *
  *   - Application (<app>) is left-recursive -> left-associative
  *       "f x y" ≡ ((f x) y)
@@ -18,13 +19,21 @@
  *   - Abstraction (λ<var>.<expr>) is right-associative by structure
  *       "λx.λy.x" ≡ λx.(λy.x)
  *
+ *   - Lambda abstractions can appear as application arguments without parens
+ *       "x λy.y" ≡ x (λy.y) 
+ *
  *   - Parentheses group explicitly and override associativity
  *
  * Example parses:
  *   λx.x       ->  Abs ("x", Var "x")
  *   (λx.x) y   ->  App (Abs ("x", Var "x"), Var "y")
  *   x (λy.y)   ->  App (Var "x", Abs ("y", Var "y"))
+ *   x λy.y     ->  App (Var "x", Abs ("y", Var "y"))  [same as above]
  *   λx.λy.x y  ->  Abs ("x", Abs ("y", App (Var "x", Var "y")))
+ *
+ * Note: This grammar has shift/reduce conflicts that Menhir resolves by
+ * preferring to shift (extend applications). This gives correct behavior:
+ * lambda bodies extend as far right as possible.
  * ============================================================================
  */
 
@@ -59,8 +68,16 @@ expr:
  *     (e.g., "f x y" = ((f x) y))
  */
 app:
-  | f=app arg=atom                  { App (f, arg) }
+  | f=app arg=apparg                { App (f, arg) }
   | e=atom                          { e }
+
+/* Application arguments:
+ *   - An atom (variable or parenthesized expression)
+ *   - A lambda abstraction (allows "x λy.y" without parens)
+ */
+apparg:
+  | e=atom                          { e }
+  | LAMBDA id=IDENT DOT body=expr   { Abs (id, body) }
 
 /* Atomic expressions:
  *   - A variable
