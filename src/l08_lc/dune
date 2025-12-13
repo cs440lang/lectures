@@ -1,7 +1,12 @@
 (library
  (name l08_lc))
 
-(menhir
- (modules parser))
-
 (ocamllex lexer)
+
+; Parser files (parser.ml, parser.mli) are pre-generated from parser.mly
+; and committed to the repository to avoid menhir warnings during builds.
+; To regenerate: uncomment the menhir stanza below, run 'dune build', then
+; copy _build/default/src/l08_lc/parser.{ml,mli} back to src/l08_lc/
+;
+; (menhir
+;  (modules parser))
