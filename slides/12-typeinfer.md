@@ -350,7 +350,7 @@ $
 ```ocaml
 | Let (x, e1, e2) ->
     let t1, c1 = collect_constraints tenv e1 in
-    let tenv' = (x, t1) :: tenv
+    let tenv' = (x, t1) :: tenv in
     let t2, c2 = collect_constraints tenv' e2 in
     (t2, c1 @ c2)
 ```
@@ -977,7 +977,7 @@ let rec infer_expr tenv e =
       let env2 = (x, scheme) :: env1 in
       let s2, t2 = infer_expr env2 e2 in
       let subst = compose_subst s2 s1 in
-      (subst, apply_subst_type subst t2)
+      (subst, t2)
   ...
 ```
 
