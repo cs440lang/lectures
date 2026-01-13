@@ -1,6 +1,4 @@
-# Course Syllabus
-
-## Overview
+# Overview
 
 This class serves as an introduction to the rich field of Programming Language
 Theory (PLT).
@@ -31,7 +29,7 @@ In this course, we won't just study programming languages. We'll build them.
 You'll implement multiple interpreters, gaining deep insight into how languages
 work by constructing them from the ground up.
 
-## Topics
+# Topics
 
 The overarching topics we will cover this semester include:
 
@@ -42,7 +40,7 @@ The overarching topics we will cover this semester include:
 - Type Checking and Inference (~3 weeks)
 - Axiomatic Semantics and Hoare Logic (~2 weeks)
 
-## Learning Outcomes
+# Learning Outcomes
 
 After completing this class, students should be able to:
 
@@ -65,16 +63,15 @@ After completing this class, students should be able to:
   and design decisions, understanding their trade-offs and implications for
   expressiveness, safety, and performance
 
-## Faculty & Staff
+# Faculty & Staff
 
-Professor: Michael Lee
+Professor: Michael Lee <lee@iit.edu>
 
-- Email: <lee@iit.edu>
-- Office hours: TBA
+- Office hours by appointment: <https://calendly.com/michaelklee/officehours>
 
-TA: TBA
+TA: Xincheng Yang <xyang76@hawk.illinoistech.edu>
 
-## Grading
+# Assessments and Grading
 
 Grades in the class are broken down as follows:
 
@@ -98,7 +95,7 @@ private repositories on GitHub, and written assignment submissions must be
 neatly written or typed up and submitted via Canvas. Assignments have varying
 point values, and will be weighted proportionally.
 
-### Late Policy
+## Late Policy
 
 In general, assignments will not be accepted late for any credit. I understand,
 however, that circumstances may arise in life, school, and work that get in the
@@ -107,16 +104,13 @@ procrastination or time mismanagement) for needing an extra day or two, please
 get in touch with me *before* an assignment is due, and we can discuss the
 possibility of an extension.
 
-## Academic Honesty
+## Exams
 
-All assignment submissions (including code and written solutions) should be
-entirely your own, excluding provided scaffolding. If we find evidence of
-plagiarism, the first offense will result in the plagiarized work receiving a 0
-(for all parties involved). A second offense will be reported to the Designated
-Dean of Academic Discipline, and may result in expulsion from the class.
-
-Please see the Illinois Tech Code of Academic Honesty for the official policies
-and procedures governing academic integrity violations.
+Both exams will be synchronous, in-person, and closed-device/book/notes. At my
+discretion, exam scores may be linearly normalized such that the average is
+~75%. I expect all Internet-section students to take both exams with the live
+section --- **please get in touch at least 2 weeks before the exam if this isn't
+possible**. Missing an exam will result in an automatic zero on that exam.
 
 ## On AI Use
 
@@ -135,7 +129,7 @@ exemplify this (but are not intended to be comprehensive):
 Do NOT:
 
 - Give the model a problem description and ask it to sketch an algorithm for you
-  or write pseudo code.
+  or write pseudocode.
 - Give the model the homework description and ask it to organize the code for
   you.
 - Give the model a function description and ask it to generate code for you.
@@ -158,15 +152,29 @@ You CAN:
 - Give a problem description and your proposed algorithm and "talk" through the
   potential fallacies.
 
-## Disability Resources
+# Academic Honesty
+
+Besides contributions covered by the AI assistant policy, above, all work on
+machine problems should be entirely your own. If we find evidence of plagiarism
+(e.g., between students), the first offense will result in the plagiarized
+assignment receiving a 0 (for all parties involved). A second offense will be
+reported to the Designated Dean of Academic Discipline, and may result in
+expulsion from the class.
+
+Please see the [Illinois Tech Code of Academic Honesty][honesty-code] for the
+official policies and procedures governing academic integrity violations.
+
+[honesty-code]: https://www.iit.edu/student-affairs/student-handbook/fine-print/code-academic-honesty
+
+# Disability Resources
 
 Reasonable accommodations will be made for students with documented
 disabilities. In order to receive accommodations, students must obtain a letter
 of accommodation from the Center for Disability Resources. The Center for
 Disability Resources is located in the Life Sciences Building, room 218,
-312-567-5744 or disabilities@iit.edu.
+312-567-5744 or <disabilities@iit.edu>.
 
-## Sexual Harassment and Discrimination Information
+# Sexual Harassment and Discrimination Information
 
 Illinois Tech prohibits all sexual harassment, sexual misconduct, and gender
 discrimination by any member of our community. This includes harassment among
@@ -180,20 +188,20 @@ misconduct to speak with the Office of Title IX Compliance for information on
 support options and the resolution process.
 
 You can report sexual harassment electronically at
-https://iit.edu/incidentreport, which may be completed anonymously. You may
+<https://iit.edu/incidentreport>, which may be completed anonymously. You may
 additionally report by contacting the Title IX Coordinator, Virginia Foster at
-foster@iit.edu.
+<foster@iit.edu>.
 
 For confidential support, you may reach Illinois Tech’s Confidential Advisor at
 (773) 907-1062. You can also contact a licensed practitioner in Illinois Tech’s
-Student Health and Wellness Center at student.health@iit.edu or 312-567-7550
+Student Health and Wellness Center at <student.health@iit.edu> or 312-567-7550.
 
 For a comprehensive list of resources regarding counseling services, medical
 assistance, legal assistance and visa and immigration services, you can visit
 the Office of Title IX Compliance website at
-https://www.iit.edu/title-ix/resources.
+<https://www.iit.edu/title-ix/resources>.
 
-## On Changes to the Syllabus
+# On Changes to the Syllabus
 
 This syllabus, like our course, should be seen as an evolving experience, and
 from time to time changes might become necessary. I reserve the right to modify
