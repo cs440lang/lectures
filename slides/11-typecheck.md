@@ -1,10 +1,6 @@
----
-title: "Type Checking"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# Type Checking
 
-# Agenda
+## Agenda
 
 - Typing Contexts and Static Semantics
   - Typing Notation
@@ -13,14 +9,10 @@ author: "Michael Lee"
 - A Type Checker for MiniML
 - Limitations and Shortcomings
 
----
-
-# Dynamic Semantics
+## Dynamic Semantics
 
 Operational semantics specify *dynamic semantics*: they describe how evaluation
 proceeds step by step at *runtime* to produce a final result.
-
-<!-- pause -->
 
 But situations arose where evaluation would get "stuck"; i.e., no evaluation
 rule could be applied. E.g.,
@@ -31,7 +23,7 @@ let rec eval (e : expr) (env: env) : value = match e with
       | Some y -> y
       | _ -> raise (RuntimeError "Unbound variable"))
   | Binop (bop, e1, e2) -> (...
-      | Add, VInt a, VInt b -> ... | Mult, VInt a, VInt b -> ... 
+      | Add, VInt a, VInt b -> ... | Mult, VInt a, VInt b -> ...
       | _ -> raise (RuntimeError "Invalid bop operands"))
   | If (e1, e2, e3) -> (...
       | VBool true -> ... | VBool false -> ...
@@ -41,9 +33,7 @@ let rec eval (e : expr) (env: env) : value = match e with
       | _ -> raise (RuntimeError "Invalid application"))
 ```
 
----
-
-# Getting Stuck
+## Getting Stuck
 
 In many cases, evaluation gets stuck because of type-related issues. E.g.,
 
@@ -53,31 +43,21 @@ In many cases, evaluation gets stuck because of type-related issues. E.g.,
 
 - `(fun x -> x + 1) (fun y -> y)`
 
-<!-- pause -->
-
 Wouldn't it be cool if we could prevent these issues from ever arising?
 
----
-
-# Type Systems and Static Semantics
+## Type Systems and Static Semantics
 
 A *type system* describes the *static semantics* of a program via *typing
 rules*.
 
-<!-- pause -->
-
 *Type checking* is the process of validating those rules at *compile-time* so we
 can prevent the evaluation of programs that are doomed to fail.
-
-<!-- pause -->
 
 Just as evaluation uses a dynamic environment (`σ`) that maps variables to
 values, type checking uses a static environment (`Γ`) -- aka typing context --
 that maps variables to *types*.
 
----
-
-# Typing Notation and Judgments
+## Typing Notation and Judgments
 
 Static semantics focuses on types, contexts, and related assertions/judgments.
 
@@ -102,27 +82,19 @@ Static semantics focuses on types, contexts, and related assertions/judgments.
 )
 ```
 
-<!-- pause -->
-
 A type-checker tries to prove the judgment `⊢ e : τ` for program `e`. If it
 succeeds, the program is *well-typed*, else it is *ill-typed*.
 
----
-
-# Type Systems as Proof Systems
+## Type Systems as Proof Systems
 
 Type systems provide a mathematical framework for proving that well-typed
 programs will not get stuck when run. This guarantee is called *type-safety*.
-
-<!-- pause -->
 
 Formally, we relate static and dynamic semantics with the following properties:
 
 - *Preservation*: a well-typed expression's type will not change if stepped.
 
 - *Progress*: a well-typed expression is either a value or can be stepped.
-
-<!-- pause -->
 
 ```typst +render +width:80%
 #let tstile = sym.tack.r
@@ -136,21 +108,15 @@ $
 $
 ```
 
----
-
-# Caveats and Examples
+## Caveats and Examples
 
 Type safety guarantees that *well-typed programs won't get stuck*.
-
-<!-- pause -->
 
 But it doesn't say that:
 
 - Every non-stuck program is well-typed.
 
 - Every well-typed programs will terminate.
-
-<!-- pause -->
 
 E.g.,
 
@@ -160,17 +126,11 @@ E.g.,
 
 - `if 1 <= 2 then 5 else false` is ill-typed but can be stepped
 
----
-
-# Type Checking
+## Type Checking
 
 How do we implement a type-checker?
 
-<!-- pause -->
-
 Approach 1: Explicit (Annotation-Driven) Type Checking
-
-<!-- incremental_lists: true-->
 
 - Types are *declared explicitly* by the programmer
 
@@ -182,15 +142,9 @@ Approach 1: Explicit (Annotation-Driven) Type Checking
 
 - Types are usually *monomorphic* (e.g., `int -> int`)
 
----
-
-# Type Checking
-
 How do we implement a type-checker?
 
 Approach 2: Implicit (Inferred) Type Checking
-
-<!-- incremental_lists: true-->
 
 - Types are *inferred* from expressions and operations
 
@@ -203,11 +157,7 @@ Approach 2: Implicit (Inferred) Type Checking
 
 - Supports *polymorphism* (e.g., `∀ a. a -> a`)
 
----
-
-# Explicit Type Checking
-
-<!-- pause -->
+## Explicit Type Checking
 
 We define a new ADT to represent the three concrete types in MiniML:
 
@@ -215,15 +165,11 @@ We define a new ADT to represent the three concrete types in MiniML:
 type typ = TInt | TBool | TFun of (typ * typ)
 ```
 
-<!-- pause -->
-
 We represent Γ, the typing context, as an associative list:
 
 ```ocaml
 type tenv = (string * typ) list
 ```
-
-<!-- pause -->
 
 Our goal is to implement `typeof`:
 
@@ -231,13 +177,9 @@ Our goal is to implement `typeof`:
 val typeof : expr -> tenv -> typ
 ```
 
-<!-- pause -->
-
 If `typeof` derives a `typ` for `expr` using `tenv`, `expr` is well-typed.
 
----
-
-# Type Annotations
+## Type Annotations
 
 Functions are modified to include explicit *type annotations* for arguments:
 
@@ -250,8 +192,6 @@ type expr =
   | Fun of string * typ * expr
 ```
 
-<!-- pause -->
-
 E.g.,
 
 ```ocaml
@@ -260,11 +200,9 @@ fun x:int -> x + 1
 let inc = fun x:int -> x + 1 in inc 41
 ```
 
----
+## Static Semantics Rules
 
-# Static Semantics Rules
-
-## Values
+### Values
 
 Integer and boolean literals have intrinsic types.
 
@@ -277,11 +215,9 @@ $
 
 "BOOL-T" & () / (Gamma tstile "true" : "bool") \
 
-"BOOL-F" & () / (Gamma tstile "false" : "bool") 
+"BOOL-F" & () / (Gamma tstile "false" : "bool")
 $
 ```
-
-<!-- pause -->
 
 ```ocaml
 let rec typeof (e : expr) (tenv : tenv) = match e with
@@ -289,11 +225,7 @@ let rec typeof (e : expr) (tenv : tenv) = match e with
   | Bool _ -> TBool
 ```
 
----
-
-# Static Semantics Rules
-
-## Variables
+### Variables
 
 A variable's type must be declared in the current context:
 
@@ -307,8 +239,6 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 | Var x -> (
     match List.assoc_opt x tenv with
@@ -316,19 +246,13 @@ $
     | None -> raise (TypeError (Printf.sprintf "%s undeclared" x)))
 ```
 
----
-
-# Type Checking in the Interpreter
-
-<!-- pause -->
+## Type Checking in the Interpreter
 
 We define a new type of exception:
 
 ```ocaml
 exception TypeError of string
 ```
-
-<!-- pause -->
 
 Our REPL type-checks before evaluation. `TypeError`s will prevent ill-typed
 programs from being evaluated.
@@ -345,11 +269,7 @@ with
     Printf.printf "Type Error: %s\n" msg;
 ```
 
----
-
-# Static Semantics Rules
-
-## Binary Operators
+### Binary Operators
 
 ```typst +render +width:80%
 #let bop = sym.plus.circle
@@ -369,8 +289,6 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 | Binop (bop, e1, e2) -> (
     let t1 = typeof e1 tenv in
@@ -382,13 +300,7 @@ $
     | _ -> raise (TypeError "Invalid bop operands"))
 ```
 
----
-
-# Static Semantics Rules
-
-## `if-then-else`
-
-<!-- pause -->
+### `if-then-else`
 
 The guard must be a boolean and both branches must agree on the result type.
 
@@ -404,8 +316,6 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 | If (e1, e2, e3) ->
     let t1 = typeof e1 tenv in
@@ -417,35 +327,19 @@ $
       else raise (TypeError "Branches don't match")
 ```
 
----
-
-# Static Semantics Rules
-
-## `if-then-else`
-
 Why do the branches need to agree? Is this program stuck?
 
 `if 1 <= 2 then 5 else false`
-
-<!-- pause -->
 
 How about this?
 
 `if (if 1 <= 2 then 5 else false) then 10 else 20`
 
-<!-- pause -->
-
 Type checkers ignore dynamic semantics. They must be *conservative*: every
 subexpression -- even those never evaluated -- must be well-typed for the
 program to be well-typed.
 
----
-
-# Static Semantics Rules
-
-## `let`
-
-<!-- pause -->
+### `let`
 
 `let` bindings need not be explicitly annotated. We can perform *local
 inference* to compute their types and extend the environment.
@@ -463,21 +357,13 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 | Let (x, e1, e2) ->
     let t = typeof e1 tenv in
     typeof e2 ((x, t) :: tenv)
 ```
 
----
-
-# Static Semantics Rules
-
-## `fun`
-
-<!-- pause -->
+### `fun`
 
 Functions need type annotations because we can't always locally infer them.
 
@@ -492,21 +378,13 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 | Fun (x, t, e) ->
     let t' = typeof e ((x, t) :: tenv) in
     TFun (t, t')
 ```
 
----
-
-# Static Semantics Rules
-
-## Application
-
-<!-- pause -->
+### Application
 
 Application requires the function expression to have a type whose domain matches
 the argument's type.
@@ -522,8 +400,6 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 | App (e1, e2) -> (
     let t1 = typeof e1 tenv in
@@ -535,9 +411,7 @@ $
     | _ -> raise (TypeError "Non-function type being applied"))
 ```
 
----
-
-# Typing Proofs
+## Typing Proofs
 
 Using the typing rules, how can we prove the following programs are well-typed?
 
@@ -547,9 +421,7 @@ Using the typing rules, how can we prove the following programs are well-typed?
 
 - `let f=fun x:int -> x * 10 in f (1 + 2)`
 
-<!-- pause -->
-
-# Proof Trees
+## Proof Trees
 
 ```typst +render +width:100%
 #let bop = sym.plus.circle
@@ -577,9 +449,7 @@ $
 $
 ```
 
----
-
-# Demo
+## Demo
 
 ```ocaml
 dune utop
@@ -588,11 +458,7 @@ dune utop
 # Eval.repl ();;
 ```
 
----
-
-# Limitations and Shortcomings
-
-<!-- incremental_lists: true -->
+## Limitations and Shortcomings
 
 Explicit type checking is simple, predictable, and fast, but ...
 

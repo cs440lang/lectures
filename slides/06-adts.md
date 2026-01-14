@@ -1,19 +1,13 @@
----
-title: "OCaml: Data Types"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# OCaml: Data Types
 
-# Agenda
+## Agenda
 
 - Tuples
 - Records
 - Type synonyms
 - Algebraic data Types (ADTs)
 
----
-
-# Tuples
+## Tuples
 
 A *tuple* is a *fixed-size*, *ordered* collection of values that can be of
 different types.
@@ -22,9 +16,7 @@ different types.
 
 - A tuple value is written as the components in parentheses, separated by commas
 
----
-
-# Examples of Tuples
+## Examples of Tuples
 
 ```ocaml
 (1,2);;
@@ -37,9 +29,7 @@ different types.
 - : (int * bool) * string list = ((1, false), ["foo"; "bar"])
 ```
 
----
-
-# Accessing tuple components
+## Accessing tuple components
 
 We use pattern-matching to access tuple components. E.g.,
 
@@ -49,9 +39,7 @@ let dist (x1,y1) (x2,y2) = sqrt ((x1-.x2)**2. +. (y1-.y2)**2.)
 val dist : float * float -> float * float -> float
 ```
 
----
-
-# Records
+## Records
 
 A *record* is a *fixed-size* collection of *named fields*, each with an
 associated type.
@@ -63,16 +51,14 @@ associated type.
 
 - Fields are accessed by name using the `.` operator.
 
----
-
-# Examples of Record Syntax
+## Examples of Record Syntax
 
 ```ocaml
 type student = { name : string; id : int; gpa : float; }
 
 let michael = { name="Michael"; id=1234567; gpa=3.5 };
 
-michael.id 
+michael.id
 
 (* we can also pattern match on records *)
 match michael with {name; id; gpa} -> name;;
@@ -81,9 +67,7 @@ match michael with {name; id; gpa} -> name;;
 {michael with name="Jane"; id=2345678};;
 ```
 
----
-
-# Type synonyms
+## Type synonyms
 
 We can define *type synonyms* to help with legibility:
 
@@ -98,9 +82,7 @@ type int_matrix = (int list) list
 type 'a matrix = ('a list) list
 ```
 
----
-
-# Algebraic data types (ADTs)
+## Algebraic data types (ADTs)
 
 An algebraic data type is a user-defined type that can take one of several
 distinct *variants*, each of which may *carry zero or more values* (of possibly
@@ -113,12 +95,10 @@ different types).
 
 - ADTs are used with pattern matching to inspect and decompose values.
 
----
-
-# Examples of ADTs
+## Examples of ADTs
 
 ```ocaml
-type color = Red | Blue | Green 
+type color = Red | Blue | Green
 
 let describe_color = function
   | Red -> "Warm"

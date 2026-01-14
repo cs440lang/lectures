@@ -1,18 +1,12 @@
----
-title: "Final Exam Review"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# Final Exam Review
 
-# Agenda
+## Agenda
 
 - Final exam coverage
 - Exam breakdown
   - Sample problems
 
----
-
-# Final Exam Coverage
+## Final Exam Coverage
 
 - High-level interpreter & compiler concepts
 - Operational semantics
@@ -20,11 +14,7 @@ author: "Michael Lee"
 - Explicit type checking
 - Type inference
 
----
-
-# Final Exam Coverage
-
-## High-Level Interpreter & Compiler Concepts
+### High-Level Interpreter & Compiler Concepts
 
 - Lexing
 - Parsing
@@ -33,21 +23,13 @@ author: "Michael Lee"
 - Evaluation
 - Compilation / Transpilation
 
----
-
-# Final Exam Coverage
-
-## Operational Semantics
+### Operational Semantics
 
 - Rules of inference
 - Small-step semantics
 - Big-step semantics
 
----
-
-# Final Exam Coverage
-
-## Evaluator Implementation
+### Evaluator Implementation
 
 - Operations semantics rules -> `eval`
 - Substitution-model evaluation
@@ -57,11 +39,7 @@ author: "Michael Lee"
   - Closures
 - Desugaring
 
----
-
-# Final Exam Coverage
-
-## Explicit type checking
+### Explicit type checking
 
 - Explicit vs. Implicit type checking
 - Typing rules
@@ -69,11 +47,7 @@ author: "Michael Lee"
   - Progress and Preservation
 - Static (Type) environments
 
----
-
-# Final Exam Coverage
-
-## Type inference
+### Type inference
 
 - Type inference rules
 - Constraint generation
@@ -82,26 +56,18 @@ author: "Michael Lee"
 - Polymorphic type inference
   - Type schemes & Instantiation/Generalization
 
----
-
-# Exam Breakdown
+## Exam Breakdown
 
 - 10-15 Multiple choice questions (~20% weight)
 - 4-6 Short answer conceptual questions (~20% weight)
 - 4 Derivation/Proof questions (~60% weight)
 
----
-
-# Exam Breakdown
-
-## Derivation/Proof Questions
+### Derivation/Proof Questions
 
 1. *Parsing*: MiniML Code -> AST
 2. *Evaluator implementation*: AST + Semantic rule(s) -> `eval`
 3. *Explicit type checking*: Typing proof (proof tree derivation)
 4. *Type inference*: Type derivation (constraint generation + unification)
-
----
 
 ## Sample Derivation/Proof Questions
 
@@ -115,8 +81,6 @@ Translate the following MiniML expressions into their AST representations:
 
 - `(fun x -> fun y -> x) 1 2`
 
-<!-- pause -->
-
 Solutions:
 
 - `Let ("x", Int 5, Binop (Mult, Int 2, Var "x"))`
@@ -124,10 +88,6 @@ Solutions:
 - `Let ("f", Fun ("x", Binop (Mult, Int 2, Var "x")), App (Var "f", Int 10))`
 
 - `App (App (Fun ("x", Fun ("y", Var "x")), Int 1), Int 2)`
-
----
-
-## Sample Derivation/Proof Questions
 
 ### 2. Evaluator implementation
 
@@ -147,17 +107,13 @@ evaluates to `false` otherwise. Here are the big-step semantic rules for `not`:
 
 $
 "NOT_T" & (state(e,sigma) bstep v quad v in { "false", 0 }) /
-        (state("not" e,sigma) bstep "true")\ 
+        (state("not" e,sigma) bstep "true")\
 
-        
+
 "NOT_F" & (state(e,sigma) bstep v quad v in.not { "false", 0 }) /
-        (state("not" e,sigma) bstep "false") 
+        (state("not" e,sigma) bstep "false")
 $
 ```
-
----
-
-## Sample Derivation/Proof Questions
 
 ### 2. Evaluator implementation (Solution)
 
@@ -171,8 +127,6 @@ let rec eval (e : expr) (env : env) : value =
       | _ -> VBool false)
 ```
 
-<!-- pause -->
-
 ```ocaml
 # eval (Not (Bool false)) [];; (* `not false` *)
 - : value = VBool true
@@ -184,10 +138,6 @@ let rec eval (e : expr) (env : env) : value =
 - : value = VBool false
 ```
 
----
-
-## Sample Derivation/Proof Questions
-
 ### 3. Explicit type checking
 
 Construct a typing proof (proof tree) for each of the following expressions.
@@ -195,10 +145,6 @@ Indicate whether the expression is well- or ill-typed.
 
 - `let x = 42 in if x <= 0 then 10 else x`
 - `let f = fun x:int -> x*2 in f 7`
-
----
-
-## Sample Derivation/Proof Questions
 
 ### 3. Explicit type checking (Solution)
 
@@ -217,12 +163,6 @@ Indicate whether the expression is well- or ill-typed.
 
 Well-typed
 
----
-
-## Sample Derivation/Proof Questions
-
-### 3. Explicit type checking (Solution)
-
 let x = 42 in if x <= 0 then `true` else x
 
 ```
@@ -237,12 +177,6 @@ let x = 42 in if x <= 0 then `true` else x
 ```
 
 Ill-typed
-
----
-
-## Sample Derivation/Proof Questions
-
-### 3. Explicit type checking (Solution)
 
 `let f = fun x:int -> x*2 in f 7`
 
@@ -259,12 +193,6 @@ Ill-typed
 
 Well-typed
 
----
-
-## Sample Derivation/Proof Questions
-
-### 3. Explicit type checking (Solution)
-
 let f = fun x:int -> x*2 in f `true`
 
 ```
@@ -280,10 +208,6 @@ let f = fun x:int -> x*2 in f `true`
 
 Ill-typed
 
----
-
-## Sample Derivation/Proof Questions
-
 ### 4. Type inference
 
 Infer the type of the following expressions. Show the *derivation tree*,
@@ -295,10 +219,6 @@ clearly indicate either the *principal type* or unification error.
 - `fun x -> x + 1` / `fun x -> x + true`
 - `fun x -> if x then 0 else x + 1`
 - `(fun x -> x + 1) 42`
-
----
-
-## Sample Derivation/Proof Questions
 
 ### 4. Type inference (Solution)
 
@@ -320,12 +240,6 @@ S = { 'a |-> int }
 fun x -> x + 1 : int -> int
 ```
 
----
-
-## Sample Derivation/Proof Questions
-
-### 4. Type inference (Solution)
-
 `fun x -> x + true`
 
 ```
@@ -339,12 +253,6 @@ C = { 'a = int, bool = int }
 U('a = int) = 'a |-> int
 U(bool = int) = Unification failure: type mismatch
 ```
-
----
-
-## Sample Derivation/Proof Questions
-
-### 4. Type inference (Solution)
 
 `fun x -> if x then 0 else x + 1`
 
@@ -366,12 +274,6 @@ U('b = int) = 'b |-> int
 U(int = int)
 U(bool = int) = Unification failure: type mismatch
 ```
-
----
-
-## Sample Derivation/Proof Questions
-
-### 4. Type inference (Solution)
 
 `(fun x -> x + 1) 42`
 

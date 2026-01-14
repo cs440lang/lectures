@@ -1,16 +1,10 @@
----
-title: "OCaml: Lists"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# OCaml: Lists
 
-# Agenda
+## Agenda
 
 - Lists
 
----
-
-# Lists
+## Lists
 
 A list is a sequence of elements *of the same type*
 
@@ -18,11 +12,7 @@ A list is a sequence of elements *of the same type*
 
 - Type signature: `'a list`
 
----
-
-# Lists
-
-## List construction
+### List construction
 
 Two constructors:
 
@@ -33,12 +23,6 @@ Two constructors:
   - Type signature: `'a -> 'a list -> 'a list`
 
   - Right associative
-
----
-
-# Lists
-
-## List construction
 
 e.g., building lists
 
@@ -52,11 +36,7 @@ let l3 = "hello" :: "world" :: []
 let l4 = (1 :: 2 :: []) :: (10 :: 20 :: []) :: []
 ```
 
----
-
-# Lists
-
-## Syntactic sugar
+### Syntactic sugar
 
 We can also just write:
 
@@ -67,5 +47,3 @@ let l5 = [[1; 2]; [10; 20]]
 
 let l6 = [(fun x -> x*2); (fun x -> x/2)]
 ```
-
----

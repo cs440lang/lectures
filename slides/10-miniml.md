@@ -1,10 +1,6 @@
----
-title: "MiniML"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# MiniML
 
-# Agenda
+## Agenda
 
 - MiniML
 - Evaluating Functions & Application
@@ -12,14 +8,10 @@ author: "Michael Lee"
 - Functions of 2+ Arguments
   - Desugaring
 
----
-
-# MiniML
+## MiniML
 
 SimPL provided a good set of interpreter training wheels, but it lacks an
 essential feature: *functions*.
-
-<!-- pause -->
 
 Let's add function definition and application to our language:
 
@@ -32,9 +24,7 @@ Let's add function definition and application to our language:
           | <expr> <expr>
 ```
 
----
-
-# MiniML AST
+## MiniML AST
 
 We update our ADT with two new values:
 
@@ -50,9 +40,7 @@ type expr =
   | App of expr * expr
 ```
 
----
-
-# Parsing MiniML
+## Parsing MiniML
 
 And update the front-end, so that:
 
@@ -68,15 +56,11 @@ And update the front-end, so that:
                 Int 439)
 ```
 
----
+## Big-Step Environment-Model Evaluation
 
-# Big-Step Environment-Model Evaluation
-
-## `fun`
+### `fun`
 
 What happens when we encounter a `fun`? What does it evaluate to?
-
-<!-- pause -->
 
 Naive approach: a `fun` is just a value that evaluates to itself.
 
@@ -88,11 +72,9 @@ Naive approach: a `fun` is just a value that evaluates to itself.
 $
 "FUN" & ()
          /
-        (state("fun" x "->" e,sigma) bstep ("fun" x "->" e)) 
+        (state("fun" x "->" e,sigma) bstep ("fun" x "->" e))
 $
 ```
-
-<!-- pause -->
 
 ```ocaml {6}
 let rec eval (e : expr) (env: env) : value =
@@ -103,11 +85,7 @@ let rec eval (e : expr) (env: env) : value =
   | Fun (x, body) -> VFun (x, body)
 ```
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Application (`e1 e2`)
+### Application (`e1 e2`)
 
 Application involves evaluating a function's body with its variable bound to an
 argument value.
@@ -122,11 +100,9 @@ $
          quad state(e_2,sigma) bstep v_2
          quad state(e'_1, sigma[x mapto v_2]) bstep v
         ) /
-        (state(e_1 e_2,sigma) bstep v) 
+        (state(e_1 e_2,sigma) bstep v)
 $
 ```
-
-<!-- pause -->
 
 ```ocaml {3-7}
 let rec eval (e : expr) (env: env) : value =
@@ -138,73 +114,37 @@ let rec eval (e : expr) (env: env) : value =
           eval e1' ((x,v2) :: env))
 ```
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Sanity Check
+### Sanity Check
 
 How does our implementation behave in the following example?
 
 ```ocaml
-let y=5 in                                              
+let y=5 in
 let f=fun x->x+y in
 let y=6 in
 f 10
 ```
-
----
-
-# Big-Step Environment-Model Evaluation
-
-## Sanity Check
-
-How does our implementation behave in the following example?
 
 ```ocaml {1}
-let y=5 in            env=[]                            
+let y=5 in            env=[]
 let f=fun x->x+y in
 let y=6 in
 f 10
 ```
-
----
-
-# Big-Step Environment-Model Evaluation
-
-## Sanity Check
-
-How does our implementation behave in the following example?
 
 ```ocaml {2}
 let y=5 in
-let f=fun x->x+y in   env=[(y,5)]                       
+let f=fun x->x+y in   env=[(y,5)]
 let y=6 in
 f 10
 ```
-
----
-
-# Big-Step Environment-Model Evaluation
-
-## Sanity Check
-
-How does our implementation behave in the following example?
 
 ```ocaml {3}
 let y=5 in
 let f=fun x->x+y in
-let y=6 in            env=[(f,fun x->x+y); (y,5)]       
+let y=6 in            env=[(f,fun x->x+y); (y,5)]
 f 10
 ```
-
----
-
-# Big-Step Environment-Model Evaluation
-
-## Sanity Check
-
-How does our implementation behave in the following example?
 
 ```ocaml {4}
 let y=5 in
@@ -213,19 +153,11 @@ let y=6 in
 f 10                  env=[(y,6); (f,fun x->x+y); (y,5)]
 ```
 
-<!-- pause -->
-
 We evaluate `(x+y)` with env=`[(x,10); (y,6); ...]`
-
-<!-- pause -->
 
 = 16
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Dynamic Scoping
+### Dynamic Scoping
 
 Our current set of rules apply a function by using the *dynamic environment* to
 look up free variables in its body. We call this *dynamic scoping*.
@@ -244,13 +176,11 @@ $
          quad state(e_2,sigma) bstep v_2
          quad state(e'_1, text(fill:#red,sigma)[x mapto v_2]) bstep v
         ) /
-        (state(e_1 e_2,text(fill:#red,sigma)) bstep v) 
+        (state(e_1 e_2,text(fill:#red,sigma)) bstep v)
 $
 ```
 
----
-
-# What would OCaml do?
+## What would OCaml do?
 
 Predict the results:
 
@@ -261,15 +191,11 @@ let y=6 in
 f 10
 ```
 
-<!-- pause -->
-
 ```ocaml
 let f=(let y=5 in (fun x->x+y)) in
 let y=6 in
 f 10
 ```
-
-<!-- pause -->
 
 ```ocaml
 let f=(fun x->x+y) in
@@ -277,28 +203,20 @@ let y=5 in
 f 10
 ```
 
----
-
-# What would OCaml do?
-
 What do we get when we evaluate a `fun` in some environment?
 
 ```ocaml
 let y=5 in fun x->x+y
 ```
 
-<!-- pause -->
-
 We get back a ***closure***.
 
 - A combination of the function's definition and *the environment in which it
   was defined* (aka its *lexical environment*).
 
----
+## Big-Step Environment-Model Evaluation with Closures
 
-# Big-Step Environment-Model Evaluation
-
-## fun => closure
+### fun => closure
 
 We'll update our rule so that evaluating a `fun` expression results in a
 closure.
@@ -317,8 +235,6 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml {3}
 type value = VInt of int
            | VBool of bool
@@ -334,11 +250,7 @@ let rec eval (e : expr) (env: env) : value =
   | Fun (x, body) -> Closure (x, body, env)
 ```
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Application (`e1 e2`)
+### Application (`e1 e2`)
 
 We'll also update application to expect a closure from evaluating `e1`, and to
 evaluate its body in the saved environment:
@@ -354,11 +266,9 @@ $
          quad state(e_2,sigma) bstep v_2
          quad state(e'_1, text(fill:#yellow,sigma')[x mapto v_2]) bstep v
         ) /
-        (state(e_1 e_2,sigma) bstep v) 
+        (state(e_1 e_2,sigma) bstep v)
 $
 ```
-
-<!-- pause -->
 
 ```ocaml {5,7}
 let rec eval (e : expr) (env: env) : value =
@@ -370,11 +280,7 @@ let rec eval (e : expr) (env: env) : value =
           eval e1' ((x, v2) :: env'))
 ```
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Lexical Scoping
+### Lexical Scoping
 
 Our updated set of rules use the *lexical environment* captured by a closure to
 look up free variables in a function's body during application.
@@ -396,15 +302,11 @@ $
          quad state(e_2,sigma) bstep v_2
          quad state(e'_1, text(fill:#red,sigma')[x mapto v_2]) bstep v
         ) /
-        (state(e_1 e_2,sigma) bstep v) 
+        (state(e_1 e_2,sigma) bstep v)
 $
 ```
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Dynamic vs. Lexical Scoping
+### Dynamic vs. Lexical Scoping
 
 Our provided implementation allows us to play with both scoping strategies:
 
@@ -424,14 +326,6 @@ let rec eval (e : expr) (env: env) : value =
           eval e1' ((x,v2) :: base_env))
 ```
 
----
-
-# Big-Step Environment-Model Evaluation
-
-## Dynamic vs. Lexical Scoping
-
-<!-- pause -->
-
 - Lexical scoping is ...
 
   - more predictable and modular: a function's behavior is based on its static
@@ -441,8 +335,6 @@ let rec eval (e : expr) (env: env) : value =
     have it use the caller's bindings)
 
   - matches most modern implementations
-
-<!-- pause -->
 
 - Dynamic scoping is ...
 
@@ -454,13 +346,9 @@ let rec eval (e : expr) (env: env) : value =
 
   - incompatible with modern compiler optimizations / static analysis
 
----
-
-# Functions of 2+ Args
+## Functions of 2+ Args
 
 What if we wanted to support functions of more than 1 argument?
-
-<!-- pause -->
 
 ```bnf {6,8}
 <expr>  ::= <int> | <bool> | <var>
@@ -473,11 +361,7 @@ What if we wanted to support functions of more than 1 argument?
 <args> ::= <var> | <var> <args>
 ```
 
----
-
-# Functions of 2+ Args
-
-## Approach 1: Update Front-End + Evaluator
+### Approach 1: Update Front-End + Evaluator
 
 We start by updating the AST:
 
@@ -493,12 +377,6 @@ type expr =
   | App of expr * expr
 ```
 
----
-
-# Functions of 2+ Args
-
-## Approach 1: Update Front-End + Evaluator
-
 Then, after updating the front-end to recognize the new syntax and return
 appropriate ADTs, update necessary value types:
 
@@ -508,12 +386,10 @@ type value = VInt of int
            | Closure of (string list * expr * env)
 ```
 
-<!-- pause -->
-
 and the evaluator:
 
 ```ocaml {6-7}
-let rec eval (e : expr) (env: env) : value =      
+let rec eval (e : expr) (env: env) : value =
   match e with
   | Fun (xs, body) -> Closure (xs, body, env)
   | App (e1, e2) -> (
@@ -522,16 +398,8 @@ let rec eval (e : expr) (env: env) : value =
           (* evaluate the closure (how?) *)
 ```
 
----
-
-# Functions of 2+ Args
-
-## Approach 1: Update Front-End + Evaluator
-
 But we're not really introducing any new semantics, so why are we updating the
 `eval` function?!
-
-<!-- pause -->
 
 We should recognize that:
 
@@ -545,11 +413,7 @@ is, thanks to currying, *syntactic sugar* for:
 (fun x -> fun y -> fun z ... -> body)
 ```
 
----
-
-# Functions of 2+ Args
-
-## Approach 2: Desugaring
+### Approach 2: Desugaring
 
 A simpler approach is to only modify the grammar and parser, and when we
 encounter the `fun x y z ... -> body` syntax, to *desugar* it into the
@@ -557,7 +421,7 @@ explicitly curried form.
 
 ```ocamlex
 expr:
-  | FUN xs=args ARROW e=expr  { curry xs e }       
+  | FUN xs=args ARROW e=expr  { curry xs e }
 
 args:
   | x=ID                      { [x]        }
@@ -569,12 +433,6 @@ let curry (args: string list) (body: expr) : expr =
   List.fold_right (fun arg body -> Fun (arg, body))
                   args body
 ```
-
----
-
-# Functions of 2+ Args
-
-## Approach 2: Desugaring
 
 Now the parser will only produce ASTs of the form `fun x -> fun y -> ...`
 
@@ -590,9 +448,7 @@ Now the parser will only produce ASTs of the form `fun x -> fun y -> ...`
 
 We don't need to touch the AST or the Evaluator!
 
----
-
-# On Desugaring
+## On Desugaring
 
 Benefits of the desugaring approach:
 

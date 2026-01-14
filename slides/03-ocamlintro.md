@@ -1,19 +1,13 @@
----
-title: "OCaml: Introduction and Basics"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# OCaml: Introduction and Basics
 
-# Agenda
+## Agenda
 
 - Sample code and lecture workflow
 - OCaml toplevel/playground
 - Notable language features
 - OCaml basics
 
----
-
-# Sample code and Lecture workflow
+## Sample code and Lecture workflow
 
 Code repository: <https://github.com/cs440lang/lectures>
 
@@ -21,15 +15,11 @@ Code repository: <https://github.com/cs440lang/lectures>
 
 - Completed versions in `main` branch, Starter in `demo` branch
 
-<!-- pause -->
-
 Load starter code in OCaml toplevel during code demos to follow along
 
 - Pull new changes from GitHub regularly!
 
----
-
-# OCaml toplevel: `utop`
+## OCaml toplevel: `utop`
 
 REPL for OCaml
 
@@ -40,11 +30,7 @@ REPL for OCaml
 If you don't have OCaml installed, you can use the
 [OCaml playground](https://ocaml.org/play)
 
----
-
-# Notable Language Features
-
-<!-- incremental_lists: true -->
+## Notable Language Features
 
 1. *Static-typing* and *Type-safety*: every expression has a type, determined
    and enforced at compile time
@@ -60,9 +46,7 @@ If you don't have OCaml installed, you can use the
 
 6. *Parametric polymorphism*: functions can extend to disparate, unrelated types
 
----
-
-# OCaml basics
+## OCaml basics
 
 - Defs: Expressions, Values, and Types
 - Errors and Exceptions
@@ -70,9 +54,7 @@ If you don't have OCaml installed, you can use the
 - Variable bindings
 - Conditionals
 
----
-
-## Defs: Expressions, Values, and Types
+### Defs: Expressions, Values, and Types
 
 - *Expression*: any valid piece of OCaml code that produces a value
 - *Value*: a fully evaluated result (cannot be reduced further)
@@ -86,16 +68,12 @@ If you don't have OCaml installed, you can use the
 "hi" ^ "!"  (* expression of type string, value "hi!" *)
 ```
 
-<!-- pause -->
-
 - *Evaluating* an expression may:
   - Produce a value
     - In `utop`, evaluating a value also prints out its type
   - Produce an error
 
----
-
-## Errors and Exceptions
+### Errors and Exceptions
 
 What can go wrong?
 
@@ -103,9 +81,7 @@ What can go wrong?
 2. Type errors
 3. Exceptions
 
----
-
-### Syntax errors
+#### Syntax errors
 
 Illegal/Malformed code
 
@@ -117,9 +93,7 @@ E.g.,
 let x = 1 +   (* Error: unexpected end of input *)
 ```
 
----
-
-### Type errors
+#### Type errors
 
 Operations on incompatible types
 
@@ -133,9 +107,7 @@ E.g.,
 2 * 2.0
 ```
 
----
-
-### Exceptions
+#### Exceptions
 
 Dynamic / Run-time
 
@@ -151,8 +123,6 @@ assert (delta < 0.0001)
 failwith "Some error description ..."
 ```
 
-<!-- pause -->
-
 E.g., infinite loops/recursion
 
 ```ocaml
@@ -161,20 +131,14 @@ let rec loop () = loop ()
 loop ()
 ```
 
----
-
-## Some built-in types
+### Some built-in types
 
 - `int`, `float`, `bool`, `char`, `string`
 - Tuples: `(1, "hi", true)`
 - Lists: `[1; 2; 3]`
 - Unit: `()`
 
----
-
-## Some built-in types
-
-### And their operators
+#### And their operators
 
 - Integers: `+`, `-`, `*`, `/`
 - Floats: `+.`, `-.`, `*.`, `/.`
@@ -184,7 +148,7 @@ loop ()
 - Lists: `@` (concatenation)
 
 ```ocaml
-3 + 4 
+3 + 4
 
 3.0 +. 4.0
 
@@ -193,9 +157,7 @@ loop ()
 [1;2;3] @ [4;5;6]
 ```
 
----
-
-## Variable bindings
+### Variable bindings
 
 `let` *binds* a name to a value
 
@@ -207,8 +169,6 @@ let x = 10
 let y = x + 5   (* y = 15 *)
 ```
 
-<!-- pause -->
-
 A new binding can *shadow* an existing name:
 
 ```ocaml
@@ -219,11 +179,7 @@ let x = x + 2   (* now x = 3 *)
 
 - this is *not* the same thing as mutating a variable!
 
----
-
-## Variable bindings
-
-### Type annotations
+#### Type annotations
 
 We can attach explicit type annotations to variables:
 
@@ -239,10 +195,6 @@ let z : int = x * y
   us!
   - (how can it do so in the examples above?)
 
----
-
-## Variable bindings
-
 `let` can also be used with `in` to create a *scoped binding*:
 
 ```ocaml
@@ -251,15 +203,11 @@ let x = 44 in x * 10
 
 - `x * 10` is the *body* of the `let`, and `x` is only valid in that scope.
 
-<!-- pause -->
-
 The entire `let-in` construct is itself an expression!
 
 ```ocaml
 2 * (let x = 44 in x * 5)
 ```
-
-<!-- pause -->
 
 Nested `let`s are used to introduce multiple "local" variables:
 
@@ -269,9 +217,7 @@ let x = 44 in
     2 * x * y
 ```
 
----
-
-## Conditionals
+### Conditionals
 
 `if-then-else` constructs a conditional expression:
 
@@ -279,16 +225,12 @@ let x = 44 in
 if a*a + b*b = c*c then "square" else "not square"
 ```
 
-<!-- pause -->
-
 The entire `if-then-else` expression has some fixed type *t*, which means that
 both `then` and `else` branches must evaluate to the same type *t*!
 
 ```ocaml
 if foo < 10 then 10 else "bar" (* type error! *)
 ```
-
-<!-- pause -->
 
 It can be used anywhere an expression is legal!
 

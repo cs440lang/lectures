@@ -1,10 +1,6 @@
----
-title: "The Lambda (λ) Calculus"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# The Lambda (λ) Calculus
 
-# Agenda
+## Agenda
 
 - History & Motivation
 - Syntax & Semantics
@@ -12,9 +8,7 @@ author: "Michael Lee"
 - Data Representation
 - Recursion
 
----
-
-# A Bit of History
+## A Bit of History
 
 In 1928, Hilbert and Ackermann posed the *Entscheidungsproblem* ("decision
 problem") which essentially asks:
@@ -24,9 +18,7 @@ problem") which essentially asks:
 
 - Answering this requires clear notions of *algorithm* and *computation*
 
----
-
-## Models of Computation
+### Models of Computation
 
 By 1936, Alonzo Church proposed the *λ-calculus* (aka "λ") and Alan Turing
 proposed the *Turing machine* as independent models of computation
@@ -35,9 +27,7 @@ proposed the *Turing machine* as independent models of computation
 
 - Turing machines being inherently *stateful*
 
----
-
-## Church-Turing Thesis
+### Church-Turing Thesis
 
 Both models were used to *deny* the entscheidungsproblem
 
@@ -51,9 +41,7 @@ Both models showed that *no universal decision procedure* can exist
 - Not only did the models agree, Church also showed that the models are
   *computationally equivalent*
 
----
-
-# What is the λ-Calculus?
+## What is the λ-Calculus?
 
 - A *minimal formal system* for describing computation
 
@@ -65,9 +53,7 @@ Both models showed that *no universal decision procedure* can exist
 
   - Numbers, data structures, control flow can all be encoded in it
 
----
-
-## Why study it?
+### Why study it?
 
 - It distills the *essential concepts* of all functional languages
 
@@ -78,15 +64,9 @@ Both models showed that *no universal decision procedure* can exist
 
 - Studying it builds intuition for *all programming languages*!
 
----
+## Syntax & Semantics
 
-<!-- jump_to_middle -->
-
-# Syntax & Semantics
-
----
-
-## Grammar
+### Grammar
 
 In Backus-Naur Form (BNF):
 
@@ -105,9 +85,7 @@ Examples:
 
 - Applications: `f x`, `g (f x)`, `(λf.λx.f x) (λy.y) w`
 
----
-
-## What is an "Abstraction"?
+### What is an "Abstraction"?
 
 Consider the concrete arithmetic expression `(3 + 5) * 2`
 
@@ -118,9 +96,7 @@ Consider the concrete arithmetic expression `(3 + 5) * 2`
   - we can now *apply* this λ-abstraction, substituting an argument in place of
     `x` in the body
 
----
-
-### Abstractions = Anonymous Functions
+#### Abstractions = Anonymous Functions
 
 The abstraction `λx.((x + 5) * 2)` introduces a variable named `x`, but *not* a
 name for the abstraction itself!
@@ -132,9 +108,7 @@ name for the abstraction itself!
 
   - Consider `(λf.f 3) (λx.((x + 5) * 2))`
 
----
-
-### Abstractions all the way down ...
+#### Abstractions all the way down ...
 
 λ doesn't feature arithmetic operators, or even integers
 
@@ -146,11 +120,9 @@ So we cannot directly express `λx.((x + 5) * 2)` in λ
 
   - As abstractions! (more on this later)
 
----
+### Associativity & Precedence
 
-## Associativity & Precedence
-
-### 1. Abstractions are *right-associative*
+#### 1. Abstractions are *right-associative*
 
 I.e., if there are multiple abstractions in a row, the *rightmost* one is
 grouped with its body first.
@@ -159,11 +131,7 @@ grouped with its body first.
 
 - E.g., `λx.λy.λz.x` = `λx.(λy.(λz.x))`
 
----
-
-## Associativity & Precedence
-
-### 2. Application is *left-associative*
+#### 2. Application is *left-associative*
 
 I.e., in a series of (unparenthesized) function applications, the *leftmost* one
 is carried out first
@@ -176,11 +144,7 @@ We can use parentheses to explicitly control application order:
 
 - E.g., `f (x y) z` = `((f (x y)) z)`
 
----
-
-## Associativity & Precedence
-
-### 3. Application has *higher precedence* than abstraction
+#### 3. Application has *higher precedence* than abstraction
 
 We say that application "binds tighter"
 
@@ -191,9 +155,7 @@ We say that application "binds tighter"
 As a consequence of all the rules, the "body" of an abstraction *extends as far
 right* as possible
 
----
-
-## Abstract Syntax Trees (ASTs)
+### Abstract Syntax Trees (ASTs)
 
 ASTs help us visualize the relationships between terms in a λ-expression
 
@@ -205,16 +167,10 @@ Draw the ASTs for:
 - `x (λy.y) z`
 - `λw.(λx.x z) (λy.y z)`
 
----
-
-## Bound and Free Variables
+### Bound and Free Variables
 
 When a variable is found in the body of an abstraction that names it, the
 variable is *bound*. Otherwise, it is *free*.
-
-<!-- column_layout: [2, 3] -->
-
-<!-- column: 0 -->
 
 E.g., `x` is bound in:
 
@@ -222,21 +178,15 @@ E.g., `x` is bound in:
 - `λx.f x`
 - `λx.λy.x`
 
-<!-- column: 1 -->
-
 E.g., (some) `x` is free in:
 
 - `λy.x`
 - `x λx.f x`
 - `(λx.y) (λy.x)`
 
-<!-- reset_layout -->
-
 In an AST, a variable is free if we can't find an ancestor λ that names it
 
----
-
-## Variable Scope
+### Variable Scope
 
 The scope of a variable introduced by a λ-abstraction extends throughout its
 entire body
@@ -247,9 +197,7 @@ entire body
 
   - A variable is bound by its *closest ancestral binding*
 
----
-
-## β-reduction
+### β-reduction
 
 When a λ-expression contains an abstraction that is applied to an argument, we
 can *reduce* the expression by substituting the argument for the bound variable
@@ -265,9 +213,7 @@ $
 
 - `[N/x] M` means "substitute `N` for `x` in `M`"
 
----
-
-### Practice β-reductions
+#### Practice β-reductions
 
 Carry out as many β-reductions as possible on the following expressions:
 
@@ -281,9 +227,7 @@ Carry out as many β-reductions as possible on the following expressions:
 
 - `(λx.λy.y x) y`
 
----
-
-## Variable Capture
+### Variable Capture
 
 There is a potential for *variable capture* when a β-reduction would cause a
 previously free variable to fall into the scope of a binding abstraction.
@@ -294,9 +238,7 @@ This β-reduction would change the meaning of the free `y`!
 
 - It is prohibited
 
----
-
-## α-conversion
+### α-conversion
 
 We prevent variable capture by *renaming bound variables* (aka *α-conversion*)
 
@@ -305,9 +247,7 @@ We prevent variable capture by *renaming bound variables* (aka *α-conversion*)
 - Two λ-expressions are *α-equivalent* if one can be converted into the other
   via α-conversion.
 
----
-
-### Practice α-conversions
+#### Practice α-conversions
 
 Produce different but α-equivalent expressions for each expression below by
 α-converting *all* their bound variables.
@@ -320,9 +260,7 @@ Produce different but α-equivalent expressions for each expression below by
 
 - `(λx.λy.y x) y`
 
----
-
-### More Practice β-reductions
+#### More Practice β-reductions
 
 Carry out as many β-reductions as possible on the following expressions,
 performing α-conversions as needed:
@@ -331,9 +269,7 @@ performing α-conversions as needed:
 
 - `(λx.λz.z x) (λy.z) (λa.a a)`
 
----
-
-## η-reduction
+### η-reduction
 
 We can directly simplify abstractions of the form `λx.M x`, where `M` is an
 arbitrary expression that *does not contain a free `x`*
@@ -353,15 +289,9 @@ Example: `λy.λx.y x` -η-> `λy.y`
 
 - Intuition: an η-reduction is like *anticipating a future β-reduction*
 
----
+## Normalization & Evaluation
 
-<!-- jump_to_middle -->
-
-# Normalization & Evaluation
-
----
-
-## Normal Form
+### Normal Form
 
 A λ-expression/sub-expression that can be β- or η-reduced is called a *redex*.
 
@@ -373,11 +303,7 @@ Questions to consider:
 
 - Is it always possible to normalize a given λ-expression?
 
----
-
-## Normal Form
-
-### Weak Head Normal Form (WHNF)
+#### Weak Head Normal Form (WHNF)
 
 When evaluating a λ program, should we always shoot for normal form?
 
@@ -389,11 +315,7 @@ When evaluating a λ program, should we always shoot for normal form?
 - It is common to stop evaluating once the expression is rooted at a
   λ-abstraction. We call this *Weak Head Normal Form*.
 
----
-
-## Normal Form
-
-### Divergence
+#### Divergence
 
 Is it always possible to reduce a given λ-expression to normal form?
 
@@ -401,9 +323,7 @@ Is it always possible to reduce a given λ-expression to normal form?
 
   - Consider: `(λx.x x) (λx.x x)` (known as the Ω-combinator)
 
----
-
-## Evaluation Strategy
+### Evaluation Strategy
 
 When evaluating a λ-expression, we may encounter multiple simultaneous redexes.
 *In what order* do we reduce them?
@@ -419,11 +339,7 @@ Two standard strategies:
 
 - Normal-order evaluation
 
----
-
-## Evaluation Strategy
-
-### Applicative-Order Evaluation
+#### Applicative-Order Evaluation
 
 If the argument for a λ-abstraction can be reduced, reduce it before applying
 the abstraction. If there are multiple layers of application, reduce the
@@ -440,11 +356,7 @@ $
 
 - This strategy is also called *call-by-value* or *eager* evaluation
 
----
-
-## Evaluation Strategy
-
-### Normal-Order Evaluation
+#### Normal-Order Evaluation
 
 Apply λ-abstractions before reducing any of their arguments. If there are
 multiple layers of application, reduce the *outermost first*.
@@ -457,9 +369,7 @@ $
 
 - This strategy is also called *call-by-name* or *lazy* evaluation
 
----
-
-### Practice Evaluation
+#### Practice Evaluation
 
 Evaluate each of the following using both applicative and normal order
 strategies. Can you reach normal form?
@@ -468,9 +378,7 @@ strategies. Can you reach normal form?
 
 - `(λx.y) ((λx.x x) (λx.x x))`
 
----
-
-## Pros/Cons of Evaluation Strategies
+### Pros/Cons of Evaluation Strategies
 
 If a λ-expression has a normal form, normal-order evaluation *will* get us there
 while applicative-order reduction *may diverge*
@@ -486,9 +394,7 @@ once*, and at a *predictable time* (before "passing" it)
 
 - Most modern languages use this evaluation strategy
 
----
-
-## Church-Rosser Theorem
+### Church-Rosser Theorem
 
 Alonzo Church and John Rosser proved that, *regardless of the order* in which
 reductions are carried out, we can *reach the same result*.
@@ -504,15 +410,9 @@ normal form, it is unique*.
 - I.e., regardless of what evaluation strategy we choose to implement, the final
   result of a program (if it terminates) won't differ!
 
----
+## Data Representation
 
-<!-- jump_to_middle -->
-
-# Data Representation
-
----
-
-## Why Data Representation?
+### Why Data Representation?
 
 It's hard to believe the λ-calculus is Turing-complete / computationally
 universal if it doesn't contain even basic data types and operations.
@@ -521,16 +421,10 @@ universal if it doesn't contain even basic data types and operations.
 
 It turns out we can model all of these using just λ-abstractions!
 
----
-
-## Boolean Operators & Values
+### Boolean Operators & Values
 
 Goal: define abstractions that model `TRUE`, `FALSE`, `IF`, `NOT`, `AND`, `OR`,
 where
-
-<!-- column_layout: [1, 1] -->
-
-<!-- column: 0 -->
 
 ```
 IF  TRUE  X Y   = X
@@ -539,8 +433,6 @@ IF  FALSE X Y   = Y
 NOT TRUE        = FALSE
 NOT FALSE       = TRUE
 ```
-
-<!-- column: 1 -->
 
 ```
 AND TRUE  TRUE  = TRUE
@@ -554,14 +446,10 @@ OR  FALSE TRUE  = TRUE
 OR  FALSE FALSE = FALSE
 ```
 
-<!-- reset_layout -->
-
 Hint: Think of `TRUE` and `FALSE` as functions -- how many arguments would they
 each take, and which would each "pick"?
 
----
-
-### Boolean Operators & Values in λ
+#### Boolean Operators & Values in λ
 
 One possible implementation:
 
@@ -578,9 +466,7 @@ AND   = λb1.λb2.b1 b2 FALSE
 OR    = λb1.λb2.b1 TRUE b2
 ```
 
----
-
-## Natural Numbers & Arithmetic
+### Natural Numbers & Arithmetic
 
 Goal: define abstractions that model `0`, `1`, `2` ..., `INC`, `ADD` where
 
@@ -598,16 +484,14 @@ ADD 1 1  =  2
 Hint: a number `n` can be thought of as "do something `n` times". So `2` means
 "apply some function `f` twice to an argument `x`".
 
----
-
-### Church Numerals
+#### Church Numerals
 
 One way of encoding natural numbers in λ:
 
 ```
-0 = λf.λx.x  
-1 = λf.λx.f x  
-2 = λf.λx.f (f x)  
+0 = λf.λx.x
+1 = λf.λx.f x
+2 = λf.λx.f (f x)
 ...
 
 INC = λn.λf.λx.f (n f x)
@@ -618,15 +502,9 @@ ADD = λm.λn.m INC n =  λm.λn.λf.λx.m f (n f x)
 To encode integers, we could use a pair of natural numbers `A`, `B` where
 integer `N` = `A`-`B`.
 
----
+## Recursion
 
-<!-- jump_to_middle -->
-
-# Recursion
-
----
-
-## Why Recursion?
+### Why Recursion?
 
 λ lacks any type of control structure, including loops -- e.g., `while`,
 `do-while`, `for`, etc., which are needed for *repetition*, *iteration*, and
@@ -638,9 +516,7 @@ But λ also lacks *named functions*.
 
 - How does a function call itself if it doesn't have a name?
 
----
-
-## Give it a go ...
+### Give it a go ...
 
 Implement the following function in λ:
 
@@ -651,9 +527,7 @@ def f(n):
 
 Hint: use Church numerals!
 
----
-
-### Annotated Attempts
+#### Annotated Attempts
 
 - Attempt 1: `λn.f (INC n)`
 
@@ -670,29 +544,19 @@ Hint: use Church numerals!
 
 - Attempt 4: `(λf.λn.f f (INC n)) (λf.λn.f f (INC n))`
 
----
-
-### Test Evaluation
+#### Test Evaluation
 
 <span style="color:blue">(λf.λn.f f (INC n))</span>
 <span style="color:green">(λf.λn.f f (INC n))</span> 0
 
-<!-- pause -->
-
 (λn.<span style="color:blue">(λf.λn.f f (INC n))</span>
 <span style="color:green">(λf.λn.f f (INC n))</span> (INC n)) 0
-
-<!-- pause -->
 
 <span style="color:blue">(λf.λn.f f (INC n))</span>
 <span style="color:green">(λf.λn.f f (INC n))</span> (INC 0)
 
-<!-- pause -->
-
 <span style="color:blue">(λf.λn.f f (INC n))</span>
 <span style="color:green">(λf.λn.f f (INC n))</span> 1
-
-<!-- pause -->
 
 (λn.<span style="color:blue">(λf.λn.f f (INC n))</span>
 <span style="color:green">(λf.λn.f f (INC n))</span> (INC n)) 1
@@ -705,9 +569,7 @@ Hint: use Church numerals!
 
 ...
 
----
-
-## The Y-Combinator
+### The Y-Combinator
 
 We can extract this pattern into an abstraction that takes a function and makes
 it recursive.
@@ -729,9 +591,7 @@ Example (`Y F`):
   <span style="color:green">(λx.F (x x))</span>`))`
 - ...
 
----
-
-### Termination?
+#### Termination?
 
 `Y F` seems to expand forever: `F (F (... (F (Y F))))`. Can `Y F` terminate?
 
@@ -747,15 +607,9 @@ With applicative-order (eager) evaluation, `Y F` diverges.
 
   - `Z` = `λf.(λx.f (λy.x x y)) (λx.f (λy.x x y))`
 
----
+## Summary and Path Forward
 
-<!-- jump_to_middle -->
-
-# Summary and Path Forward
-
----
-
-## What We've Learned
+### What We've Learned
 
 **The λ-calculus is remarkably simple**
 
@@ -768,9 +622,7 @@ With applicative-order (eager) evaluation, `Y F` diverges.
 - Substitution requires care (α-conversion prevents variable capture)
 - Evaluation strategy affects termination and efficiency
 
----
-
-## Key Takeaways
+### Key Takeaways
 
 **Everything is a function**
 
@@ -784,9 +636,7 @@ With applicative-order (eager) evaluation, `Y F` diverges.
 - *Applicative-order*: predictable, efficient, used by most languages
 - *Church-Rosser*: final result is unique (when it exists)
 
----
-
-## Why This Matters
+### Why This Matters
 
 λ-calculus provides the *theoretical foundation* for:
 
@@ -799,9 +649,7 @@ With applicative-order (eager) evaluation, `Y F` diverges.
 The concepts you've learned here — substitution, scope, evaluation order, and
 reduction — appear *everywhere* in PL theory and practice!
 
----
-
-## From λ to OCaml
+### From λ to OCaml
 
 Next, we'll study **OCaml**, a functional language built on λ-calculus
 principles:

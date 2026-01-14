@@ -1,18 +1,12 @@
----
-title: "Course Overview"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# Course Overview
 
-# Agenda
+## Agenda
 
 - Faculty & Staff
 - Course Overview
 - Administrivia
 
----
-
-# Faculty & Staff
+## Faculty & Staff
 
 Prof:
 
@@ -24,33 +18,17 @@ TA:
 
 - TBA
 
----
+## Course Overview
 
-<!-- jump_to_middle -->
-
-# Course Overview
-
----
-
-## "Programming Languages" (PLs)
-
-<!-- pause -->
+### "Programming Languages" (PLs)
 
 Introduction to the field of *Programming Language Theory* (PLT).
 
-<!-- pause -->
-
 Study of *programming languages*:
-
-<!-- pause -->
 
 - In theory all the same (Turing-complete); in practice very different!
 
----
-
-## PL Consumer -> PL *Designer*
-
-<!-- incremental_lists: true -->
+### PL Consumer -> PL *Designer*
 
 - How can PLs help us program more effectively?
 
@@ -60,11 +38,7 @@ Study of *programming languages*:
 
 - How are PLs compiled/interpreted?
 
----
-
-## PL Paradigms
-
-<!-- incremental_lists: true -->
+### PL Paradigms
 
 - *Imperative*: prescriptive
   - i.e., *how* to compute
@@ -74,15 +48,7 @@ Study of *programming languages*:
   - i.e., *what* to compute
   - modeled on "pure" *mathematical functions*
 
----
-
-## PL Paradigms
-
 E.g., Imperative vs. Functional
-
-<!-- column_layout: [1, 1] -->
-
-<!-- column: 0 -->
 
 e.g., *Imperative*
 
@@ -92,11 +58,9 @@ def sum(lst):
   i = 0
   while i < len(lst):
     s += lst[i]
-    i = i + 1 
+    i = i + 1
   return s
 ```
-
-<!-- column: 1 -->
 
 e.g., *Functional*
 
@@ -105,11 +69,7 @@ sum []     = 0
 sum (n:ns) = n + sum ns
 ```
 
----
-
-## Spotlight on the Functional Paradigm
-
-<!-- incremental_lists: true -->
+### Spotlight on the Functional Paradigm
 
 - A *different perspective* on programming (for most students!)
 
@@ -120,11 +80,7 @@ sum (n:ns) = n + sum ns
 
   - Many modern PLs are adopting historically "functional" features!
 
----
-
-## PL Implementation
-
-<!-- incremental_lists: true -->
+### PL Implementation
 
 - Understand how PLs work under the hood
 
@@ -134,11 +90,7 @@ sum (n:ns) = n + sum ns
 
   - Gain insight into decisions and tradeoffs in PL design
 
----
-
-## PL Analysis
-
-<!-- incremental_lists: true -->
+### PL Analysis
 
 - Rigorous treatment of PL *semantics*
 
@@ -153,11 +105,7 @@ sum (n:ns) = n + sum ns
   - *Type systems* constrain the values that inhabit our programs, and let us
     rule out entire classes of errors before we ever run them!
 
----
-
-## By the end ...
-
-<!-- incremental_lists: true -->
+### By the end ...
 
 - You'll have implemented *multiple interpreters*, *type checking*, and
   *polymorphic type inference*
@@ -170,17 +118,9 @@ sum (n:ns) = n + sum ns
 - You'll be equipped to *critically evaluate* language design decisions in any
   language you use
 
----
+## Administrivia
 
-<!-- jump_to_middle -->
-
-# Administrivia
-
----
-
-## Prerequisites & Foundational Knowledge
-
-<!-- incremental_lists: true -->
+### Prerequisites & Foundational Knowledge
 
 - Substantial programming experience
 - Propositional and First-order logic (CS 330)
@@ -188,19 +128,11 @@ sum (n:ns) = n + sum ns
 - Formal languages and Grammars (CS 330)
 - Data structures and Algorithms (CS 331 / 430)
 
----
-
-## Grading
-
-<!-- column_layout: [1, 1] -->
-
-<!-- column: 0 -->
+### Grading
 
 - 50% Assignments
 - 25% Midterm Exam
 - 25% Final Exam
-
-<!-- column: 1 -->
 
 - A: ≥ 90%
 - B: 80-89%
@@ -208,36 +140,28 @@ sum (n:ns) = n + sum ns
 - D: 60-69%
 - E: < 60%
 
----
-
-### Assignments
+#### Assignments
 
 - ~4 machine problems (MPs) -- coding exercises
 - ~3 written problem sets -- evaluation / derivation / proofs
 - All posted to Canvas; MPs distributed via Git
 - Different point values, weighted proportionally
 
----
-
-### Exams
+#### Exams
 
 - Two exams: Midterm on TBA, Final during TBA
 - Scores adjusted linearly (if needed) so average is ~75%
 - Midterm date is tentative!
 - Final exam is *nominally comprehensive*, but focuses on latter half
 
----
-
-## References
+### References
 
 - Michael Clarkson, *OCaml Programming: Correct + Efficient + Beautiful*.
 - Robert Harper, *Practical Foundations for Programming Languages*.
 - Robert Nystrom, *Crafting Interpreters*.
 - & slides, notes, and additional readings posted to Canvas!
 
----
-
-# For Friday
+## For Friday
 
 - Read Section 1 of *A Tutorial Introduction to the Lambda Calculus*, by Raul
   Rojas.

@@ -1,10 +1,6 @@
----
-title: "Research Directions in Programming Languages"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# Research Directions in Programming Languages
 
-# Agenda
+## Agenda
 
 - Why PL research?
   - Curry-Howard Correspondence
@@ -14,50 +10,30 @@ author: "Michael Lee"
   3. Formal Semantics & Verification
 - Takeaways & Where to go next
 
----
-
-# Why PL Research?
+## Why PL Research?
 
 Goal: To create mathematically sound models for computation.
-
-<!-- pause -->
 
 Payoff: Drives fundamental advancements in software safety, performance, and
 formal verification.
 
-<!-- pause -->
-
 Much of modern PL research is motivated by the *Curry-Howard Correspondence*
 
----
-
-# Curry–Howard Correspondence
+## Curry–Howard Correspondence
 
 A foundational connection between *logic* and *computation*.
-
-<!-- pause -->
 
 Also known as:
 
 - *Propositions-as-Types*
 - *Proofs-as-Programs*
 
-<!-- pause -->
-
 Not just a fanciful philosophical notion! It has direct consequences for
 language design and verification.
 
----
-
-# Curry–Howard Correspondence
-
-## Propositions ⇔ Types
+### Propositions ⇔ Types
 
 We can "translate" between types and logical propositions:
-
-<!-- pause -->
-
-<!-- alignment: center -->
 
 | Programming | Logic   |
 | ----------- | ------- |
@@ -65,12 +41,6 @@ We can "translate" between types and logical propositions:
 | 'a -> 'b    | A ⇒ B   |
 | 'a * 'b     | A ∧ B   |
 | 'a \| 'b    | A ∨ B   |
-
----
-
-# Curry–Howard Correspondence
-
-## Propositions ⇔ Types
 
 E.g., `fst` (and `snd`) ⇔ conjunction elimination
 
@@ -82,8 +52,6 @@ wide <=> wide
 A and B => A
 $
 ```
-
-<!-- pause -->
 
 E.g., function application rule ⇔ modus ponens
 
@@ -100,66 +68,36 @@ wide <=> wide
 $
 ```
 
----
-
-# Curry–Howard Correspondence
-
-## Proofs ⇔ Programs
-
-<!-- pause -->
+### Proofs ⇔ Programs
 
 A well-typed program proves the proposition represented by its type
 
 - By providing evidence of a value that *inhabits* the type
 
-<!-- pause -->
-
 When you write a program, you are building a *constructive proof*
 
----
-
-# Curry–Howard Correspondence
-
-## Evaluation ⇔ Proof Normalization
+### Evaluation ⇔ Proof Normalization
 
 Evaluating a program = simplifying a proof
-
-<!-- pause -->
 
 - β-reductions, substitutions, etc., leave proofs logically unchanged
   (preservation) but more streamlined
 
----
-
-# Curry–Howard Correspondence
-
-## Why do we care?
-
-<!-- pause -->
+### Why do we care?
 
 A more expressive type system gives us a richer logical vocabulary
 
 - Motivation for advanced type systems
 
-<!-- pause -->
-
 Typechecking = automated proof checking
 
 - Program synthesis can be viewed as automated proof derivation
 
----
-
-# 1. Advanced Type Systems
-
-<!-- pause -->
+## 1. Advanced Type Systems
 
 Basic types classify *data* (e.g., `int`, `bool`)
 
-<!-- pause -->
-
 Advanced types declare and enforce additional *logic-based invariants*
-
-<!-- pause -->
 
 Examples:
 
@@ -167,66 +105,34 @@ Examples:
 - Dependent types
 - Linear types
 
----
-
-# 1. Advanced Type Systems
-
-## Refinement Types
-
-<!-- pause -->
+### Refinement Types
 
 Refinement = *base type + logical predicate*
 
-<!-- pause -->
-
 - e.g., type could be `{ x:int | x >= 0 }` or `{ xs:list | length xs > 0 }`
-
-<!-- pause -->
 
 Types can describe runtime constraints which are statically checked
 
 - Generates mathematical proofs (verification conditions) and verifies them
   using automated Satisfiability Modulo Theories (SMT) solvers
 
----
-
-# 1. Advanced Type Systems
-
-## Dependent Types
-
-<!-- pause -->
+### Dependent Types
 
 Dependent types = *type definitions that depend on values*
 
-<!-- pause -->
-
 - Structural properties can be guaranteed at compile-time
-
-<!-- pause -->
 
 - e.g., a function that takes an int `n` and whose return type is an `int`
   matrix of size `n` x `n`
 
-<!-- pause -->
-
 Example: F* -- a proof-oriented language, supporting both refinement and
 dependent types
 
----
+### Linear Types
 
-# 1. Advanced Type Systems
-
-## Linear Types
-
-<!-- pause -->
-
-Enforce a "use exactly once" contract for resources in a program  
-
-<!-- pause -->
+Enforce a "use exactly once" contract for resources in a program
 
 - Prevents memory leaks, double-free errors, and resource contention
-
-<!-- pause -->
 
 Example: Rust's Borrow Checker
 
@@ -235,50 +141,28 @@ Example: Rust's Borrow Checker
 - guarantees memory safety and data-race freedom without needing garbage
   collection
 
----
-
-# 2. Effect Systems
-
-<!-- pause -->
+## 2. Effect Systems
 
 Purely functional systems allow for maximum compiler optimization (e.g., safe
 automatic parallelization), but aren't always practical
 
-<!-- pause -->
-
 How to model *impure behavior* (state mutations, I/O, non-determinism) *without
 sacrificing functional purity*?
-
-<!-- pause -->
 
 - Popular approach (e.g., in `Haskell`): Monads and Monad transformers
 
 - Modern direction: Algebraic effects and handlers
 
----
-
-# 2. Effect Systems
-
-## Algebraic Effects and Handlers (AEH)
+### Algebraic Effects and Handlers (AEH)
 
 Effect operations (e.g., `read_file`) carry no inherent behavior; the behavior
 is defined dynamically by the nearest handler (similar to exception handling)
 
-<!-- pause -->
-
-- Functions stay pure and declarative, while handlers supply the effect’s actual
+- Functions stay pure and declarative, while handlers supply the effect's actual
   behavior
-
-<!-- pause -->
 
 - AEH gives us modular effects, customizable control flow (using continuations),
   and clean semantics
-
----
-
-# 2. Effect Systems
-
-## Algebraic Effects and Handlers (AEH)
 
 E.g., `Eff` is a OCaml-based language that natively supports AEH:
 
@@ -295,16 +179,10 @@ with
 ;;
 ```
 
----
-
-# 3. Formal Semantics & Verification
-
-<!-- pause -->
+## 3. Formal Semantics & Verification
 
 Aim to *rigorously prove* important system properties (correctness, security)
 using mathematical models
-
-<!-- pause -->
 
 Some notable directions:
 
@@ -312,66 +190,38 @@ Some notable directions:
 - behavioral types
 - differentiable programming
 
----
-
-# 3. Formal Semantics & Verification
-
-## Verified Compilers
-
-<!-- pause -->
+### Verified Compilers
 
 High-level proofs are useless if the compiler introduces bugs!
 
-<!-- pause -->
-
 Verified compilers *mathematically prove* that the compilation process preserves
 semantics
-
-<!-- pause -->
 
 - e.g., the CompCert C compiler "comes with a mathematical, machine-checked
   proof that the generated executable code behaves exactly as prescribed by the
   semantics of the source program"
   - used in avionics, automotive, crypto
 
----
-
-# 3. Formal Semantics & Verification
-
-## Behavioral Types
-
-<!-- pause -->
+### Behavioral Types
 
 Types that describe **how a program behaves**, not just what values it computes.
 
 - A type can encode *temporal*, *communication*, or *resource* behavior.
-
-<!-- pause -->
 
 Behavioral types extend standard soundness:
 
 - Preservation: protocols are followed
 - Progress: no illegal states
 
----
-
-# 3. Formal Semantics & Verification
-
-## Differentiable Programming (DP)
-
-<!-- pause -->
+### Differentiable Programming (DP)
 
 Programming languages where *differentiation is built into the semantics*
-
-<!-- pause -->
 
 Motivation:
 
 - Machine learning relies on gradients
 
 - Correct gradients are essential
-
-<!-- pause -->
 
 Automatic Differentiation (AD) = program transformation
 
@@ -380,14 +230,10 @@ Automatic Differentiation (AD) = program transformation
 - e.g., systems like TensorFlow and languages such as JAX, Dex, or Swift for
   TensorFlow
 
----
-
-# The Future is Formally Verified!
+## The Future is Formally Verified!
 
 PL research increasingly shifts correctness enforcement from post-hoc testing to
 design time and compile time
-
-<!-- incremental_lists: true -->
 
 - Types are now *powerful logical tools* (Refinement, Dependent, Linear)
 
@@ -396,9 +242,7 @@ design time and compile time
 - *Formal Semantics* guarantees correctness from source code down to compiled
   machine code (Verified Compilers)
 
----
-
-# Foundations
+## Foundations
 
 All modern PL research builds on:
 
@@ -408,13 +252,9 @@ All modern PL research builds on:
 - Interpreter and compiler design
 - Formal reasoning
 
-<!-- pause -->
-
 These are not historical. This *is* the modern toolkit.
 
----
-
-# Where to go next?
+## Where to go next?
 
 - *Coursework*: take the FP class (CS 340), compiler course (CS 443), or
   "science of programming" (CS 536)
@@ -424,11 +264,5 @@ These are not historical. This *is* the modern toolkit.
 
 - *Undergraduate research*: talk to PL faculty (Dr. Derakhshan and Dr. Korel)
   for research opportunities
-
----
-
-<!-- jump_to_middle -->
-
-<!-- alignment: center -->
 
 *That's all, folks!*

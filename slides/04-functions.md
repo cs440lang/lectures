@@ -1,10 +1,6 @@
----
-title: "OCaml: Functions"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# OCaml: Functions
 
-# Agenda
+## Agenda
 
 - Functions: definition and application
   - Anonymous functions
@@ -18,11 +14,9 @@ author: "Michael Lee"
 - Application operators: `|>`, `@@`
 - Tail recursion
 
----
+## Functions: definition and application
 
-# Functions: definition and application
-
-## "Anonymous" functions
+### "Anonymous" functions
 
 Functions in OCaml are values we can create with the `fun` keyword:
 
@@ -39,11 +33,7 @@ let foo = fun x y z -> (2*x + y) * z
 
   - e.g., `int -> int`, `int -> int -> int`
 
----
-
-# Functions: definition and application
-
-## Function types
+### Function types
 
 - `t1 -> t2` is a type signature for a function that takes a value of type `t1`
   and returns a value of type `t2`
@@ -54,11 +44,7 @@ let foo = fun x y z -> (2*x + y) * z
   - I.e., the `->` operator is right associative --- so `t1 -> t2 -> t3` is the
     same thing as `t1 -> (t2 -> t3)`
 
----
-
-# Functions: definition and application
-
-## Equivalence to `let-in`
+### Equivalence to `let-in`
 
 Note that `let-in` is really just *syntactic sugar* for the application of a
 corresponding anonymous function to the binding expression:
@@ -73,11 +59,7 @@ let x = 10 in 2 * x
 
 - More evidence of the primacy of the function!
 
----
-
-# Functions: definition and application
-
-## Currying
+### Currying
 
 Note the equivalence of the types of:
 
@@ -92,11 +74,7 @@ let foo' = fun x -> fun y -> fun z -> (2*x + y) * z
   another function of one argument (except for the last, which evaluates to the
   result)
 
----
-
-# Functions: definition and application
-
-## Partial application
+### Partial application
 
 A consequence of *currying* is that functions of multiple arguments can be
 *partially applied*.
@@ -111,11 +89,7 @@ let baz = foo 10 20
 
 What do `bar` and `baz` do? What are their types?
 
----
-
-# Functions: definition and application
-
-## Some syntactic sugar
+### Some syntactic sugar
 
 There is an alternative syntax for defining functions:
 
@@ -134,10 +108,6 @@ let foo = fun x y z -> (2*x + y) * z
 let foo' x y z = (2*x + y) * z
 ```
 
----
-
-# Functions: definition and application
-
 Here's another example that helps illustrate the utility of partial application:
 
 ```ocaml
@@ -146,23 +116,13 @@ let dist (x1,y1) (x2,y2) = sqrt ((x2-.x1)**2.+.(y2-.y1)**2.)
 let distFromOrigin = dist (0.0,0.0)
 ```
 
----
-
-# Functions: definition and application
-
-## Polymorphic functions
+### Polymorphic functions
 
 What is the type of the following function (identity)? How do we interpret it?
 
 ```ocaml
 let id x = x
 ```
-
----
-
-# Functions: definition and application
-
-## Polymorphic functions
 
 Here are a few more polymorphic functions to interpret:
 
@@ -175,12 +135,6 @@ let second _ y = y
 - Note that we use `_` as the name for a parameter we don't plan to use in the
   function body.
 
----
-
-# Functions: definition and application
-
-## Polymorphic functions
-
 If we wish, we can add type annotations that override the general nature of
 naturally polymorphic functions:
 
@@ -188,9 +142,7 @@ naturally polymorphic functions:
 let id (x : int) = x
 ```
 
----
-
-# Recursive functions
+## Recursive functions
 
 What happens when you try to define a recursive function?
 
@@ -208,10 +160,6 @@ let x = x + 1
 
 i.e., names must be bound *before* we try to refer to them!
 
----
-
-# Recursive functions
-
 We need to use the `rec` keyword to explicitly let OCaml know that we want to
 permit self-referential definitions (i.e., recursion):
 
@@ -226,13 +174,9 @@ functions:
 let rec even n = if n = 0 then true
                  else odd (n-1)
 
-let rec odd n  = if n = 0 then false 
+let rec odd n  = if n = 0 then false
                  else even (n-1)
 ```
-
----
-
-# Recursive functions
 
 For bindings that need to be able to refer to themselves and each other, we must
 use the `rec` and `and` keywords (think of this as *parallel* binding):
@@ -241,13 +185,11 @@ use the `rec` and `and` keywords (think of this as *parallel* binding):
 let rec even n = if n = 0 then true
                  else odd (n-1)
 
-    and odd n  = if n = 0 then false 
+    and odd n  = if n = 0 then false
                  else even (n-1)
 ```
 
----
-
-# Tracing function calls
+## Tracing function calls
 
 We can *trace* function calls with the `#trace` top-level command.
 
@@ -259,9 +201,7 @@ We can *trace* function calls with the `#trace` top-level command.
 Note that sometimes `#trace` can cause undesired side-effects in functions being
 traced!
 
----
-
-# Operators as functions
+## Operators as functions
 
 Operators can be treated as functions if we place them in parentheses:
 
@@ -273,10 +213,6 @@ let plus = (+)  (* plus refers to the + function *)
 
 - Note: this allows operators to be partially applied!
 
----
-
-# Operators as functions
-
 We can even define our own operators:
 
 ```ocaml
@@ -287,9 +223,7 @@ let (+++) x y = x + 3*y
 
 - but OCaml doesn't have a robust way of controlling precedence
 
----
-
-# Application operators: `|>`, `@@`
+## Application operators: `|>`, `@@`
 
 There are a couple of very useful function-application related operators.
 
@@ -298,9 +232,7 @@ There are a couple of very useful function-application related operators.
 
 What are their types? Can you figure out how to use them?
 
----
-
-# Tail recursion
+## Tail recursion
 
 Check out another recursive function.
 
@@ -310,10 +242,6 @@ let rec sum n = if n = 0 then 0
 ```
 
 Try `sum 100_000_000` -- what happens? Why?
-
----
-
-# Tail recursion
 
 We can rewrite `sum` which uses an *accumulator* to avoid needing to do work
 upon returning from recursive calls. (How do we call this?)
@@ -325,11 +253,7 @@ let rec sum' n acc = if n = 0 then acc
 
 Does `sum' 100_000_000` work?
 
----
-
-# Tail recursion
-
-## Tail-Call Optimization (TCO)
+### Tail-Call Optimization (TCO)
 
 ```ocaml
 let rec sum' n acc = if n = 0 then acc
@@ -342,10 +266,6 @@ the *last thing* done in the function body
 - When this is the case, OCaml can perform *tail-call optimization*, which
   prevents additional stack frames from being allocated on recursive calls
 
----
-
-# Tail recursion
-
 But this implementation is ugly -- it exposes the accumulator (which can be
 misused):
 
@@ -356,11 +276,7 @@ let rec sum' n acc = if n = 0 then acc
 
 How can we clean it up?
 
----
-
-# Tail recursion
-
-## Auxiliary "helper" function
+### Auxiliary "helper" function
 
 A cleaner implementation "hides" the accumulator by introducing an auxiliary
 recursive function:
@@ -368,15 +284,11 @@ recursive function:
 ```ocaml
 let sum'' n =
   let rec aux k acc = if k = 0 then acc
-                      else aux (k-1) (acc+k) 
+                      else aux (k-1) (acc+k)
   in aux n 0
 ```
 
----
-
-# Tail recursion
-
-## Exercise
+### Exercise
 
 Can you write an efficient, tail-recursive version of the following Fibonacci
 generator?

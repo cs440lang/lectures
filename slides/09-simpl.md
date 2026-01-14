@@ -1,10 +1,6 @@
----
-title: "SimPL and Operational Semantics"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# SimPL and Operational Semantics
 
-# Agenda
+## Agenda
 
 - SimPL
 - Operational Semantics
@@ -13,13 +9,9 @@ author: "Michael Lee"
 - Substitution Model Evaluation
 - Environment Model Evaluation
 
----
-
-# SimPL
+## SimPL
 
 Time to build an interpreter for a more complex language!
-
-<!-- pause -->
 
 Here's our target BNF:
 
@@ -35,9 +27,7 @@ Here's our target BNF:
 <bop>  ::= + | * | <=
 ```
 
----
-
-# SimPL AST Representation
+## SimPL AST Representation
 
 OCaml ADTs:
 
@@ -56,9 +46,7 @@ type expr =
   | Let of string * expr * expr
 ```
 
----
-
-# Parsing SimPL
+## Parsing SimPL
 
 We provide an `ocamllex`/`menhir` front-end, so:
 
@@ -77,13 +65,9 @@ We provide an `ocamllex`/`menhir` front-end, so:
                      Binop (Add, Var "x", Var "y")))
 ```
 
----
-
-# Evaluating SimPL
+## Evaluating SimPL
 
 SimPL is much more complex than λ-Calculus, so we won't jump straight to code!
-
-<!-- pause -->
 
 First, we will *formally describe the semantics* of SimPL so that:
 
@@ -91,21 +75,13 @@ First, we will *formally describe the semantics* of SimPL so that:
 
 - the specification can guide our implementation
 
-<!-- pause -->
-
 How do we formally describe the semantics of a language?
 
----
-
-# Operational Semantics
+## Operational Semantics
 
 *Operational semantics* specifies the behavior of programming language
 constructs using *rules of inference*, which describe how expressions/statements
 reduce or transition to simpler forms or values.
-
-<!-- pause -->
-
-<!-- list_item_newlines: 1 -->
 
 - *Small-step* semantics: describes individual computational steps, showing how
   expressions reduce to simpler forms. E.g., we might assert:
@@ -114,8 +90,6 @@ reduce or transition to simpler forms or values.
 $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
 ```
 
-<!-- pause -->
-
 - *Big-step* semantics: describes entire evaluations, relating expressions
   directly to their final results. E.g., we might assert:
 
@@ -123,11 +97,7 @@ $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
 $e arrow.b.double v$
 ```
 
----
-
-# Operational Semantics
-
-## Rules of Inference
+### Rules of Inference
 
 Take the form:
 
@@ -136,8 +106,6 @@ $ "NAME" ("premise"_1 quad "premise"_2 quad ... quad "premise"_n)
          / ("conclusion") $
 ```
 
-<!-- incremental_lists: true -->
-
 - premises and the conclusion are assertions (aka "judgements") about language
   constructs
 
@@ -145,11 +113,7 @@ $ "NAME" ("premise"_1 quad "premise"_2 quad ... quad "premise"_n)
 
   - rules with no premises are *axioms*
 
----
-
-# Operational Semantics
-
-## Assertions / Judgements
+### Assertions / Judgements
 
 ```typst +render +width:80%
 #let bstep = sym.arrow.b.double
@@ -161,22 +125,14 @@ e bstep v    & wide e "evaluates to" v\
 $
 ```
 
----
-
-# Substitution Model Evaluation
+## Substitution Model Evaluation
 
 Let's describe the semantics of SimPL using *substitution*.
 
 - i.e., we substitute values for variable names throughout an expression, just
   like `[v/x] e` in λ-calculus
 
-<!-- pause -->
-
 Examples:
-
-<!-- list_item_newlines: 1 -->
-<!-- column_layout: [1,1] -->
-<!-- column: 0 -->
 
 - `[42/x] 10`
 - `[42/x] true`
@@ -188,9 +144,6 @@ Examples:
 - `[42/x] let x=10 in x+y`
 - `[42/x] let x=x+1 in x+y`
 
-<!-- column: 1 -->
-<!-- incremental_lists: true -->
-
 - => `10`
 - => `true`
 - => `42`
@@ -200,10 +153,6 @@ Examples:
 - => `let y=42 in y*2`
 - => `let x=10 in x+y`
 - => `let x=42+1 in x+y`
-
----
-
-# Substitution Model Evaluation
 
 Recursive substitution function:
 
@@ -223,17 +172,9 @@ let rec subst (v : expr) (x : string) (e : expr) : expr =
       else Let (y, e1', subst v x e2)
 ```
 
----
+### Small-Step Semantics
 
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-<!-- pause -->
-
-### Values
-
-<!-- pause -->
+#### Values
 
 Values cannot be further reduced!
 
@@ -245,21 +186,13 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 let rec step : expr -> expr option = function
   | Int _  -> None
   | Bool _ -> None
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Binary Operations
+#### Binary Operations
 
 ```typst +render +width:60%
 $
@@ -269,21 +202,12 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml {2-5}
 let rec step : expr -> expr option = function
   | Binop (bop, e1, e2) -> (
       match step e1 with
       | Some e1' -> Some (Binop (bop, e1', e2)))
 ```
-
----
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Binary Operations
 
 ```typst +render +width:60%
 $
@@ -294,8 +218,6 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml {5-7}
 let rec step : expr -> expr option = function
   | Binop (bop, e1, e2) -> (
@@ -305,13 +227,6 @@ let rec step : expr -> expr option = function
           match step e2 with
           | Some e2' -> Some (Binop (bop, e1, e2'))))
 ```
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Binary Operations
 
 ```typst +render +width:75%
 $
@@ -321,14 +236,6 @@ $
         (e_1 bop e_2 -> r)
 $
 ```
-
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Binary Operations
 
 ```ocaml {8-13}
 let rec step : expr -> expr option = function
@@ -346,14 +253,6 @@ let rec step : expr -> expr option = function
               | _ -> (* how might we get here? *))))
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Binary Operations
-
 Our first runtime error!
 
 ```ocaml
@@ -366,35 +265,19 @@ match (bop, e1, e2) with
 | _ -> raise (RuntimeError "Invalid bop operands"))))
 ```
 
-<!-- pause -->
-
 This could be avoided if we performed *type checking* on the AST prior to
 evaluation. We'll tackle this later.
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### If-Then-Else
+#### If-Then-Else
 
 Can you write the rule(s) for `if-then-else` expressions?
 
 ```typst +render +width:60%
 $
 "IF" & (?)
-       /("if" e_1 "then" e_2 "else" e_3 -> thick ?) 
+       /("if" e_1 "then" e_2 "else" e_3 -> thick ?)
 $
 ```
-
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### If-Then-Else
 
 Three rules:
 
@@ -409,14 +292,6 @@ $
 $
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### If-Then-Else
-
 ```ocaml {2-9}
 let rec step : expr -> expr option = function
   | If (e1, e2, e3) -> (
@@ -429,32 +304,16 @@ let rec step : expr -> expr option = function
           | _ -> raise (RuntimeError "Invalid guard")))
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Let
+#### Let
 
 ```typst +render +width:80%
 $
 "LET-V" & (e_1 -> e'_1) /
-          ("let" x=e_1 "in" e_2 -> "let" x=e'_1 "in" e_2) 
+          ("let" x=e_1 "in" e_2 -> "let" x=e'_1 "in" e_2)
 $
 ```
 
-<!-- pause -->
-
 what is the other rule?
-
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Let
 
 ```typst +render +width:75%
 $
@@ -465,14 +324,6 @@ $
 
 this is the only rule that uses substitution!
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Let
-
 ```ocaml {2-5}
 let rec step : expr -> expr option = function
   | Let (x, e1, e2) -> (
@@ -481,18 +332,10 @@ let rec step : expr -> expr option = function
       | None -> Some (subst e1 x e2))
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
-### Variables
+#### Variables
 
 In the substitution model, variables should be replaced with values (via the
 LET-B rule) before we get to them.
-
-<!-- pause -->
 
 ```typst +render +width:25%
 $
@@ -500,18 +343,12 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml {2}
 let rec step : expr -> expr option = function
   | Var _ -> None
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
+Complete small-step evaluator:
 
 ```ocaml
 let rec step : expr -> expr option = function
@@ -534,12 +371,6 @@ let rec step : expr -> expr option = function
       | None -> Some (subst e1 x e2))
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Small-Step Semantics
-
 ```typst +render +width:25%
 $e ~> v$
 ```
@@ -551,15 +382,9 @@ let rec multistep (e : expr) : expr =
   | Some e' -> multistep e'
 ```
 
----
+### Big-Step Semantics
 
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-<!-- pause -->
-
-### Values
+#### Values
 
 Unlike with small-step semantics, values just evaluate to themselves.
 
@@ -573,21 +398,13 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml
 let rec eval e = match e with
   | Int _  -> e
   | Bool _ -> e
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-### Binary Operations
+#### Binary Operations
 
 ```typst +render +width:70%
 $
@@ -596,13 +413,9 @@ $
 
 "BOP" & (e_1 bstep v_1 quad e_2 bstep v_2
          quad r=v_1 bop v_2) /
-        (e_1 bop e_2 bstep r) 
+        (e_1 bop e_2 bstep r)
 $
 ```
-
-<!-- pause -->
-
-<!-- incremental_lists: true -->
 
 With big-step semantics, we boil expressions down to values in a single step!
 
@@ -611,14 +424,6 @@ With big-step semantics, we boil expressions down to values in a single step!
 - hides intermediate steps (e.g., order of execution isn't clear)
 
 - hard to explain *divergence* (e.g., non-terminating programs)
-
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-### Binary Operations
 
 ```ocaml {2-7}
 let rec eval e = match e with
@@ -630,17 +435,9 @@ let rec eval e = match e with
       | _ -> raise (RuntimeError "Invalid bop operands"))
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-### If-Then-Else
+#### If-Then-Else
 
 Can you write the big-step rules for `if-then-else` expressions?
-
-<!-- pause -->
 
 ```typst +render +width:60%
 $
@@ -651,19 +448,11 @@ $
          ("if" e_1 "then" e_2 "else" e_3 bstep v_2) \ \
 
 "IF-F" & (e_1 bstep "false" quad e_3 bstep v_3) /
-         ("if" e_1 "then" e_2 "else" e_3 bstep v_3) 
+         ("if" e_1 "then" e_2 "else" e_3 bstep v_3)
 $
 ```
 
 Remember, big-step reduces expressions to *values* in a single step.
-
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-### If-Then-Else
 
 ```ocaml {2-6}
 let rec eval e = match e with
@@ -674,17 +463,9 @@ let rec eval e = match e with
       | _ -> raise (RuntimeError "Invalid guard"))
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-### Let
+#### Let
 
 Try writing the big-step rule for `let` expressions.
-
-<!-- pause -->
 
 ```typst +render +width:60%
 $
@@ -696,20 +477,12 @@ $
 $
 ```
 
-<!-- pause -->
-
 ```ocaml {2}
 let rec eval e = match e with
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
-
-### Variables
+#### Variables
 
 Just as with small-step semantics, variables cannot be evaluated on their own
 when using the substitution model.
@@ -720,11 +493,7 @@ $
 $
 ```
 
----
-
-# Substitution Model Evaluation
-
-## Big-Step Semantics
+Complete big-step evaluator:
 
 ```ocaml
 let rec eval (e : expr) : expr =
@@ -745,10 +514,6 @@ let rec eval (e : expr) : expr =
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 ```
 
----
-
-# Substitution Model Evaluation
-
 Both our small- and big- step evaluation functions so far have been
 fundamentally driven by *substitution*.
 
@@ -760,16 +525,10 @@ fundamentally driven by *substitution*.
 
 Is this how we typically think of / model program execution?
 
----
-
-# Substitution Model Evaluation
-
-## Critique
+### Critique
 
 In the substitution model, we *recursively replace all instances* of a (free)
 variable within a `let` body in a single-step.
-
-<!-- incremental_lists: true -->
 
 - this is potentially very inefficient!
 
@@ -782,19 +541,13 @@ variable within a `let` body in a single-step.
   - this is in contrast to how we typically model execution, i.e., with static
     code and dynamic data stored separately
 
----
-
-# Environment Model Evaluation
+## Environment Model Evaluation
 
 An alternative is to *lazily* replace variables names with their bound values.
-
-<!-- pause -->
 
 We can accumulate (*name -> value*) mappings during evaluation, and use it to
 look up variable bindings when needed. We call this map the *dynamic
 environment*, denoted σ (sigma).
-
-<!-- pause -->
 
 ```typst +render +width:100%
 #let mapto = sym.arrow.r.bar
@@ -803,10 +556,6 @@ sigma(x)         & wide "Look up the value of var" x "in" sigma "(error if unmap
 sigma[x mapto v] & wide "Update the environment to include the" x mapto v "mapping"
 $
 ```
-
----
-
-# Environment Model Evaluation
 
 A trivial implementation of an environment is an associative list:
 
@@ -823,11 +572,7 @@ let update (x : string) (v : value) (e : env) : env =
   (x, v) :: e
 ```
 
----
-
-# Environment Model Evaluation
-
-## Operational Semantics with Environments
+### Operational Semantics with Environments
 
 We need to update our small/big-step relations to include dynamic environments.
 
@@ -842,10 +587,6 @@ state(e,sigma) bstep v    & wide e "in" sigma "evaluates to value" v\
 $
 ```
 
----
-
-# Environment Model Evaluation
-
 Let's consider an example before giving the big-step rules:
 
 ```ocaml
@@ -855,12 +596,6 @@ let z=x*y+2
 y*x+z
 ```
 
----
-
-# Environment Model Evaluation
-
-Let's consider an example before giving the big-step rules:
-
 ```ocaml {1}
 let x=5 in       env=[]
 let y=x+1 in
@@ -868,24 +603,12 @@ let z=x*y+2
 y*x+z
 ```
 
----
-
-# Environment Model Evaluation
-
-Let's consider an example before giving the big-step rules:
-
 ```ocaml {2}
-let x=5 in  
+let x=5 in
 let y=x+1 in     env=[(x,5)]
 let z=x*y+2
 y*x+z
 ```
-
----
-
-# Environment Model Evaluation
-
-Let's consider an example before giving the big-step rules:
 
 ```ocaml {3}
 let x=5 in
@@ -894,12 +617,6 @@ let z=x*y+2      env=[(y,6);(x,5)]
 y*x+z
 ```
 
----
-
-# Environment Model Evaluation
-
-Let's consider an example before giving the big-step rules:
-
 ```ocaml {4}
 let x=5 in
 let y=x+1 in
@@ -907,15 +624,9 @@ let z=x*y+2
 y*x+z            env=[(z,32);(y,6);(x,5)]
 ```
 
----
+### Big-Step Semantics
 
-# Environment Model Evaluation
-
-## Big-Step Semantics
-
-### Values
-
-<!-- pause -->
+#### Values
 
 ```typst +render +width:80%
 #let bstep = sym.arrow.b.double
@@ -935,13 +646,7 @@ let rec eval (e : expr) (env : env) : value =
   | Bool b -> VBool b
 ```
 
----
-
-# Environment Model Evaluation
-
-## Big-Step Semantics
-
-### Variables
+#### Variables
 
 ```typst +render +width:40%
 #let bstep = sym.arrow.b.double
@@ -960,13 +665,7 @@ let rec eval (e : expr) (env : env) : value =
   | Var v -> lookup v env
 ```
 
----
-
-# Environment Model Evaluation
-
-## Big-Step Semantics
-
-### Binary Operations
+#### Binary Operations
 
 ```typst +render +width:90%
 #let bstep = sym.arrow.b.double
@@ -976,17 +675,11 @@ let rec eval (e : expr) (env : env) : value =
 $
 "BOP" & (state(e_1,sigma) bstep v_1 quad state(e_2,sigma) bstep v_2
          quad r=v_1 bop v_2) /
-        (state(e_1 bop e_2,sigma) bstep r) 
+        (state(e_1 bop e_2,sigma) bstep r)
 $
 ```
 
----
-
-# Environment Model Evaluation
-
-## Big-Step Semantics
-
-### If-Then-Else
+#### If-Then-Else
 
 ```typst +render +width:70%
 #let bstep = sym.arrow.b.double
@@ -998,17 +691,11 @@ $
          (state("if" e_1 "then" e_2 "else" e_3,sigma) bstep v_2) \ \
 
 "IF-F" & (state(e_1,sigma) bstep "false" quad state(e_3,sigma) bstep v_3) /
-         (state("if" e_1 "then" e_2 "else" e_3,sigma) bstep v_3) 
+         (state("if" e_1 "then" e_2 "else" e_3,sigma) bstep v_3)
 $
 ```
 
----
-
-# Environment Model Evaluation
-
-## Big-Step Semantics
-
-### Let
+#### Let
 
 ```typst +render +width:80%
 #let bstep = sym.arrow.b.double
@@ -1029,11 +716,7 @@ let rec eval (e : expr) (env : env) : value =
   | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
 ```
 
----
-
-# Environment Model Evaluation
-
-## Big-Step Semantics
+Complete big-step evaluator with environments:
 
 ```ocaml
 let rec eval (e : expr) (env : env) : value =
@@ -1053,21 +736,13 @@ let rec eval (e : expr) (env : env) : value =
   | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
 ```
 
----
-
-# Environment Model Evaluation
-
 The environment model better reflects how interpreters and compiled programs
 actually behave: the code remains static, and a separate dynamic environment
 maps identifiers to data.
 
-<!-- pause -->
-
 Going forward, we will use the environment model for our interpreter
 implementations, but will occasionally employ the substitution model when
 mathematical clarity is needed.
-
-<!-- pause -->
 
 We will also prefer big-step rules for brevity. You should be able to write up
 the small-step rules on your own!

@@ -1,8 +1,4 @@
----
-title: "Axiomatic Semantics"
-sub_title: "CS 440: Programming Languages"
-author: "Michael Lee"
----
+# Axiomatic Semantics
 
 ## Agenda
 
@@ -10,31 +6,23 @@ author: "Michael Lee"
 - Axiomatic Semantics and Hoare Triples
 - Axiomatic Rules of Inference
 
----
-
-# Why Another Semantics?
+## Why Another Semantics?
 
 Operational semantics:
 
 - Describes *how* a program runs
-- But only answers: “what happens on this run?”
-
-<!-- pause -->
+- But only answers: "what happens on this run?"
 
 Static semantics / Type systems:
 
-- Guarantees safety ("won’t get stuck")
-- But cannot express runtime correctness
-
-<!-- pause -->
+- Guarantees safety ("won't get stuck")
+- Cannot express runtime correctness
 
 We need a way to state and prove:
 
-- **“This program always produces the right result.”**
+- **"This program always produces the right result."**
 
----
-
-# A Motivating Example
+## A Motivating Example
 
 ```ocaml
 (fun x y -> if x <= y then y else x) 10 20
@@ -45,41 +33,29 @@ What we know:
 - Operational semantics: evaluates to `20`
 - Type System: expression has type `int`
 
-<!-- pause -->
-
 We might want to assert:
 
 - *For all inputs `x` and `y`, the function returns max(`x`,`y`)*
 
-<!-- pause -->
-
 I.e., we need to be able to talk about *all* executions, not just one
 
----
-
-# An Imperative Example
+## An Imperative Example
 
 ```pascal
 f := 1;
 i := 1;
 
-while i <= N do 
+while i <= N do
   f := f * i;
   i := i + 1;
 ```
 
-<!-- pause -->
-
 Prove that ∀ `N` ≥ 0, the loop terminates with `f` = `N`!
-
-<!-- pause -->
 
 To do this, we must be able to make logical assertions about the environment
 before and after each statement.
 
----
-
-# Hoare Triples (Imperative)
+## Hoare Triples (Imperative)
 
 ```typst +render +width:30%
 $
@@ -87,22 +63,14 @@ $
 $
 ```
 
-<!-- pause -->
-
 - `P` and `Q` are logical predicates
 - `C` is a language construct
 
-<!-- pause -->
-
 Meaning: if `P` holds before `C` and `C` terminates, then `Q` holds afterwards
-
-<!-- pause -->
 
 - assertion of *partial* correctness
 
----
-
-# Total correctness
+## Total correctness
 
 ```typst +render +width:30%
 $
@@ -113,20 +81,14 @@ $
 Meaning: if `P` holds before `C` then `C` *will terminate* and `Q` holds
 afterwards
 
-<!-- pause -->
-
 - this can be much harder (and in general, *impossible*) to prove
 - we typically focus on partial correctness
 
-<!-- pause -->
-
 In a program without loops/recursion, {`P`} `C` {`Q`} ⇔ [`P`] `C` [`Q`]
 
----
+## Axiomatic Rules of Inference
 
-# Axiomatic Rules of Inference
-
-## Assignment
+### Assignment
 
 ```typst +render +width:40%
 $
@@ -134,23 +96,13 @@ $
 $
 ```
 
-<!-- pause -->
-
 How can we relate pre- and post-conditions around assignment?
-
-<!-- pause -->
 
 Consider:
 
 - { ? } x := y { x > 10 }
 
 - { y + z < 100 } x := y + z { ? }
-
----
-
-# Axiomatic Rules of Inference
-
-## Assignment
 
 ```typst +render +width:50%
 $
@@ -160,21 +112,13 @@ $
 
 - looks like the opposite of what it should be!
 
-<!-- pause -->
-
 E.g., derive a precondition `P` in {`P`} `C` {`Q`}, where `C` = `x := y * 2`\
 and `Q` = `x < 10`
-
-<!-- pause -->
 
 - is it the only precondition that works?
 - what is special about the precondition derived by the rule?
 
----
-
-# Axiomatic Rules of Inference
-
-## Sequencing
+### Sequencing
 
 ```typst +render +width:50%
 $
@@ -183,19 +127,13 @@ $
 $
 ```
 
-<!-- pause -->
-
 E.g., derive a precondition P in {`P`} `C` {`Q`}, where:
 
 - `C` = `w := x; x := y; y := w;`
 
 - `Q` = `x = 20 ∧ y = 10`
 
----
-
-# Axiomatic Rules of Inference
-
-## Conditional
+### Conditional
 
 ```typst +render +width:70%
 $
@@ -204,18 +142,10 @@ $
 $
 ```
 
-<!-- pause -->
-
 - Clever way to think about branches: `then` and `else` clauses work to ensure a
   common goal (`Q`)
 
   - vs. `n` conditionals leading to `2ⁿ` possible outcomes!
-
----
-
-# Axiomatic Rules of Inference
-
-## Conditional
 
 Example:
 
@@ -232,12 +162,6 @@ else
 { m > x ∧ m > y }
 ```
 
----
-
-# Axiomatic Rules of Inference
-
-## Conditional
-
 Example:
 
 ```pascal {1,4,7,10}
@@ -253,12 +177,6 @@ else
 { m > x ∧ m > y }
 ```
 
----
-
-# Axiomatic Rules of Inference
-
-## Conditional
-
 Example:
 
 ```pascal {1,4,7,10}
@@ -273,12 +191,6 @@ else
 
 { m > x ∧ m > y }
 ```
-
----
-
-# Axiomatic Rules of Inference
-
-## Conditional
 
 Example:
 
@@ -295,41 +207,25 @@ else
 { m > x ∧ m > y }
 ```
 
-<!-- pause -->
-
 i.e., the program unconditionally computes `m` greater than `x` and `y`
 
----
-
-# Strength of Assertions
+## Strength of Assertions
 
 Important idea in axiomatic semantics: "weak"/"strong" assertions
-
-<!-- pause -->
 
 - the less restrictive an assertion, the *weaker* it is
 
 - the more restrictive an assertion, the *stronger* it is
 
-<!-- pause -->
-
 In a given Hoare triple {`P`} C {`Q`},
-
-<!-- pause -->
 
 - the *weakest precondition* `P` describes the least restrictive assumptions
   under which the triple holds
 
-<!-- pause -->
-
 - the *strongest postcondition* `Q` is the most precise description of the end
   result that always holds
 
----
-
-# Weakening / Strengthening Assertions
-
-<!-- incremental_lists: true -->
+## Weakening / Strengthening Assertions
 
 - If `P` ⇒ `Q`, `P` is *stronger* than `Q` and `Q` is *weaker* than `P`
 
@@ -345,11 +241,7 @@ In a given Hoare triple {`P`} C {`Q`},
 
   - e.g., (x > 50) ⇒ (x > 50) ∨ (z > 0)
 
----
-
-# Axiomatic Rules of Inference
-
-## Consequence
+### Consequence
 
 ```typst +render +width:60%
 $
@@ -358,20 +250,12 @@ $
 $
 ```
 
-<!-- pause -->
-
 I.e., we can *strengthen the precondition* or *weaken the postcondition*, and a
 triple will still hold.
 
-<!-- pause -->
-
 - this is useful when trying to prove/derive a Hoare triple
 
----
-
-# Axiomatic Rules of Inference
-
-## Loop
+### Loop
 
 ```typst +render +width:60%
 $
@@ -379,8 +263,6 @@ $
 /({P} thick "while" b "do" C thick {P and not b})
 $
 ```
-
-<!-- incremental_lists: true -->
 
 - `P` is preserved across each loop iteration, and is also true before the loop
   and after it terminates
@@ -390,12 +272,6 @@ $
 - Proving loop correctness requires establishing a loop invariant, and
   connecting it to the "goal" of the loop!
 
----
-
-# Axiomatic Rules of Inference
-
-## Loop
-
 Example:
 
 ```pascal {4,7,10,12}
@@ -404,7 +280,7 @@ i := 1;
 
 { ? }
 
-while i <= N do 
+while i <= N do
   { ? ^ i <= N }
   f := f * i;
   i := i + 1;
@@ -412,12 +288,6 @@ while i <= N do
 
 { ? ^ i > N }
 ```
-
----
-
-# Axiomatic Rules of Inference
-
-## Loop
 
 Example:
 
@@ -427,7 +297,7 @@ i := 1;
 
 { f = (i-1)! }
 
-while i <= N do 
+while i <= N do
   { f = (i-1)! ^ i <= N}
   f := f * i;
   i := i + 1;
@@ -436,12 +306,6 @@ while i <= N do
 { f = (i-1)! ^ i > N}
 ```
 
----
-
-# Axiomatic Rules of Inference
-
-## Loop
-
 Example:
 
 ```pascal {4,7,10,12}
@@ -450,7 +314,7 @@ i := 1;
 
 { f = (i-1)! ^ i <= (N+1)}
 
-while i <= N do 
+while i <= N do
   { f = (i-1)! ^ i <= (N+1) ^ i <= N }
   f := f * i;
   i := i + 1;
@@ -459,12 +323,6 @@ while i <= N do
 { f = (i-1)! ^ i <= (N+1) ^ i > N }
 ```
 
----
-
-# Axiomatic Rules of Inference
-
-## Loop
-
 Example:
 
 ```pascal {4,7,10,12}
@@ -473,7 +331,7 @@ i := 1;
 
 { f = (i-1)! ^ i <= (N+1)}
 
-while i <= N do 
+while i <= N do
   { f = (i-1)! ^ i <= (N+1) ^ i <= N }
   f := f * i;
   i := i + 1;
@@ -482,12 +340,6 @@ while i <= N do
 { f = (i-1)! ^ i = (N+1) }
 ```
 
----
-
-# Axiomatic Rules of Inference
-
-## Loop
-
 Example:
 
 ```pascal {4,7,10,12}
@@ -496,7 +348,7 @@ i := 1;
 
 { f = (i-1)! ^ i <= (N+1)}
 
-while i <= N do 
+while i <= N do
   { f = (i-1)! ^ i <= (N+1) ^ i <= N }
   f := f * i;
   i := i + 1;
