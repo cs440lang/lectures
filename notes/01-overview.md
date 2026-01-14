@@ -8,21 +8,23 @@
 
 ## Faculty & Staff
 
-Prof:
+Prof: *Michael Lee*
 
-- *Michael Lee* lee@iit.edu
-- Homepage: http://moss.cs.iit.edu
-- Hours: TBA
+- Email: <lee@iit.edu>
+- Homepage: <https://moss.cs.iit.edu>
+- Hours: Tue/Thu 12:00-14:00
 
-TA:
+Office hours are by appointment only -- make appointments on my homepage. You can also reach out anytime via MS Teams for asynchronous help.
 
-- TBA
+TA: Xincheng Yang <xyang76@hawk.illinoistech.edu>
+
+The TA will grade all machine problems and is the first point of contact for questions about grading. Reach out to him on MS Teams with questions or to schedule a meeting.
 
 ## Course Overview
 
 ### "Programming Languages" (PLs)
 
-Introduction to the field of *Programming Language Theory* (PLT).
+Introduction to the rich field of *Programming Language Theory* (PLT).
 
 Study of *programming languages*:
 
@@ -40,6 +42,8 @@ Study of *programming languages*:
 
 ### PL Paradigms
 
+A language is often rooted in a single computational *paradigm* (even though it may be a *multi-paradigm* language), which profoundly influences how we reason about and write code in it.
+
 - *Imperative*: prescriptive
   - i.e., *how* to compute
   - modeled on *incremental mutation* of machine state (variables)
@@ -47,8 +51,6 @@ Study of *programming languages*:
 - *Functional*: descriptive
   - i.e., *what* to compute
   - modeled on "pure" *mathematical functions*
-
-E.g., Imperative vs. Functional
 
 e.g., *Imperative*
 
@@ -71,27 +73,31 @@ sum (n:ns) = n + sum ns
 
 ### Spotlight on the Functional Paradigm
 
-- A *different perspective* on programming (for most students!)
+This class shines a spotlight on the functional paradigm. We will use a multi-paradigm language that emphasizes FP: **OCaml**.
 
-- Forces us to grapple with concepts/techniques that are unavailable or optional in most imperative languages
+This will provide a *different perspective* on programming (for most students!)
 
-  - E.g., type inference, pattern matching, higher-order functions
+It will force us to grapple with concepts/techniques that are unavailable (or optional) in imperative languages
 
-  - Many modern PLs are adopting historically "functional" features!
+- E.g., pattern matching, higher-order functions, closures
+
+Many modern PLs are adopting historically "functional" features, and it's important to be familiar with them (and why they are important).
 
 ### PL Implementation
 
-- Understand how PLs work under the hood
+We will examine how PLs work under the hood.
 
-- Build *interpreters* from scratch using OCaml
+To this end, we will build *interpreters* from scratch using OCaml.
 
-  - *Lexing*/*Parsing* -> *Abstract Syntax Trees* -> *Evaluation*
+- Workflow: *Lexing* -> *Parsing* -> *Internal Representation* -> *Type Checking* -> *Evaluation*
 
-  - Gain insight into decisions and tradeoffs in PL design
+We will use standard tools like lexer & parser generators to automate some of these steps. OCaml has excellent support for language development!
+
+This should give you insight into decisions and tradeoffs in PL design.
 
 ### PL Analysis
 
-- Rigorous treatment of PL *semantics*
+We will rigorously examine PL *semantics* from different angles:
 
 - *Dynamic semantics* (when executed)
 
@@ -102,6 +108,8 @@ sum (n:ns) = n + sum ns
 - *Static semantics* (as written)
 
   - *Type systems* constrain the values that inhabit our programs, and let us rule out entire classes of errors before we ever run them!
+
+There is a deep connection between types, logic, programs, and proofs that we will uncover by the end of the semester, that is the driving force behind much PL research!
 
 ### By the end ...
 
@@ -143,16 +151,52 @@ And here is the grade scale:
 
 - ~4 machine problems (MPs) -- coding exercises
 - ~3 written problem sets -- evaluation / derivation / proofs
-- All posted to Canvas; MPs distributed via Git
 - Different point values, weighted proportionally
 
 #### Exams
 
-There will be two exams, covering concepts and practical skills. Exams will be synchronous, in-person, and closed-device/closed-notes. The midterm exam will take place on or around March 13th (just before spring break), and the final exam will take place during finals week (May 4-9).
+There will be two exams, covering concepts and practical skills. Exams will be synchronous, in-person, and closed-device/closed-notes.
+
+The midterm exam will take place on or around March 4th, and the final exam will take place during finals week (May 4-9).
 
 At my discretion, I may apply a linear formula to normalize exam scores such that the maximum and average scores are adjusted to 100% and 75%.
 
-### References
+### Resources
+
+#### Canvas
+
+You can find the following on Canvas:
+
+- the lecture and assignment/exam schedule
+- all assignment writeups and invitation links (for MPs)
+- upload links for written assignments
+- important announcements (you should get email notifications by default)
+
+#### Lecture Repository
+
+Located at <https://github.com/cs440lang/lectures/>. You will find:
+
+- all lecture notes and handouts under `notes/`
+
+  - notes are in Markdown format (view in GitHub or with some other Markdown preview tool)
+
+    - Some notes contain math equation / diagram specifiations (in Typst, LaTeX, Mermaid, etc.) -- I will render these in my slides for you
+
+  - all slides are distilled from the notes!
+
+- source code used for demos during lecture are in `src/`
+
+  - I'll go over how to load these into the OCaml REPL
+
+- there are two branches:
+
+  - `demo`: contains "starter" code that I use during in-class demos
+
+  - `main`: contains the "final" (with spoilers) versions of code
+
+I recommend that you clone the repository locally and create your own branch off of `main` to add your own notes and code/comments. Pull and merge my changes on a regular basis.
+
+#### References
 
 - Michael Clarkson, *OCaml Programming: Correct + Efficient + Beautiful*.
 - Robert Harper, *Practical Foundations for Programming Languages*.
