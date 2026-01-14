@@ -21,32 +21,34 @@ How can we infer their types?
 
 - `fun f -> fun x -> f (f x)`
 
-// fun x -> x
-// - raw type: 'a -> 'a
-// - no constraints/substitution
-// - final type: 'a -> 'a
-//
-// fun x -> x + 1
-// - raw type: 'a -> int
-// - gathered constraints { 'a=int,
-//                          int=int }
-// - computed substitution { 'a |-> int }
-// - final type: int -> int
-//
-// fun f -> fun x -> f x
-// - raw type: 'a -> 'b -> 'c
-// - gathered constraints { 'a = 'b -> 'c }
-// - computed substitution { 'a |-> 'b -> 'c }
-// - final type: ('b -> 'c) -> 'b -> 'c
-//
-// fun f -> fun x -> f (f x)
-// - raw type: 'a -> 'b -> 'c
-// - gathered constraints { 'a = 'b -> 'd,
-//                          'a = 'd -> 'c }
-// - computed substitution { 'a |-> 'c -> 'c,
-//                           'b |-> 'c,
-//                           'd |-> 'c  }
-// - final type: ('c -> 'c) -> 'c -> 'c
+<!--
+fun x -> x
+- raw type: 'a -> 'a
+- no constraints/substitution
+- final type: 'a -> 'a
+
+fun x -> x + 1
+- raw type: 'a -> int
+- gathered constraints { 'a=int,
+                        int=int }
+- computed substitution { 'a |-> int }
+- final type: int -> int
+
+fun f -> fun x -> f x
+- raw type: 'a -> 'b -> 'c
+- gathered constraints { 'a = 'b -> 'c }
+- computed substitution { 'a |-> 'b -> 'c }
+- final type: ('b -> 'c) -> 'b -> 'c
+
+fun f -> fun x -> f (f x)
+- raw type: 'a -> 'b -> 'c
+- gathered constraints { 'a = 'b -> 'd,
+                        'a = 'd -> 'c }
+- computed substitution { 'a |-> 'c -> 'c,
+                         'b |-> 'c,
+                         'd |-> 'c  }
+- final type: ('c -> 'c) -> 'c -> 'c
+-->
 
 ## From Examples to Mechanism
 
@@ -57,12 +59,15 @@ To infer types, we:
 3. *Solve* those constraints to obtain a substitution
 4. Apply the *substitution* to get the final inferred type
 
-// Intuitively, we do ...
-// 1. Going "up" the proof tree
-// 2. Going "down" the proof tree; this is the tree's "output"
-// 3. This is the unification algorithm, which we'll cover later
-//   - if it fails, the expression is ill-typed!
-// 4. We apply substitution to the raw type from the tree
+Intuitively, we do ...
+
+1. Going "up" the proof tree
+2. Going "down" the proof tree; this is the tree's "output"
+3. This is the unification algorithm, which we'll cover later
+
+- if it fails, the expression is ill-typed!
+
+4. We apply substitution to the raw type from the tree
 
 ## Type Variables
 
@@ -373,9 +378,11 @@ Goal: find a *substitution* `S` where `S`(`τ₁`) = `S`(`τ₂`) for all constr
 
 4. Otherwise: incompatible types failure
 
-// The test that `α` ∉ `τ` is known as an "occurs test"
-// - e.g., see the constraint α = α -> int
-// Rule 3 introduces the idea of *composing* substitutions
+The test that `α` ∉ `τ` is known as an "occurs test"
+
+- e.g., see the constraint α = α -> int
+
+Rule 3 introduces the idea of *composing* substitutions
 
 ## Applying Unification
 
@@ -431,26 +438,28 @@ Find the MGU for each constraint set, or explain why unification fails.
 
 `β` = `ɑ`
 
-// Remember that you can check your substitutions by applying them to the
-// constraints!
-//
-// Solutions:
-// (1) { 'a |-> bool, 'b |-> bool }
-//
-// (2) { 'a |-> bool, 'b |-> int }
-//
-// (3) { 'a |-> int -> bool,
-//       'b |-> int,
-//       'c |-> bool }
-//
-// (4) type mismatch failure (bool = int)
-//
-// (5) { 'a |-> ('e -> int) -> 'e,
-//       'b |-> 'e -> int,
-//       'd |-> 'e -> int,
-//       'c |-> 'e }
-//
-// (6) infinite type failure
+<!--
+Remember that you can check your substitutions by applying them to the
+constraints!
+
+Solutions:
+(1) { 'a |-> bool, 'b |-> bool }
+
+(2) { 'a |-> bool, 'b |-> int }
+
+(3) { 'a |-> int -> bool,
+     'b |-> int,
+     'c |-> bool }
+
+(4) type mismatch failure (bool = int)
+
+(5) { 'a |-> ('e -> int) -> 'e,
+     'b |-> 'e -> int,
+     'd |-> 'e -> int,
+     'c |-> 'e }
+
+(6) infinite type failure
+-->
 
 ## Implementing Unification
 
@@ -483,9 +492,12 @@ let solve_constraints constraints =
     empty_subst constraints
 ```
 
-// To run the REPL with automated unification of constraints on, do:
-// > dune utop
-// # L10_typeinfer.Mono_typeinfer.repl ~solve:true ();;
+To run the REPL with automated unification of constraints on, do:
+
+```
+> dune utop
+# L10_typeinfer.Mono_typeinfer.repl ~solve:true ();;
+```
 
 ## Beyond Type Inference: Unification
 
@@ -503,49 +515,21 @@ Broad application -- at the crossroads of *logic*, *algebra*, *programming langu
 
 - AI: rule-based systems and ontology reasoning
 
-// Historical and Conceptual Timeline of Unification
-//
-// - 1930s – Foundations:
-//   Early work in mathematical logic by Jacques Herbrand and others on symbolic
-//   substitution in first-order logic laid the groundwork for reasoning about
-//   equality between terms.
-//
-// - 1965 – Automated Reasoning:
-//   J. Alan Robinson introduced unification in his *resolution principle* for
-//   first-order logic, making it the key step in automated theorem proving.
-//   Two formulas can be resolved if their predicates can be unified, i.e.,
-//   made identical under some substitution.
-//
-// - 1970s – Logic Programming:
-//   The creators of *Prolog* took unification from theorem proving and made
-//   it the engine of execution. When Prolog answers a query, it repeatedly
-//   performs unification between the query and program clauses, instantiating
-//   variables as it goes.
-//
-// - 1978 – Type Systems:
-//   Robin Milner applied the same idea to **type inference**. Instead of
-//   unifying logical terms, his algorithm unified *type expressions*, allowing a
-//   compiler to infer the most general type of an expression automatically. This
-//   became the basis of the **Hindley–Milner type system**, used in ML, OCaml,
-//   and Haskell.
-//
-// - 1980s–Present – Constraint Solvers and Beyond:
-//   Unification was generalized to constraint solving and symbolic reasoning.
-//   Modern SMT solvers (like Z3 and CVC5), theorem provers, and term-rewriting
-//   systems all rely on variants of unification to reconcile symbolic structures
-//   under constraints.
-//
-// - Today – Across Disciplines:
-//   Unification remains a central idea not only in type systems, logic, and
-//   AI, but also in natural-language processing (unification-based grammars),
-//   symbolic algebra systems, and formal verification.
-//
-// **Takeaway:**
-// What began as a logic technique for proving theorems evolved into a universal
-// mechanism for *symbolic constraint solving*. Whether the "symbols" are logical
-// predicates, program types, linguistic features, or algebraic expressions,
-// unification is the tool that finds consistent substitutions to make
-// structures agree.
+Historical and Conceptual Timeline of Unification
+
+- 1930s – Foundations: Early work in mathematical logic by Jacques Herbrand and others on symbolic substitution in first-order logic laid the groundwork for reasoning about equality between terms.
+
+- 1965 – Automated Reasoning: J. Alan Robinson introduced unification in his *resolution principle* for first-order logic, making it the key step in automated theorem proving. Two formulas can be resolved if their predicates can be unified, i.e., made identical under some substitution.
+
+- 1970s – Logic Programming: The creators of *Prolog* took unification from theorem proving and made it the engine of execution. When Prolog answers a query, it repeatedly performs unification between the query and program clauses, instantiating variables as it goes.
+
+- 1978 – Type Systems: Robin Milner applied the same idea to **type inference**. Instead of unifying logical terms, his algorithm unified *type expressions*, allowing a compiler to infer the most general type of an expression automatically. This became the basis of the **Hindley–Milner type system**, used in ML, OCaml, and Haskell.
+
+- 1980s–Present – Constraint Solvers and Beyond: Unification was generalized to constraint solving and symbolic reasoning. Modern SMT solvers (like Z3 and CVC5), theorem provers, and term-rewriting systems all rely on variants of unification to reconcile symbolic structures under constraints.
+
+- Today – Across Disciplines: Unification remains a central idea not only in type systems, logic, and AI, but also in natural-language processing (unification-based grammars), symbolic algebra systems, and formal verification.
+
+**Takeaway:** What began as a logic technique for proving theorems evolved into a universal mechanism for *symbolic constraint solving*. Whether the "symbols" are logical predicates, program types, linguistic features, or algebraic expressions, unification is the tool that finds consistent substitutions to make structures agree.
 
 ## The Problem with Let
 
@@ -651,14 +635,16 @@ What type schemes are introduced by the following `let` forms?
 
 - `fun x -> let f = fun g -> g x in ...`
 
-// `let id = fun x -> x in ...`
-// - id : forall a. (a -> a)
-//
-// `let fst = fun x y -> x in ...`
-// - fst : forall a,b. (a -> b -> a)
-//
-// `fun x -> let f = fun g -> g x in ...`
-// - f : forall b. ((a -> b) -> b)
+<!--
+`let id = fun x -> x in ...`
+- id : forall a. (a -> a)
+
+`let fst = fun x y -> x in ...`
+- fst : forall a,b. (a -> b -> a)
+
+`fun x -> let f = fun g -> g x in ...`
+- f : forall b. ((a -> b) -> b)
+-->
 
 ## Instantiation
 
@@ -666,9 +652,7 @@ When looking up a variable, we *instantiate* a monotype from its type scheme
 
 - Replacing every quantified type variable with a fresh one
 
-// Intuitively, a type scheme represents a *family of types*. Each time we use
-// it, we create a new member of the family, differing only by the fresh type
-// variable(s).
+Intuitively, a type scheme represents a *family of types*. Each time we use it, we create a new member of the family, differing only by the fresh type variable(s).
 
 ```typst +render +width:85%
 #let mapto = sym.arrow.r.bar
@@ -763,13 +747,10 @@ let rec infer_expr tenv e =
   ...
 ```
 
-// - the Var rule instantiates the scheme found in the environment
-// - the Let rule generalizes a scheme from the inferred monotype
-// - note how (in handling Let), we immediately apply substitutions obtained
-//   from recursive calls to types and environments, and we compose the
-//   substitutions to return them
-// - we provide Var, Let, Fun, App (and helper functions) -- you'll need to
-//   finish the implementation of Algorithm W!
+- the Var rule instantiates the scheme found in the environment
+- the Let rule generalizes a scheme from the inferred monotype
+- note how (in handling Let), we immediately apply substitutions obtained from recursive calls to types and environments, and we compose the substitutions to return them
+- we provide Var, Let, Fun, App (and helper functions) -- you'll need to finish the implementation of Algorithm W!
 
 ## Demo
 
@@ -778,15 +759,15 @@ dune utop
 # L10_typeinfer.Eval.repl ();;
 ```
 
-// Try our earlier examples!
-//
-// let id = fun x -> x in id
-//
-// let id = fun x -> x in id 10
-//
-// let id = fun x -> x in let a = id 10 in id
-//
-// let id = fun x -> x in let a = id 10 in id true
+Try our earlier examples!
+
+let id = fun x -> x in id
+
+let id = fun x -> x in id 10
+
+let id = fun x -> x in let a = id 10 in id
+
+let id = fun x -> x in let a = id 10 in id true
 
 ## What did we learn?
 
@@ -798,6 +779,3 @@ dune utop
 - *Algorithm W* automates it all
 
 Type inference reasons about programs symbolically. *It's a proof system embedded into the compiler*!
-
-// Type inference reasons about programs symbolically — it's logic running inside
-// the compiler.
