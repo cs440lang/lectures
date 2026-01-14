@@ -52,8 +52,7 @@ while i <= N do
 
 Prove that ∀ `N` ≥ 0, the loop terminates with `f` = `N`!
 
-To do this, we must be able to make logical assertions about the environment
-before and after each statement.
+To do this, we must be able to make logical assertions about the environment before and after each statement.
 
 ## Hoare Triples (Imperative)
 
@@ -78,8 +77,7 @@ $
 $
 ```
 
-Meaning: if `P` holds before `C` then `C` *will terminate* and `Q` holds
-afterwards
+Meaning: if `P` holds before `C` then `C` *will terminate* and `Q` holds afterwards
 
 - this can be much harder (and in general, *impossible*) to prove
 - we typically focus on partial correctness
@@ -142,8 +140,7 @@ $
 $
 ```
 
-- Clever way to think about branches: `then` and `else` clauses work to ensure a
-  common goal (`Q`)
+- Clever way to think about branches: `then` and `else` clauses work to ensure a common goal (`Q`)
 
   - vs. `n` conditionals leading to `2ⁿ` possible outcomes!
 
@@ -219,11 +216,9 @@ Important idea in axiomatic semantics: "weak"/"strong" assertions
 
 In a given Hoare triple {`P`} C {`Q`},
 
-- the *weakest precondition* `P` describes the least restrictive assumptions
-  under which the triple holds
+- the *weakest precondition* `P` describes the least restrictive assumptions under which the triple holds
 
-- the *strongest postcondition* `Q` is the most precise description of the end
-  result that always holds
+- the *strongest postcondition* `Q` is the most precise description of the end result that always holds
 
 ## Weakening / Strengthening Assertions
 
@@ -250,8 +245,7 @@ $
 $
 ```
 
-I.e., we can *strengthen the precondition* or *weaken the postcondition*, and a
-triple will still hold.
+I.e., we can *strengthen the precondition* or *weaken the postcondition*, and a triple will still hold.
 
 - this is useful when trying to prove/derive a Hoare triple
 
@@ -264,13 +258,11 @@ $
 $
 ```
 
-- `P` is preserved across each loop iteration, and is also true before the loop
-  and after it terminates
+- `P` is preserved across each loop iteration, and is also true before the loop and after it terminates
 
   - Known as the *loop invariant*
 
-- Proving loop correctness requires establishing a loop invariant, and
-  connecting it to the "goal" of the loop!
+- Proving loop correctness requires establishing a loop invariant, and connecting it to the "goal" of the loop!
 
 Example:
 

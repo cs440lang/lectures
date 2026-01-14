@@ -24,23 +24,19 @@ Load starter code in OCaml toplevel during code demos to follow along
 REPL for OCaml
 
 - Typical workflow: edit source file, (re)load in `utop`, interact/test
-- Syntax and semantics between top-level and "normal" OCaml are slightly
-  different!
+- Syntax and semantics between top-level and "normal" OCaml are slightly different!
 
-If you don't have OCaml installed, you can use the
-[OCaml playground](https://ocaml.org/play)
+If you don't have OCaml installed, you can use the [OCaml playground](https://ocaml.org/play)
 
 ## Notable Language Features
 
-1. *Static-typing* and *Type-safety*: every expression has a type, determined
-   and enforced at compile time
+1. *Static-typing* and *Type-safety*: every expression has a type, determined and enforced at compile time
 
 2. *Type-inference*: the compiler can deduce types automatically
 
 3. *First-class functions*: functions are treated like any other value
 
-4. *Algebraic data types*: custom types are defined as "sums" and "products" of
-   other types
+4. *Algebraic data types*: custom types are defined as "sums" and "products" of other types
 
 5. *Pattern matching*: concise and expressive way of deconstructing values
 
@@ -191,8 +187,7 @@ let y : int = 9 + 1
 let z : int = x * y
 ```
 
-- but we typically don't, because the compiler *infers* the correct types for
-  us!
+- but we typically don't, because the compiler *infers* the correct types for us!
   - (how can it do so in the examples above?)
 
 `let` can also be used with `in` to create a *scoped binding*:
@@ -225,8 +220,7 @@ let x = 44 in
 if a*a + b*b = c*c then "square" else "not square"
 ```
 
-The entire `if-then-else` expression has some fixed type *t*, which means that
-both `then` and `else` branches must evaluate to the same type *t*!
+The entire `if-then-else` expression has some fixed type *t*, which means that both `then` and `else` branches must evaluate to the same type *t*!
 
 ```ocaml
 if foo < 10 then 10 else "bar" (* type error! *)

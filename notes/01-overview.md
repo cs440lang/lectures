@@ -73,8 +73,7 @@ sum (n:ns) = n + sum ns
 
 - A *different perspective* on programming (for most students!)
 
-- Forces us to grapple with concepts/techniques that are unavailable or optional
-  in most imperative languages
+- Forces us to grapple with concepts/techniques that are unavailable or optional in most imperative languages
 
   - E.g., type inference, pattern matching, higher-order functions
 
@@ -102,21 +101,17 @@ sum (n:ns) = n + sum ns
 
 - *Static semantics* (as written)
 
-  - *Type systems* constrain the values that inhabit our programs, and let us
-    rule out entire classes of errors before we ever run them!
+  - *Type systems* constrain the values that inhabit our programs, and let us rule out entire classes of errors before we ever run them!
 
 ### By the end ...
 
-- You'll have implemented *multiple interpreters*, *type checking*, and
-  *polymorphic type inference*
+- You'll have implemented *multiple interpreters*, *type checking*, and *polymorphic type inference*
 
-- You'll understand how fundamental PL features (closures, recursion, type
-  inference) *actually work* under the hood
+- You'll understand how fundamental PL features (closures, recursion, type inference) *actually work* under the hood
 
 - You'll be able to read and write *formal specifications* of PL behavior
 
-- You'll be equipped to *critically evaluate* language design decisions in any
-  language you use
+- You'll be equipped to *critically evaluate* language design decisions in any language you use
 
 ## Administrivia
 
@@ -128,17 +123,21 @@ sum (n:ns) = n + sum ns
 - Formal languages and Grammars (CS 330)
 - Data structures and Algorithms (CS 331 / 430)
 
-### Grading
+### Assessments and Grading
+
+Final grades are broken down as follows:
 
 - 50% Assignments
 - 25% Midterm Exam
 - 25% Final Exam
 
-- A: ≥ 90%
-- B: 80-89%
-- C: 70-79%
-- D: 60-69%
-- E: < 60%
+And here is the grade scale:
+
+- A ≥ 90%
+- B ≥ 80%
+- C ≥ 70%
+- D ≥ 60%
+- E < 60%
 
 #### Assignments
 
@@ -149,10 +148,9 @@ sum (n:ns) = n + sum ns
 
 #### Exams
 
-- Two exams: Midterm on TBA, Final during TBA
-- Scores adjusted linearly (if needed) so average is ~75%
-- Midterm date is tentative!
-- Final exam is *nominally comprehensive*, but focuses on latter half
+There will be two exams, covering concepts and practical skills. Exams will be synchronous, in-person, and closed-device/closed-notes. The midterm exam will take place on or around March 13th (just before spring break), and the final exam will take place during finals week (May 4-9).
+
+At my discretion, I may apply a linear formula to normalize exam scores such that the maximum and average scores are adjusted to 100% and 75%.
 
 ### References
 
@@ -163,5 +161,4 @@ sum (n:ns) = n + sum ns
 
 ## For Friday
 
-- Read Section 1 of *A Tutorial Introduction to the Lambda Calculus*, by Raul
-  Rojas.
+Read Section 1 of *A Tutorial Introduction to the Lambda Calculus*, by Raul Rojas.

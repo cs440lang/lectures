@@ -26,8 +26,7 @@ let inc = fun x -> x + 1
 let foo = fun x y z -> (2*x + y) * z
 ```
 
-- Note that these functions are *anonymous* -- they only have "names" because we
-  bind variables to them.
+- Note that these functions are *anonymous* -- they only have "names" because we bind variables to them.
 
 - What are the function types? How do we interpret them?
 
@@ -35,19 +34,15 @@ let foo = fun x y z -> (2*x + y) * z
 
 ### Function types
 
-- `t1 -> t2` is a type signature for a function that takes a value of type `t1`
-  and returns a value of type `t2`
+- `t1 -> t2` is a type signature for a function that takes a value of type `t1` and returns a value of type `t2`
 
-- `t1 -> t2 -> t3` describes a function that takes a value of type `t1` and
-  returns a function of type `t2 -> t3`!
+- `t1 -> t2 -> t3` describes a function that takes a value of type `t1` and returns a function of type `t2 -> t3`!
 
-  - I.e., the `->` operator is right associative --- so `t1 -> t2 -> t3` is the
-    same thing as `t1 -> (t2 -> t3)`
+  - I.e., the `->` operator is right associative --- so `t1 -> t2 -> t3` is the same thing as `t1 -> (t2 -> t3)`
 
 ### Equivalence to `let-in`
 
-Note that `let-in` is really just *syntactic sugar* for the application of a
-corresponding anonymous function to the binding expression:
+Note that `let-in` is really just *syntactic sugar* for the application of a corresponding anonymous function to the binding expression:
 
 ```ocaml
 let x = 10 in 2 * x
@@ -69,15 +64,11 @@ let foo = fun x y z -> (2*x + y) * z
 let foo' = fun x -> fun y -> fun z -> (2*x + y) * z
 ```
 
-- We say that functions of multiple arguments are *curried* in OCaml --- i.e.,
-  it is turned into multiple functions of one argument, each of which returns
-  another function of one argument (except for the last, which evaluates to the
-  result)
+- We say that functions of multiple arguments are *curried* in OCaml --- i.e., it is turned into multiple functions of one argument, each of which returns another function of one argument (except for the last, which evaluates to the result)
 
 ### Partial application
 
-A consequence of *currying* is that functions of multiple arguments can be
-*partially applied*.
+A consequence of *currying* is that functions of multiple arguments can be *partially applied*.
 
 ```ocaml
 let foo = fun x y z -> (2*x + y) * z
@@ -132,11 +123,9 @@ let first x _ = x
 let second _ y = y
 ```
 
-- Note that we use `_` as the name for a parameter we don't plan to use in the
-  function body.
+- Note that we use `_` as the name for a parameter we don't plan to use in the function body.
 
-If we wish, we can add type annotations that override the general nature of
-naturally polymorphic functions:
+If we wish, we can add type annotations that override the general nature of naturally polymorphic functions:
 
 ```ocaml
 let id (x : int) = x
@@ -160,15 +149,13 @@ let x = x + 1
 
 i.e., names must be bound *before* we try to refer to them!
 
-We need to use the `rec` keyword to explicitly let OCaml know that we want to
-permit self-referential definitions (i.e., recursion):
+We need to use the `rec` keyword to explicitly let OCaml know that we want to permit self-referential definitions (i.e., recursion):
 
 ```ocaml
 let rec fact n = if n <= 1 then 1 else n * fact (n-1)
 ```
 
-But we'll run into a similar problem if we try to write *mutually-recursive*
-functions:
+But we'll run into a similar problem if we try to write *mutually-recursive* functions:
 
 ```ocaml
 let rec even n = if n = 0 then true
@@ -178,8 +165,7 @@ let rec odd n  = if n = 0 then false
                  else even (n-1)
 ```
 
-For bindings that need to be able to refer to themselves and each other, we must
-use the `rec` and `and` keywords (think of this as *parallel* binding):
+For bindings that need to be able to refer to themselves and each other, we must use the `rec` and `and` keywords (think of this as *parallel* binding):
 
 ```ocaml
 let rec even n = if n = 0 then true
@@ -193,13 +179,11 @@ let rec even n = if n = 0 then true
 
 We can *trace* function calls with the `#trace` top-level command.
 
-- E.g., try `#trace fact`, `#trace even`, `#trace odd`, then calling the
-  functions. Interpret the results.
+- E.g., try `#trace fact`, `#trace even`, `#trace odd`, then calling the functions. Interpret the results.
 
 - E.g., try `#trace foo`, then calling the function. Interpret the results.
 
-Note that sometimes `#trace` can cause undesired side-effects in functions being
-traced!
+Note that sometimes `#trace` can cause undesired side-effects in functions being traced!
 
 ## Operators as functions
 
@@ -243,8 +227,7 @@ let rec sum n = if n = 0 then 0
 
 Try `sum 100_000_000` -- what happens? Why?
 
-We can rewrite `sum` which uses an *accumulator* to avoid needing to do work
-upon returning from recursive calls. (How do we call this?)
+We can rewrite `sum` which uses an *accumulator* to avoid needing to do work upon returning from recursive calls. (How do we call this?)
 
 ```ocaml
 let rec sum' n acc = if n = 0 then acc
@@ -260,14 +243,11 @@ let rec sum' n acc = if n = 0 then acc
                      else sum' (n-1) (acc+n)
 ```
 
-We say that the recursive call above is in the "tail position" --- i.e., it is
-the *last thing* done in the function body
+We say that the recursive call above is in the "tail position" --- i.e., it is the *last thing* done in the function body
 
-- When this is the case, OCaml can perform *tail-call optimization*, which
-  prevents additional stack frames from being allocated on recursive calls
+- When this is the case, OCaml can perform *tail-call optimization*, which prevents additional stack frames from being allocated on recursive calls
 
-But this implementation is ugly -- it exposes the accumulator (which can be
-misused):
+But this implementation is ugly -- it exposes the accumulator (which can be misused):
 
 ```ocaml
 let rec sum' n acc = if n = 0 then acc
@@ -278,8 +258,7 @@ How can we clean it up?
 
 ### Auxiliary "helper" function
 
-A cleaner implementation "hides" the accumulator by introducing an auxiliary
-recursive function:
+A cleaner implementation "hides" the accumulator by introducing an auxiliary recursive function:
 
 ```ocaml
 let sum'' n =
@@ -290,8 +269,7 @@ let sum'' n =
 
 ### Exercise
 
-Can you write an efficient, tail-recursive version of the following Fibonacci
-generator?
+Can you write an efficient, tail-recursive version of the following Fibonacci generator?
 
 ```ocaml
 let rec fib n = if n = 0 then 1

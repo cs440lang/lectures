@@ -10,8 +10,7 @@
 
 ## MiniML
 
-SimPL provided a good set of interpreter training wheels, but it lacks an
-essential feature: *functions*.
+SimPL provided a good set of interpreter training wheels, but it lacks an essential feature: *functions*.
 
 Let's add function definition and application to our language:
 
@@ -87,8 +86,7 @@ let rec eval (e : expr) (env: env) : value =
 
 ### Application (`e1 e2`)
 
-Application involves evaluating a function's body with its variable bound to an
-argument value.
+Application involves evaluating a function's body with its variable bound to an argument value.
 
 ```typst +render +width:100%
 #let bstep = sym.arrow.b.double
@@ -159,8 +157,7 @@ We evaluate `(x+y)` with env=`[(x,10); (y,6); ...]`
 
 ### Dynamic Scoping
 
-Our current set of rules apply a function by using the *dynamic environment* to
-look up free variables in its body. We call this *dynamic scoping*.
+Our current set of rules apply a function by using the *dynamic environment* to look up free variables in its body. We call this *dynamic scoping*.
 
 ```typst +render +width:100%
 #let bstep = sym.arrow.b.double
@@ -211,15 +208,13 @@ let y=5 in fun x->x+y
 
 We get back a ***closure***.
 
-- A combination of the function's definition and *the environment in which it
-  was defined* (aka its *lexical environment*).
+- A combination of the function's definition and *the environment in which it was defined* (aka its *lexical environment*).
 
 ## Big-Step Environment-Model Evaluation with Closures
 
 ### fun => closure
 
-We'll update our rule so that evaluating a `fun` expression results in a
-closure.
+We'll update our rule so that evaluating a `fun` expression results in a closure.
 
 ```typst +render +width:75%
 #let bstep = sym.arrow.b.double
@@ -252,8 +247,7 @@ let rec eval (e : expr) (env: env) : value =
 
 ### Application (`e1 e2`)
 
-We'll also update application to expect a closure from evaluating `e1`, and to
-evaluate its body in the saved environment:
+We'll also update application to expect a closure from evaluating `e1`, and to evaluate its body in the saved environment:
 
 ```typst +render +width:100%
 #let bstep = sym.arrow.b.double
@@ -282,8 +276,7 @@ let rec eval (e : expr) (env: env) : value =
 
 ### Lexical Scoping
 
-Our updated set of rules use the *lexical environment* captured by a closure to
-look up free variables in a function's body during application.
+Our updated set of rules use the *lexical environment* captured by a closure to look up free variables in a function's body during application.
 
 ```typst +render +width:100%
 #let bstep = sym.arrow.b.double
@@ -328,21 +321,17 @@ let rec eval (e : expr) (env: env) : value =
 
 - Lexical scoping is ...
 
-  - more predictable and modular: a function's behavior is based on its static
-    definition, not its calling context
+  - more predictable and modular: a function's behavior is based on its static definition, not its calling context
 
-  - less flexible: we cannot easily override bindings used by the function (or
-    have it use the caller's bindings)
+  - less flexible: we cannot easily override bindings used by the function (or have it use the caller's bindings)
 
   - matches most modern implementations
 
 - Dynamic scoping is ...
 
-  - unpredictable and hard to debug: functions may behave differently depending
-    on where they're called from
+  - unpredictable and hard to debug: functions may behave differently depending on where they're called from
 
-  - flexible and possibly more concise: functions can automatically access
-    variables defined by their callers (useful for dynamic configuration)
+  - flexible and possibly more concise: functions can automatically access variables defined by their callers (useful for dynamic configuration)
 
   - incompatible with modern compiler optimizations / static analysis
 
@@ -377,8 +366,7 @@ type expr =
   | App of expr * expr
 ```
 
-Then, after updating the front-end to recognize the new syntax and return
-appropriate ADTs, update necessary value types:
+Then, after updating the front-end to recognize the new syntax and return appropriate ADTs, update necessary value types:
 
 ```ocaml {3}
 type value = VInt of int
@@ -398,8 +386,7 @@ let rec eval (e : expr) (env: env) : value =
           (* evaluate the closure (how?) *)
 ```
 
-But we're not really introducing any new semantics, so why are we updating the
-`eval` function?!
+But we're not really introducing any new semantics, so why are we updating the `eval` function?!
 
 We should recognize that:
 
@@ -415,9 +402,7 @@ is, thanks to currying, *syntactic sugar* for:
 
 ### Approach 2: Desugaring
 
-A simpler approach is to only modify the grammar and parser, and when we
-encounter the `fun x y z ... -> body` syntax, to *desugar* it into the
-explicitly curried form.
+A simpler approach is to only modify the grammar and parser, and when we encounter the `fun x y z ... -> body` syntax, to *desugar* it into the explicitly curried form.
 
 ```ocamlex
 expr:

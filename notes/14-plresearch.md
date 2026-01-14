@@ -14,8 +14,7 @@
 
 Goal: To create mathematically sound models for computation.
 
-Payoff: Drives fundamental advancements in software safety, performance, and
-formal verification.
+Payoff: Drives fundamental advancements in software safety, performance, and formal verification.
 
 Much of modern PL research is motivated by the *Curry-Howard Correspondence*
 
@@ -28,8 +27,7 @@ Also known as:
 - *Propositions-as-Types*
 - *Proofs-as-Programs*
 
-Not just a fanciful philosophical notion! It has direct consequences for
-language design and verification.
+Not just a fanciful philosophical notion! It has direct consequences for language design and verification.
 
 ### Propositions ⇔ Types
 
@@ -80,8 +78,7 @@ When you write a program, you are building a *constructive proof*
 
 Evaluating a program = simplifying a proof
 
-- β-reductions, substitutions, etc., leave proofs logically unchanged
-  (preservation) but more streamlined
+- β-reductions, substitutions, etc., leave proofs logically unchanged (preservation) but more streamlined
 
 ### Why do we care?
 
@@ -113,8 +110,7 @@ Refinement = *base type + logical predicate*
 
 Types can describe runtime constraints which are statically checked
 
-- Generates mathematical proofs (verification conditions) and verifies them
-  using automated Satisfiability Modulo Theories (SMT) solvers
+- Generates mathematical proofs (verification conditions) and verifies them using automated Satisfiability Modulo Theories (SMT) solvers
 
 ### Dependent Types
 
@@ -122,11 +118,9 @@ Dependent types = *type definitions that depend on values*
 
 - Structural properties can be guaranteed at compile-time
 
-- e.g., a function that takes an int `n` and whose return type is an `int`
-  matrix of size `n` x `n`
+- e.g., a function that takes an int `n` and whose return type is an `int` matrix of size `n` x `n`
 
-Example: F* -- a proof-oriented language, supporting both refinement and
-dependent types
+Example: F* -- a proof-oriented language, supporting both refinement and dependent types
 
 ### Linear Types
 
@@ -138,16 +132,13 @@ Example: Rust's Borrow Checker
 
 - compiler statically enforces ownership and borrowing semantics
 
-- guarantees memory safety and data-race freedom without needing garbage
-  collection
+- guarantees memory safety and data-race freedom without needing garbage collection
 
 ## 2. Effect Systems
 
-Purely functional systems allow for maximum compiler optimization (e.g., safe
-automatic parallelization), but aren't always practical
+Purely functional systems allow for maximum compiler optimization (e.g., safe automatic parallelization), but aren't always practical
 
-How to model *impure behavior* (state mutations, I/O, non-determinism) *without
-sacrificing functional purity*?
+How to model *impure behavior* (state mutations, I/O, non-determinism) *without sacrificing functional purity*?
 
 - Popular approach (e.g., in `Haskell`): Monads and Monad transformers
 
@@ -155,14 +146,11 @@ sacrificing functional purity*?
 
 ### Algebraic Effects and Handlers (AEH)
 
-Effect operations (e.g., `read_file`) carry no inherent behavior; the behavior
-is defined dynamically by the nearest handler (similar to exception handling)
+Effect operations (e.g., `read_file`) carry no inherent behavior; the behavior is defined dynamically by the nearest handler (similar to exception handling)
 
-- Functions stay pure and declarative, while handlers supply the effect's actual
-  behavior
+- Functions stay pure and declarative, while handlers supply the effect's actual behavior
 
-- AEH gives us modular effects, customizable control flow (using continuations),
-  and clean semantics
+- AEH gives us modular effects, customizable control flow (using continuations), and clean semantics
 
 E.g., `Eff` is a OCaml-based language that natively supports AEH:
 
@@ -181,8 +169,7 @@ with
 
 ## 3. Formal Semantics & Verification
 
-Aim to *rigorously prove* important system properties (correctness, security)
-using mathematical models
+Aim to *rigorously prove* important system properties (correctness, security) using mathematical models
 
 Some notable directions:
 
@@ -194,12 +181,9 @@ Some notable directions:
 
 High-level proofs are useless if the compiler introduces bugs!
 
-Verified compilers *mathematically prove* that the compilation process preserves
-semantics
+Verified compilers *mathematically prove* that the compilation process preserves semantics
 
-- e.g., the CompCert C compiler "comes with a mathematical, machine-checked
-  proof that the generated executable code behaves exactly as prescribed by the
-  semantics of the source program"
+- e.g., the CompCert C compiler "comes with a mathematical, machine-checked proof that the generated executable code behaves exactly as prescribed by the semantics of the source program"
   - used in avionics, automotive, crypto
 
 ### Behavioral Types
@@ -227,20 +211,17 @@ Automatic Differentiation (AD) = program transformation
 
 - Differentiable programming gives AD a formal semantics
 
-- e.g., systems like TensorFlow and languages such as JAX, Dex, or Swift for
-  TensorFlow
+- e.g., systems like TensorFlow and languages such as JAX, Dex, or Swift for TensorFlow
 
 ## The Future is Formally Verified!
 
-PL research increasingly shifts correctness enforcement from post-hoc testing to
-design time and compile time
+PL research increasingly shifts correctness enforcement from post-hoc testing to design time and compile time
 
 - Types are now *powerful logical tools* (Refinement, Dependent, Linear)
 
 - *Effects* are tamed compositionally (Algebraic Handlers)
 
-- *Formal Semantics* guarantees correctness from source code down to compiled
-  machine code (Verified Compilers)
+- *Formal Semantics* guarantees correctness from source code down to compiled machine code (Verified Compilers)
 
 ## Foundations
 
@@ -256,13 +237,10 @@ These are not historical. This *is* the modern toolkit.
 
 ## Where to go next?
 
-- *Coursework*: take the FP class (CS 340), compiler course (CS 443), or
-  "science of programming" (CS 536)
+- *Coursework*: take the FP class (CS 340), compiler course (CS 443), or "science of programming" (CS 536)
 
-- *Personal projects*: play with advanced types/type-systems or experimental
-  languages for a glimpse of the future
+- *Personal projects*: play with advanced types/type-systems or experimental languages for a glimpse of the future
 
-- *Undergraduate research*: talk to PL faculty (Dr. Derakhshan and Dr. Korel)
-  for research opportunities
+- *Undergraduate research*: talk to PL faculty (Dr. Derakhshan and Dr. Korel) for research opportunities
 
 *That's all, folks!*

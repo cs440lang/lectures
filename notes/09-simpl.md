@@ -79,19 +79,15 @@ How do we formally describe the semantics of a language?
 
 ## Operational Semantics
 
-*Operational semantics* specifies the behavior of programming language
-constructs using *rules of inference*, which describe how expressions/statements
-reduce or transition to simpler forms or values.
+*Operational semantics* specifies the behavior of programming language constructs using *rules of inference*, which describe how expressions/statements reduce or transition to simpler forms or values.
 
-- *Small-step* semantics: describes individual computational steps, showing how
-  expressions reduce to simpler forms. E.g., we might assert:
+- *Small-step* semantics: describes individual computational steps, showing how expressions reduce to simpler forms. E.g., we might assert:
 
 ```typst +render +width:60%
 $e --> e' --> e'' -->  ... --> v quad "or" quad e ~> v$
 ```
 
-- *Big-step* semantics: describes entire evaluations, relating expressions
-  directly to their final results. E.g., we might assert:
+- *Big-step* semantics: describes entire evaluations, relating expressions directly to their final results. E.g., we might assert:
 
 ```typst +render +width:10%
 $e arrow.b.double v$
@@ -106,8 +102,7 @@ $ "NAME" ("premise"_1 quad "premise"_2 quad ... quad "premise"_n)
          / ("conclusion") $
 ```
 
-- premises and the conclusion are assertions (aka "judgements") about language
-  constructs
+- premises and the conclusion are assertions (aka "judgements") about language constructs
 
 - if all premises hold, then the conclusion holds
 
@@ -129,8 +124,7 @@ $
 
 Let's describe the semantics of SimPL using *substitution*.
 
-- i.e., we substitute values for variable names throughout an expression, just
-  like `[v/x] e` in λ-calculus
+- i.e., we substitute values for variable names throughout an expression, just like `[v/x] e` in λ-calculus
 
 Examples:
 
@@ -265,8 +259,7 @@ match (bop, e1, e2) with
 | _ -> raise (RuntimeError "Invalid bop operands"))))
 ```
 
-This could be avoided if we performed *type checking* on the AST prior to
-evaluation. We'll tackle this later.
+This could be avoided if we performed *type checking* on the AST prior to evaluation. We'll tackle this later.
 
 #### If-Then-Else
 
@@ -334,8 +327,7 @@ let rec step : expr -> expr option = function
 
 #### Variables
 
-In the substitution model, variables should be replaced with values (via the
-LET-B rule) before we get to them.
+In the substitution model, variables should be replaced with values (via the LET-B rule) before we get to them.
 
 ```typst +render +width:25%
 $
@@ -484,8 +476,7 @@ let rec eval e = match e with
 
 #### Variables
 
-Just as with small-step semantics, variables cannot be evaluated on their own
-when using the substitution model.
+Just as with small-step semantics, variables cannot be evaluated on their own when using the substitution model.
 
 ```typst +render +width:25%
 $
@@ -514,8 +505,7 @@ let rec eval (e : expr) : expr =
   | Let (x, e1, e2) -> eval (subst (eval e1) x e2)
 ```
 
-Both our small- and big- step evaluation functions so far have been
-fundamentally driven by *substitution*.
+Both our small- and big- step evaluation functions so far have been fundamentally driven by *substitution*.
 
 - eval `(let x = 6 in (let y = (x + 1) in (x * y)))`
 - eval `(let y = (6 + 1) in (6 * y))`
@@ -527,8 +517,7 @@ Is this how we typically think of / model program execution?
 
 ### Critique
 
-In the substitution model, we *recursively replace all instances* of a (free)
-variable within a `let` body in a single-step.
+In the substitution model, we *recursively replace all instances* of a (free) variable within a `let` body in a single-step.
 
 - this is potentially very inefficient!
 
@@ -538,16 +527,13 @@ variable within a `let` body in a single-step.
 
 - this effectively "rewrites" our program (in AST form) during execution
 
-  - this is in contrast to how we typically model execution, i.e., with static
-    code and dynamic data stored separately
+  - this is in contrast to how we typically model execution, i.e., with static code and dynamic data stored separately
 
 ## Environment Model Evaluation
 
 An alternative is to *lazily* replace variables names with their bound values.
 
-We can accumulate (*name -> value*) mappings during evaluation, and use it to
-look up variable bindings when needed. We call this map the *dynamic
-environment*, denoted σ (sigma).
+We can accumulate (*name -> value*) mappings during evaluation, and use it to look up variable bindings when needed. We call this map the *dynamic environment*, denoted σ (sigma).
 
 ```typst +render +width:100%
 #let mapto = sym.arrow.r.bar
@@ -736,13 +722,8 @@ let rec eval (e : expr) (env : env) : value =
   | Let (x, e1, e2) -> eval e2 (update x (eval e1 env) env)
 ```
 
-The environment model better reflects how interpreters and compiled programs
-actually behave: the code remains static, and a separate dynamic environment
-maps identifiers to data.
+The environment model better reflects how interpreters and compiled programs actually behave: the code remains static, and a separate dynamic environment maps identifiers to data.
 
-Going forward, we will use the environment model for our interpreter
-implementations, but will occasionally employ the substitution model when
-mathematical clarity is needed.
+Going forward, we will use the environment model for our interpreter implementations, but will occasionally employ the substitution model when mathematical clarity is needed.
 
-We will also prefer big-step rules for brevity. You should be able to write up
-the small-step rules on your own!
+We will also prefer big-step rules for brevity. You should be able to write up the small-step rules on your own!

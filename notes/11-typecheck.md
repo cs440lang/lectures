@@ -11,11 +11,9 @@
 
 ## Dynamic Semantics
 
-Operational semantics specify *dynamic semantics*: they describe how evaluation
-proceeds step by step at *runtime* to produce a final result.
+Operational semantics specify *dynamic semantics*: they describe how evaluation proceeds step by step at *runtime* to produce a final result.
 
-But situations arose where evaluation would get "stuck"; i.e., no evaluation
-rule could be applied. E.g.,
+But situations arose where evaluation would get "stuck"; i.e., no evaluation rule could be applied. E.g.,
 
 ```ocaml {4,7,10,13}
 let rec eval (e : expr) (env: env) : value = match e with
@@ -47,15 +45,11 @@ Wouldn't it be cool if we could prevent these issues from ever arising?
 
 ## Type Systems and Static Semantics
 
-A *type system* describes the *static semantics* of a program via *typing
-rules*.
+A *type system* describes the *static semantics* of a program via *typing rules*.
 
-*Type checking* is the process of validating those rules at *compile-time* so we
-can prevent the evaluation of programs that are doomed to fail.
+*Type checking* is the process of validating those rules at *compile-time* so we can prevent the evaluation of programs that are doomed to fail.
 
-Just as evaluation uses a dynamic environment (`σ`) that maps variables to
-values, type checking uses a static environment (`Γ`) -- aka typing context --
-that maps variables to *types*.
+Just as evaluation uses a dynamic environment (`σ`) that maps variables to values, type checking uses a static environment (`Γ`) -- aka typing context -- that maps variables to *types*.
 
 ## Typing Notation and Judgments
 
@@ -82,13 +76,11 @@ Static semantics focuses on types, contexts, and related assertions/judgments.
 )
 ```
 
-A type-checker tries to prove the judgment `⊢ e : τ` for program `e`. If it
-succeeds, the program is *well-typed*, else it is *ill-typed*.
+A type-checker tries to prove the judgment `⊢ e : τ` for program `e`. If it succeeds, the program is *well-typed*, else it is *ill-typed*.
 
 ## Type Systems as Proof Systems
 
-Type systems provide a mathematical framework for proving that well-typed
-programs will not get stuck when run. This guarantee is called *type-safety*.
+Type systems provide a mathematical framework for proving that well-typed programs will not get stuck when run. This guarantee is called *type-safety*.
 
 Formally, we relate static and dynamic semantics with the following properties:
 
@@ -148,8 +140,7 @@ Approach 2: Implicit (Inferred) Type Checking
 
 - Types are *inferred* from expressions and operations
 
-- Introduces unknowns (type variables), generates constraints, and solves them
-  using *unification*
+- Introduces unknowns (type variables), generates constraints, and solves them using *unification*
 
 - Inference = *discovery*: bottom-up flow (from subexpressions)
 
@@ -254,8 +245,7 @@ We define a new type of exception:
 exception TypeError of string
 ```
 
-Our REPL type-checks before evaluation. `TypeError`s will prevent ill-typed
-programs from being evaluated.
+Our REPL type-checks before evaluation. `TypeError`s will prevent ill-typed programs from being evaluated.
 
 ```ocaml {3,8-9}
 try
@@ -335,14 +325,11 @@ How about this?
 
 `if (if 1 <= 2 then 5 else false) then 10 else 20`
 
-Type checkers ignore dynamic semantics. They must be *conservative*: every
-subexpression -- even those never evaluated -- must be well-typed for the
-program to be well-typed.
+Type checkers ignore dynamic semantics. They must be *conservative*: every subexpression -- even those never evaluated -- must be well-typed for the program to be well-typed.
 
 ### `let`
 
-`let` bindings need not be explicitly annotated. We can perform *local
-inference* to compute their types and extend the environment.
+`let` bindings need not be explicitly annotated. We can perform *local inference* to compute their types and extend the environment.
 
 ```typst +render +width:80%
 #let bop = sym.plus.circle
@@ -386,8 +373,7 @@ $
 
 ### Application
 
-Application requires the function expression to have a type whose domain matches
-the argument's type.
+Application requires the function expression to have a type whose domain matches the argument's type.
 
 ```typst +render +width:80%
 #let bop = sym.plus.circle

@@ -38,15 +38,13 @@ What are the types of `apply` and `compose`?
 
 ## `map` and `filter`
 
-`map` accepts a function `f` and a list `l`, applies `f` to every item of `l`,
-and returns a new list of the results
+`map` accepts a function `f` and a list `l`, applies `f` to every item of `l`, and returns a new list of the results
 
 ```ocaml
 val map : ('a -> 'b) -> 'a list -> 'b list
 ```
 
-`filter` accepts a predicate `p` and a list `l`, and returns a list containing
-only those elements for which `p` tests `true`
+`filter` accepts a predicate `p` and a list `l`, and returns a list containing only those elements for which `p` tests `true`
 
 ```ocaml
 val filter : ('a -> bool) -> 'a list -> 'a list
@@ -65,15 +63,13 @@ let rec proc = function
 ```
 
 - `z` is the "base case" value
-- `f` is a function that combines an element with the recursively obtained
-  result
+- `f` is a function that combines an element with the recursively obtained result
 
 What would `z` and `f` be for a "sum_list" function?
 
 ### The Right Fold
 
-The right fold distills the primitive recursive list-processing pattern into a
-HOF:
+The right fold distills the primitive recursive list-processing pattern into a HOF:
 
 ```ocaml
 let rec fold_right f z = function
@@ -95,8 +91,7 @@ f a (f b (f c (f d (f e z))))
 
 - `f` is applied in a *right-associative* manner to the list elements
 
-We can use `fold_right` to define recursive list-processing functions without
-explicitly using recursion!
+We can use `fold_right` to define recursive list-processing functions without explicitly using recursion!
 
 ```ocaml
 let sum lst = fold_right ( + ) 0 lst
@@ -151,14 +146,11 @@ let product' lst = fold_left ( * ) 1 lst
 
 ### Right vs. Left fold (on lists)
 
-Right folds follow the natural associativity of the list `(::)` operator, so
-yields the correct order when building a list result from an input list.
+Right folds follow the natural associativity of the list `(::)` operator, so yields the correct order when building a list result from an input list.
 
-Left folds are tail-recursive, so are typically going to be faster and
-more-efficient when possible.
+Left folds are tail-recursive, so are typically going to be faster and more-efficient when possible.
 
-If using a right- or left- associative operation as the function argument to a
-fold, it makes sense to use the corresponding right- or left- fold HOF!
+If using a right- or left- associative operation as the function argument to a fold, it makes sense to use the corresponding right- or left- fold HOF!
 
 ## HOFs on Trees
 
@@ -177,8 +169,7 @@ What would `map` or `fold` operations on the tree look like?
 
 ## HOFs Returning Functions
 
-Note that all functions of multiple arguments in OCaml are effectively HOFs,
-because of currying!
+Note that all functions of multiple arguments in OCaml are effectively HOFs, because of currying!
 
 Consider the meaning of the `function` keyword in the definition of `map`:
 
@@ -208,8 +199,7 @@ let adder x = let n = x in
 
 ## Closures
 
-The function returned by `adder` *captures the environment* at the time the
-function was created.
+The function returned by `adder` *captures the environment* at the time the function was created.
 
 - this includes all values of free variable in the function body
 
@@ -221,8 +211,7 @@ let adder x = let n = x in
 We call this combination of a function and its environment a *Closure*.
 
 - closures are created automatically
-- closures are first-class -- you can pass them as arguments, return them, store
-  them in data structures, etc.
+- closures are first-class -- you can pass them as arguments, return them, store them in data structures, etc.
 
 Closures are incredibly important and useful!
 

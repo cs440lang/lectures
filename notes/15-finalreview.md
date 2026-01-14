@@ -97,8 +97,7 @@ Implement the new MiniML construct `not e`, with the AST form:
 type expr = Not of expr
 ```
 
-`not` evaluates to `true` when its argument is either `false` or `0`, and
-evaluates to `false` otherwise. Here are the big-step semantic rules for `not`:
+`not` evaluates to `true` when its argument is either `false` or `0`, and evaluates to `false` otherwise. Here are the big-step semantic rules for `not`:
 
 ```typst +render +width:60%
 #let bstep = sym.arrow.b.double
@@ -140,8 +139,7 @@ let rec eval (e : expr) (env : env) : value =
 
 ### 3. Explicit type checking
 
-Construct a typing proof (proof tree) for each of the following expressions.
-Indicate whether the expression is well- or ill-typed.
+Construct a typing proof (proof tree) for each of the following expressions. Indicate whether the expression is well- or ill-typed.
 
 - `let x = 42 in if x <= 0 then 10 else x`
 - `let f = fun x:int -> x*2 in f 7`
@@ -210,11 +208,9 @@ Ill-typed
 
 ### 4. Type inference
 
-Infer the type of the following expressions. Show the *derivation tree*,
-including all type variables, generated constraints, and the raw type.
+Infer the type of the following expressions. Show the *derivation tree*, including all type variables, generated constraints, and the raw type.
 
-Next, show the steps for *unifying* the constraints and computing the MGU, and
-clearly indicate either the *principal type* or unification error.
+Next, show the steps for *unifying* the constraints and computing the MGU, and clearly indicate either the *principal type* or unification error.
 
 - `fun x -> x + 1` / `fun x -> x + true`
 - `fun x -> if x then 0 else x + 1`

@@ -9,8 +9,7 @@
 
 ## Tuples
 
-A *tuple* is a *fixed-size*, *ordered* collection of values that can be of
-different types.
+A *tuple* is a *fixed-size*, *ordered* collection of values that can be of different types.
 
 - The type of a tuple is written as the *product* of the types of its components
 
@@ -41,11 +40,9 @@ val dist : float * float -> float * float -> float
 
 ## Records
 
-A *record* is a *fixed-size* collection of *named fields*, each with an
-associated type.
+A *record* is a *fixed-size* collection of *named fields*, each with an associated type.
 
-- The type of a record is written with each field name and type listed inside {
-  ... }.
+- The type of a record is written with each field name and type listed inside { ... }.
 
 - A record value is written like this: `{ field1 = v1; field2 = v2; ... }`.
 
@@ -84,12 +81,9 @@ type 'a matrix = ('a list) list
 
 ## Algebraic data types (ADTs)
 
-An algebraic data type is a user-defined type that can take one of several
-distinct *variants*, each of which may *carry zero or more values* (of possibly
-different types).
+An algebraic data type is a user-defined type that can take one of several distinct *variants*, each of which may *carry zero or more values* (of possibly different types).
 
-- An ADT is defined using the type keyword and the `|` symbol to separate
-  variants.
+- An ADT is defined using the type keyword and the `|` symbol to separate variants.
 
 - Each variant is introduced by a *constructor*, which can optionally hold data.
 

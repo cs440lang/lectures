@@ -83,8 +83,7 @@ type typ = TInt
 
 ## Creating "Fresh" Type Variables
 
-New type variables must be *fresh* -- i.e., they cannot be used/constrained
-elsewhere in the environment. (Why?)
+New type variables must be *fresh* -- i.e., they cannot be used/constrained elsewhere in the environment. (Why?)
 
 Our implementation simply makes `type_var`s sequential `int`s.
 
@@ -344,15 +343,13 @@ What constraints do the following generate?
 
 ## Solving Constraints
 
-Goal: find a *substitution* `S` where `S`(`τ₁`) = `S`(`τ₂`) for all constraints
-`τ₁` = `τ₂`.
+Goal: find a *substitution* `S` where `S`(`τ₁`) = `S`(`τ₂`) for all constraints `τ₁` = `τ₂`.
 
 - Where a substitution maps type variables to types
 
   - i.e., `S` = { `α₁ ↦ τ₁`, `ɑ₂ ↦ τ₂`, ... }
 
-- Applying substitution `S` to type `τ` (i.e., `S`(`τ`)) replaces type variables
-  in `τ` based on the mappings
+- Applying substitution `S` to type `τ` (i.e., `S`(`τ`)) replaces type variables in `τ` based on the mappings
 
   - e.g., given `S` = { `ɑ ↦ int`, `β ↦ bool` }
 
@@ -390,8 +387,7 @@ To solve a list of constraints {`τ₁` = `τ₂`, ... },
 
 3. Continue until all constraints are processed or failure
 
-If unification completes, it yields the *most general unifier* (*MGU*): the
-substitution that solves all constraints without being overly specific.
+If unification completes, it yields the *most general unifier* (*MGU*): the substitution that solves all constraints without being overly specific.
 
 - Intuition: `fun x -> x` should have type `α → α`, not `int → int`
 
@@ -495,8 +491,7 @@ let solve_constraints constraints =
 
 Unification is a *general mechanism for solving symbolic equations*.
 
-Broad application -- at the crossroads of *logic*, *algebra*, *programming
-languages*, and *AI*!
+Broad application -- at the crossroads of *logic*, *algebra*, *programming languages*, and *AI*!
 
 - Logic programming / Automated reasoning (e.g., Prolog)
 
@@ -700,20 +695,15 @@ $
 
 ## The Hindley-Milner Type System
 
-We have now replicated the *Hindley–Milner* (HM) type system, which provides a
-foundation for polymorphic type inference:
+We have now replicated the *Hindley–Milner* (HM) type system, which provides a foundation for polymorphic type inference:
 
-- Every well-typed expression has a *principal type scheme* (the most general
-  type)
+- Every well-typed expression has a *principal type scheme* (the most general type)
 
-- Let-generalization and variable instantiation support *parametric
-  polymorphism*
+- Let-generalization and variable instantiation support *parametric polymorphism*
 
-- Type inference can be fully automated, without explicit annotation ("Algorithm
-  W")
+- Type inference can be fully automated, without explicit annotation ("Algorithm W")
 
-HM forms the basis of the type systems in ML, OCaml, Haskell, and many other
-functional languages
+HM forms the basis of the type systems in ML, OCaml, Haskell, and many other functional languages
 
 ## From Monomorphic Inference to Algorithm W
 
@@ -736,8 +726,7 @@ For polymorphic type inference of `let f = e1 in e2`, we must:
 
 I.e., we must unify and apply substitutions iteratively
 
-Algorithm W extends monomorphic inference by *combining constraint generation,
-unification, and polymorphism* into a *single recursive process*.
+Algorithm W extends monomorphic inference by *combining constraint generation, unification, and polymorphism* into a *single recursive process*.
 
 ## Algorithm W: Intuition
 
@@ -751,8 +740,7 @@ To infer the type of an expression `e`:
 
 3. At variable use, *instantiate*
 
-The result: a single pass that *infers types and manages polymorphism* without
-ever building a separate constraint list.
+The result: a single pass that *infers types and manages polymorphism* without ever building a separate constraint list.
 
 ## Algorithm W: Implementation
 
@@ -809,8 +797,7 @@ dune utop
 - The resulting system is the **Hindley–Milner type system**
 - *Algorithm W* automates it all
 
-Type inference reasons about programs symbolically. *It's a proof system
-embedded into the compiler*!
+Type inference reasons about programs symbolically. *It's a proof system embedded into the compiler*!
 
 // Type inference reasons about programs symbolically — it's logic running inside
 // the compiler.
