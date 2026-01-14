@@ -2,10 +2,7 @@
 
 ## Lecture Repository
 
-This repository contains lecture slides (in Markdown) and source code used in
-class demos. The slides are rendered using
-[presenterm](https://mfontanini.github.io/presenterm/) and
-[Typst](https://typst.app/)
+This repository contains lecture notes and source code used in class demos.
 
 The *main* branch contains the "final" version of source files (with fleshed out
 functions, types, etc.), while the *demo* branch contains the "starter" versions
