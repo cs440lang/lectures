@@ -4,7 +4,7 @@
 
 - History & Motivation
 - Syntax & Semantics
-- Normalization & Evaluation
+- Evaluation & Normalization
 - Data Representation
 - Recursion
 
@@ -139,7 +139,7 @@ We say that application "binds tighter"
 
 - E.g., `λx.x λz.x z` = `λx.(x (λz.(x z)))`
 
-  - `λx.x λz.x z` ≠ <span style="color:red">(λx.x) (λz.x) z</span>
+  - `λx.x λz.x z` ≠ (λx.x) (λz.x) z
 
 As a consequence of all the rules, the "body" of an abstraction *extends as far right* as possible
 
@@ -183,6 +183,8 @@ The scope of a variable introduced by a λ-abstraction extends throughout its en
 
   - A variable is bound by its *closest ancestral binding*
 
+## Evaluation & Normalization
+
 ### β-reduction
 
 When a λ-expression contains an abstraction that is applied to an argument, we can *reduce* the expression by substituting the argument for the bound variable in the abstraction's body. We call this step a *β-reduction*.
@@ -201,25 +203,22 @@ $
 
 Carry out as many β-reductions as possible on the following expressions:
 
-- `(λx.x) y`
-
-- `(λx.λx.x) y`
-
-- `(λx.x z) (λy.y)`
-
-- `(λx.λy.y x) a b`
-
-- `(λx.λy.y x) y`
+1. `(λx.x) y`
+2. `(λx.λy.x) a`
+3. `(λx.λx.x) a`
+4. `(λx.x z) (λy.y)`
+5. `(λx.λy.y x) a b`
+6. `(λx.λy.y x) y`
 
 ### Variable Capture
 
 There is a potential for *variable capture* when a β-reduction would cause a previously free variable to fall into the scope of a binding abstraction.
 
-- e.g., `(λx.λy.y x) y` -β-> <span style="color:red">λy.y y</span>
+- e.g., `(λx.λy.y x) y` -/-> λy.y y
 
 This β-reduction would change the meaning of the free `y`!
 
-- It is prohibited
+- It is semantically incorrect and prohibited
 
 ### α-conversion
 
@@ -267,8 +266,6 @@ Example: `λy.λx.y x` -η-> `λy.y`
 
 - Intuition: an η-reduction is like *anticipating a future β-reduction*
 
-## Normalization & Evaluation
-
 ### Normal Form
 
 A λ-expression/sub-expression that can be β- or η-reduced is called a *redex*.
@@ -281,6 +278,14 @@ Questions to consider:
 
 - Is it always possible to normalize a given λ-expression?
 
+#### Divergence
+
+Is it always possible to reduce a given λ-expression to normal form?
+
+- No! λ-expressions may *diverge* -- i.e., reduce infinitely without reaching normal form. We say such expressions cannot be normalized.
+
+  - Consider: `(λx.x x) (λx.x x)` (known as the Ω-combinator)
+
 #### Weak Head Normal Form (WHNF)
 
 When evaluating a λ program, should we always shoot for normal form?
@@ -289,15 +294,13 @@ When evaluating a λ program, should we always shoot for normal form?
 
   - Consider: `λx.(λw.x w) x`. Reducing the body would be like evaluating a function prematurely; most PLs don't do this.
 
-- It is common to stop evaluating once the expression is rooted at a λ-abstraction. We call this *Weak Head Normal Form*.
+In practice, reducing the body of a function even when it isn't being applied would be like evaluating a function prematurely; most PLs don't do this.
 
-#### Divergence
+It also helps to think of an abstraction as representing a value (a function), which shouldn't be reduced (because we lose the form of computation it represents).
 
-Is it always possible to reduce a given λ-expression to normal form?
+It is common to stop evaluating once the expression is rooted at a λ-abstraction. We call this *Weak Head Normal Form*.
 
-- No! λ-expressions may *diverge* -- i.e., reduce infinitely.
-
-  - Consider: `(λx.x x) (λx.x x)` (known as the Ω-combinator)
+- "Head" = Root of the AST
 
 ### Evaluation Strategy
 
@@ -350,23 +353,39 @@ Evaluate each of the following using both applicative and normal order strategie
 
 ### Pros/Cons of Evaluation Strategies
 
-If a λ-expression has a normal form, normal-order evaluation *will* get us there while applicative-order reduction *may diverge*
+Non-obvious: if a λ-expression has a normal form, normal-order evaluation *will* get us there while applicative-order reduction *may diverge*
 
 - This is because normal-order reduction *ignores arguments that aren't used* (which may diverge)
 
-  - Lazy evaluation has other benefits too: "infinite" data structures, "automatic" short-circuiting, etc.
+Normal:
 
-But applicative-order evaluation guarantees a given argument *is only evaluated once*, and at a *predictable time* (before "passing" it)
+- Pros:
+  - Arguments aren't evaluated unless needed.
+  - Automatic short-circuiting
+  - "Infinite" data structures
+- Cons:
+  - May evaluate a given argument multiple times (practical implementations fix this by caching/memoizing an argument after evaluating it the first time)
+  - Arg eval time is unpredictable
+  - Memory usage is unpredictable
 
-- Most modern languages use this evaluation strategy
+Applicative:
+
+- Pros:
+  - Every argument is only evaluated once
+  - Args are evaluated at a predictable time (before passing it)
+- Cons:
+  - Arguments may be evaluated needlessly!
+  - Cannot build control-structure like functions
+
+- Most modern languages use Applicative-Order
 
 ### Church-Rosser Theorem
 
 Alonzo Church and John Rosser proved that, *regardless of the order* in which reductions are carried out, we can *reach the same result*.
 
-Formally, they showed that if `M` -β-> `N1` and `M` -β-> `N2`, there exists some `X` such that `N1` -β-> `X` and `N2` -β-> `X`.
+Formally, they showed that if `M` -β-> `N1` and `M` -β-> `N2`, there exists some `L` such that `N1` -β-> `L` and `N2` -β-> `L`.
 
-- This is known as the *diamond property* of β-reduction
+- This is known as the *diamond property* of β-reduction; we also say that the reductiohn rules of the λ-calculus are *confluent*.
 
 An important corollary of this property is that *when a λ-expression has a normal form, it is unique*.
 
@@ -500,60 +519,55 @@ Hint: use Church numerals!
 
 #### Test Evaluation
 
-<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> 0
+```
+    (λf.λn.f f (INC n)) (λf.λn.f f (INC n)) 0
 
-(λn.<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> (INC n)) 0
+(λn.(λf.λn.f f (INC n)) (λf.λn.f f (INC n)) (INC n)) 0
 
-<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> (INC 0)
+    (λf.λn.f f (INC n)) (λf.λn.f f (INC n)) (INC 0)
 
-<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> 1
+    (λf.λn.f f (INC n)) (λf.λn.f f (INC n)) 1
 
-(λn.<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> (INC n)) 1
+(λn.(λf.λn.f f (INC n)) (λf.λn.f f (INC n)) (INC n)) 1
 
-<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> (INC 1)
+    (λf.λn.f f (INC n)) (λf.λn.f f (INC n)) (INC 1)
 
-<span style="color:blue">(λf.λn.f f (INC n))</span>
-<span style="color:green">(λf.λn.f f (INC n))</span> 2
+    (λf.λn.f f (INC n)) (λf.λn.f f (INC n)) 2
 
 ...
+```
 
 ### The Y-Combinator
 
 We can extract this pattern into an abstraction that takes a function and makes it recursive.
 
-- The *Y-combinator*: `Y` = `λf.`<span style="color:blue">(λx.f (x x))</span>
-  <span style="color:green">(λx.f (x x))</span>
+- The *Y-combinator*: `Y` = `λf.(λx.f (x x)) (λx.f (x x))`
 
-Example (`Y F`):
+Example (`Y G`):
 
-- `(λf.`<span style="color:blue">(λx.f (x x))</span>
-  <span style="color:green">(λx.f (x x))</span>`) F`
-- <span style="color:blue">(λx.F (x x))</span> <span style="color:green">(λx.F (x x))</span>
+```
+(λf.(λx.f (x x)) (λx.f (x x))) G
 
-- `F (`<span style="color:blue">(λx.F (x x))</span>
-  <span style="color:green">(λx.F (x x))</span>`)`
+λx.G (x x)) (λx.G (x x))
 
-- `F (F (`<span style="color:blue">(λx.F (x x))</span>
-  <span style="color:green">(λx.F (x x))</span>`))`
-- ...
+G ((λx.G (x x)) (λx.G (x x)))
+
+G (G ((λx.G (x x)) (λx.G (x x))))
+
+...
+```
 
 #### Termination?
 
-`Y F` seems to expand forever: `F (F (... (F (Y F))))`. Can `Y F` terminate?
+`Y G` seems to expand forever: `G (G (... (G (Y G))))`. Can `Y G` terminate?
 
-Yes! If `F` doesn't need its argument.
+Yes! If `G` doesn't need its argument.
 
-- Trivially, `F = λx.y`
+- Trivially, `G = λx.y`
 
 - But this only works with normal-order (lazy) evaluation!
 
-With applicative-order (eager) evaluation, `Y F` diverges.
+With applicative-order (eager) evaluation, `Y G` diverges.
 
 - The *Z-combinator* adds an extra abstraction to delay recursion:
 
