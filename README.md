@@ -2,12 +2,9 @@
 
 ## Lecture Repository
 
-This repository contains lecture notes and source code used in class demos.
+This repository contains source code used in class demos.
 
-The *main* branch contains the "final" version of source files (with fleshed out
-functions, types, etc.), while the *demo* branch contains the "starter" versions
-(those I'll start out with during lecture demos). If you want to code along
-during lecture, I recommend creating a branch off of *demo* to do so.
+The *main* branch contains the "final" version of source files (with fleshed out functions, types, etc.), while the *demo* branch contains the "starter" versions (those I'll start out with during lecture demos). If you want to code along during lecture, I recommend creating a branch off of *demo* to do so.
 
 To load all the lecture source files as modules in the toplevel, do:
 
