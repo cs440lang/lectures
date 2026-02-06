@@ -45,7 +45,12 @@ let string_of_expr (e : expr) : string =
     - subst id "z" (Abs ("x", Var "z")) = Abs ("x", id)
     - subst id "z" (Abs ("z", Var "z")) = Abs ("z", Var "z") *)
 let rec subst (v : expr) (x : string) (e : expr) : expr =
-    failwith "Undefined"
+  match e with
+  | Var y -> if x = y then v else e
+  | App (e1, e2) -> App (subst v x e1, subst v x e2)
+  (* Broken! Need to consider variable capture. *)
+  | Abs (y, body) -> if x = y then e
+                     else Abs (y, subst v x body) 
 
 (* Evaluation ****************************************************************)
 
@@ -67,8 +72,21 @@ let rec subst (v : expr) (x : string) (e : expr) : expr =
                    = None
     - step_normal @@ Abs ("x", App (Var "x", Var "y"))
                    = None *)
-let rec step_normal : expr -> expr option =
-    failwith "Undefined"
+let rec step_normal : expr -> expr option = function
+  | App (Abs (x, e1), e2) ->
+      Some (subst e2 x e1)                    (* beta reduction *)
+  | App (e1, e2) -> (
+      match step_normal e1 with
+      | Some e1' -> Some (App (e1', e2))      (* reduce left first *)
+      | None -> (
+          match step_normal e2 with
+          | Some e2' -> Some (App (e1, e2'))  (* then reduce right *)
+          | None -> None))
+  | Abs (x, e) -> (
+       match step_normal e with
+       | Some e' -> Some (Abs (x, e'))
+       | None -> None)
+  | Var _ -> None
 
 (** [eval_normal ?trace e] repeatedly applies [step_normal] until no redexes
     remain, returning the resulting normal form. When [trace] is true, each
