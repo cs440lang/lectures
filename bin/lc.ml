@@ -1,4 +1,4 @@
-open L06_lc.Eval
+open L08_lc.Eval
 
 let rec repl () =
   print_string "> ";
@@ -15,7 +15,7 @@ let rec repl () =
       | Failure msg ->
           Printf.printf "Error: %s\n" msg;
           repl ()
-      | L06_lc.Parser.Error ->
+      | L08_lc.Parser.Error ->
           print_endline "Parse error.";
           repl ())
 

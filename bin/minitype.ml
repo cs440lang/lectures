@@ -1,4 +1,4 @@
-open L10_typeinfer
+open L12_typeinfer
 
 let rec repl () =
   print_string "> ";

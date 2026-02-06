@@ -1,5 +1,5 @@
 (library
- (name l10_typeinfer)
+ (name l12_typeinfer)
  (flags
   (:standard -w -27-39)))
 

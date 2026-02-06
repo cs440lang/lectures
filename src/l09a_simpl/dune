@@ -1,5 +1,5 @@
 (library
- (name l07a_simpl)
+ (name l09a_simpl)
  (flags
   (:standard -w -20-27-39)))
 
