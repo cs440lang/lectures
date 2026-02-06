@@ -89,7 +89,7 @@ let rec sum n = if n = 0 then 0
                 else n + sum (n-1)
 
 let rec fib = function
-  | 0 -> 1
+  | 0 -> 0
   | 1 -> 1
   | n -> fib (n-1) + fib (n-2)
 
@@ -108,4 +108,4 @@ let fib' n =
   let rec aux i j = function
     | 0 -> i
     | k -> aux j (i+j) (k-1) in
-  aux 1 1 n
+  aux 0 1 n
