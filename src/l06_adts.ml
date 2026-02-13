@@ -1,15 +1,15 @@
-type suit = Diamonds | Clubs | Hearts | Spades
+open List
 
-let card: int * suit = (10, Hearts)
+(* Variants *)
 
-let int_of_suit : suit -> int = function
-  | Spades -> 4
-  | Hearts -> 3
-  | Clubs -> 2
-  | Diamonds -> 1
+type color = Red | Green | Blue
 
+let describe_color: color -> string = function
+  | Red -> "Warm"
+  | Green -> "Verdant"
+  | Blue -> "Cool"
 
-(* Tuples ********************************************************************)
+(* Tuples *)
 
 let dist (x1,y1) (x2,y2) = sqrt ((x1-.x2)**2. +. (y1-.y2)**2.)
 
@@ -56,23 +56,39 @@ let traverse lst =
 
 (* Type Synonyms *************************************************************)
 
-type point2d = float * float
+type point = float * float
 
-let foo ((x,y) : point2d) = x *. y
-
-type int_matrix = (int list) list 
-
-let m : int_matrix = [[1;2;3];
-                      [4;5;6];
-                      [7;8;9]]
-
+type piece = char
+type loc = int * int
 type 'a matrix = ('a list) list
 
-let m' : float matrix = [[1.;2.;3.];
-                         [4.;5.;6.];
-                         [7.;8.;9.]]
+let tic_tac_toe_play p (r,c) board =
+  let row = nth board r in
+  take r board @
+  [take c row @ [p] @ drop (c+1) row]  
+  @ drop (r+1) board
 
 (* Algebraic Data Types - ADTs ***********************************************)
+
+(* data T1 = T1V1 | T1V2 | T1V3      deriving Show *)
+(* data T2 = T2V1 Bool | T2V2 T1     deriving Show *)
+(* data T3 = T3V Bool T1             deriving Show *)
+(* data T4 = T4V1 T1 T2 | T4V2 T2 T3 deriving Show *)
+
+
+type t1 = Foo | Bar 
+type t2 = Lah | Dee | Dah
+type t3 = t1 * t2
+type t4 = Unit | Box of t3 | Jug of bool * t3
+
+type shape = Circle of float
+           | Rectangle of float * float
+           | Triangle of float * float
+
+let shape_area: shape -> float = function
+  | Circle r -> Float.pi *. r *. r
+  | Rectangle (l,w) -> l *. w
+  | Triangle (b,h) -> b *. h /. 2.0
 
 type suit = Diamonds | Clubs | Hearts | Spades
 
@@ -80,15 +96,13 @@ type rank = Num of int | Jack | Queen | King | Ace
 
 type card = rank * suit
 
-type shape = Circle of float
-           | Rectangle of float * float
-           | Triangle of float * float
+let card_value : card -> int = function
+  | (Ace, _)   -> 11
+  | (King, _) | (Queen, _) | (Jack, _) -> 10
+  | (Num n, _) -> n
 
-let shape_area = function
-  | Circle r -> Float.pi *. r *. r
-  | Rectangle (l,w) -> l *. w
-  | Triangle (b,h) -> b *. h /. 2.0
-
+let is_blackjack (c1, c2) =
+  card_value c1 + card_value c2 = 21
 
 (* Polymorphic types *********************************************************) 
 
@@ -110,10 +124,29 @@ let rec assoc_opt k = function
   | (k',v) :: xs when k = k' -> Some v
   | _ :: xs -> assoc_opt k xs 
 
+let quadratic_roots' a b c =
+  if a = 0.0 then Error "not quadratic (a=0)"
+  else
+    let disc = (b *. b) -. (4. *. a *. c) in
+    if disc < 0.0 then Error "no real roots"
+    else
+      let sqrt_disc = sqrt disc in
+      let r1 = (-.b+.sqrt_disc) /. (2.*.a) in
+      let r2 = (-.b-.sqrt_disc) /. (2.*.a) in
+      Ok (r1, r2)
+
 (* our version of the built-in list *)
 type 'a my_list = Null
                 | Cons of 'a * 'a my_list
 
+let rec sum = function
+  | Null -> 0
+  | Cons (x,xs) -> x + sum xs
+
+let rec range n =
+  if n <= 0 then Null
+  else Cons (n, range (n-1))
+  
 (* a binary tree *)
 type ('k,'v) bin_tree = Nil
                       | Node of 'k * 'v
@@ -123,7 +156,9 @@ type ('k,'v) bin_tree = Nil
 let rec tree_insert k v = function
   | Nil -> Node (k, v, Nil, Nil)
   | Node (k',v',l,r) ->
+    (* insert smaller keys into the left subtree *)
     if k < k' then Node (k',v',tree_insert k v l,r)
+    (* and larger keys into the right subtree *)
     else Node (k',v',l,tree_insert k v r )
 
 let t = Nil
@@ -136,3 +171,111 @@ let t = Nil
 let rec inorder_list = function
   | Nil -> []
   | Node (k,v,l,r) -> inorder_list l @ [(k,v)] @ inorder_list r
+
+(* mutually-recursive types *)
+
+type element = { tag : string; children : node list }
+ and node = Text of string | Element of element
+
+let doc = Element {
+    tag = "div"; children = [
+      Text "Hello, ";
+      Element { tag = "b"; children = [Text "world"] };
+      Text "!"
+    ]}
+
+let rec text_of_node = function
+  | Text s -> s
+  | Element e -> text_of_element e
+and text_of_element { tag; children } =
+  children |> List.map text_of_node |> String.concat "" 
+
+(* exceptions *)
+
+exception Eek
+exception Uhoh of string
+exception CodedError of int * string
+
+let boombastic = function
+  | n when n < 0 -> raise Eek
+  | 0 -> "zero"
+  | n when n < 1000 -> raise (CodedError (n, "Blue") )
+  | _ -> failwith "Fell through!"
+
+let defuse n =
+  try
+    boombastic n
+  with
+  | Eek -> "negative"
+  | CodedError (n,msg) -> Format.sprintf "%s %d" msg n
+  | Failure msg -> msg
+  | _ -> "catchall"
+
+(* modules *)
+
+module Adder : sig
+  val add : int -> int -> int
+end = struct
+  let inc x = x + 1
+  let dec x = x - 1
+  let rec add x y = match (x,y) with
+    | (0,n) | (n,0) -> n
+    | (m,n) -> add (dec m) (inc n)
+end
+
+module type Adder = sig
+  val add : int -> int -> int
+end
+
+module SimpleAdder : Adder = struct
+  let add x y = x + y
+end
+
+module RecursiveAdder : Adder = struct
+  let inc x = x + 1
+  let dec x = x - 1
+  let rec add x y = match (x,y) with
+    | (0,n) | (n,0) -> n
+    | (m,n) -> add (dec m) (inc n)
+end
+
+module type Map = sig
+  type ('k, 'v) t
+  exception Not_found
+  val empty : ('k, 'v) t
+  val insert : 'k -> 'v -> ('k, 'v) t -> ('k, 'v) t
+  val lookup : 'k -> ('k, 'v) t -> 'v
+end
+
+module AssocListMap : Map = struct
+  exception Not_found
+  type ('k, 'v) t = ('k * 'v) list
+  let empty = []
+  let insert k v m = (k, v) :: m
+  let rec lookup k = function
+    | [] -> raise Not_found
+    | (k',v) :: xs when k = k' -> v
+    | _ :: xs -> lookup k xs
+end
+
+module TreeMap : Map = struct
+  exception Not_found
+  type ('k,'v) t =
+    | Nil
+    | Node of 'k * 'v * ('k,'v) t * ('k,'v) t
+
+  let empty = Nil
+
+  let rec insert k v = function
+    | Nil -> Node (k, v, Nil, Nil)
+    | Node (k',v',l,r) ->
+      if k < k' then Node (k',v',insert k v l,r)
+      else Node (k',v',l,insert k v r )
+
+  let rec lookup k = function
+    | Nil -> raise Not_found
+    | Node (k',v,_,_) when k = k' -> v
+    | Node (k',v,l,r) ->
+      if k < k' then lookup k l
+      else lookup k r 
+end
