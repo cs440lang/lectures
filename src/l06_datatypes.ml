@@ -1,6 +1,6 @@
 open List
 
-(* Variants *)
+(* variants *)
 
 type color = Red | Green | Blue
 
@@ -9,11 +9,13 @@ let describe_color: color -> string = function
   | Green -> "Verdant"
   | Blue -> "Cool"
 
-(* Tuples *)
+(* tuples *)
 
 let dist (x1,y1) (x2,y2) = sqrt ((x1-.x2)**2. +. (y1-.y2)**2.)
 
 let swap (x,y) = (y,x)
+
+(* unit and the side-effect pattern *)
 
 let inc_and_print x =
   let () = print_string "x = " in
@@ -39,22 +41,7 @@ let michael : student = { name="Michael"; id=1234567; gpa=3.5 }
 
 let jane = { michael with name="Jane"; id=2345678 }
 
-
-type 'a list_node = { data : 'a; next : 'a list_node }
-
-let rec ll : string list_node = { data="lions"; next={
-                                  data="tigers"; next={
-                                  data="bears"; next=ll }}}
-
-let traverse lst =
-  let rec aux { data; next; } =
-    print_endline data;
-    if next == lst then ()
-    else aux next in
-  aux lst
-
-
-(* Type Synonyms *************************************************************)
+(* type Synonyms *)
 
 type point = float * float
 
@@ -68,18 +55,16 @@ let tic_tac_toe_play p (r,c) board =
   [take c row @ [p] @ drop (c+1) row]  
   @ drop (r+1) board
 
-(* Algebraic Data Types - ADTs ***********************************************)
+(* Algebraic Data Types - ADTs *)
 
-(* data T1 = T1V1 | T1V2 | T1V3      deriving Show *)
-(* data T2 = T2V1 Bool | T2V2 T1     deriving Show *)
-(* data T3 = T3V Bool T1             deriving Show *)
-(* data T4 = T4V1 T1 T2 | T4V2 T2 T3 deriving Show *)
-
+(* enumerating values *)
 
 type t1 = Foo | Bar 
 type t2 = Lah | Dee | Dah
 type t3 = t1 * t2
 type t4 = Unit | Box of t3 | Jug of bool * t3
+
+(* shape ADT *)
 
 type shape = Circle of float
            | Rectangle of float * float
@@ -90,10 +75,10 @@ let shape_area: shape -> float = function
   | Rectangle (l,w) -> l *. w
   | Triangle (b,h) -> b *. h /. 2.0
 
+(* cards ADT *)
+
 type suit = Diamonds | Clubs | Hearts | Spades
-
 type rank = Num of int | Jack | Queen | King | Ace
-
 type card = rank * suit
 
 let card_value : card -> int = function
@@ -104,12 +89,12 @@ let card_value : card -> int = function
 let is_blackjack (c1, c2) =
   card_value c1 + card_value c2 = 21
 
-(* Polymorphic types *********************************************************) 
+(* polymorphic types *) 
 
-(* option is defined by OCaml!  *)
+(* option type *)
+
 type 'a option = None | Some of 'a
 
-(* we use the option type to support well-typed "null" *)
 let quadratic_roots a b c =
   let disc = (b *. b) -. (4. *. a *. c) in
   if disc < 0.0 then None
@@ -124,6 +109,10 @@ let rec assoc_opt k = function
   | (k',v) :: xs when k = k' -> Some v
   | _ :: xs -> assoc_opt k xs 
 
+(* result type *)
+
+type ('a, 'b) result = Ok of 'a | Error of 'b
+
 let quadratic_roots' a b c =
   if a = 0.0 then Error "not quadratic (a=0)"
   else
@@ -136,6 +125,7 @@ let quadratic_roots' a b c =
       Ok (r1, r2)
 
 (* our version of the built-in list *)
+
 type 'a my_list = Null
                 | Cons of 'a * 'a my_list
 
@@ -148,11 +138,13 @@ let rec range n =
   else Cons (n, range (n-1))
   
 (* a binary tree *)
+
 type ('k,'v) bin_tree = Nil
                       | Node of 'k * 'v
                                 * ('k,'v) bin_tree
                                 * ('k,'v) bin_tree
 
+(* binary-search insert *)
 let rec tree_insert k v = function
   | Nil -> Node (k, v, Nil, Nil)
   | Node (k',v',l,r) ->
@@ -168,6 +160,7 @@ let t = Nil
         |> tree_insert 8 "eight"
         |> tree_insert 12 "twelve"
 
+(* in-order binary-search tree traversal *)
 let rec inorder_list = function
   | Nil -> []
   | Node (k,v,l,r) -> inorder_list l @ [(k,v)] @ inorder_list r
@@ -202,6 +195,8 @@ let boombastic = function
   | n when n < 1000 -> raise (CodedError (n, "Blue") )
   | _ -> failwith "Fell through!"
 
+(* exception handling *)
+
 let defuse n =
   try
     boombastic n
@@ -223,6 +218,8 @@ end = struct
     | (m,n) -> add (dec m) (inc n)
 end
 
+(* a simple module type *)
+
 module type Adder = sig
   val add : int -> int -> int
 end
@@ -239,6 +236,8 @@ module RecursiveAdder : Adder = struct
     | (m,n) -> add (dec m) (inc n)
 end
 
+(* an abstract Map type *)
+
 module type Map = sig
   type ('k, 'v) t
   exception Not_found
@@ -246,6 +245,8 @@ module type Map = sig
   val insert : 'k -> 'v -> ('k, 'v) t -> ('k, 'v) t
   val lookup : 'k -> ('k, 'v) t -> 'v
 end
+
+(* assoc-list map implementation *)
 
 module AssocListMap : Map = struct
   exception Not_found
@@ -257,6 +258,8 @@ module AssocListMap : Map = struct
     | (k',v) :: xs when k = k' -> v
     | _ :: xs -> lookup k xs
 end
+
+(* bin-search-tree map implementation *)
 
 module TreeMap : Map = struct
   exception Not_found
