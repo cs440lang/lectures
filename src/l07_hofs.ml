@@ -1,67 +1,53 @@
 let apply f x = f x
 
+let flip f = fun x y -> f y x
+
 let compose f g = fun x -> f (g x) 
 
-(* map a function over a list, producing a new list *)
-let rec map f = failwith "Unimplemented"
+let even = compose ((==) 0) (flip (mod) 2)
 
-(* filter values from a list based on a predicate  *)
-let rec filter p = failwith "Unimplemented"
-
-(* the "right fold" distills the primitive
-   recursive pattern over lists *)
-let rec fold_right f z = function
+(* the "right fold" distills the pattern of primitive recursion *)
+let rec fold_right f lst z = match lst with
   | [] -> z
-  | x :: xs -> f x (fold_right f z xs)
+  | x :: xs -> f x (fold_right f xs z)
 
 (* applications of the right fold *)
-let sum lst = fold_right (+) 0 lst
+let sum lst = fold_right (+) lst 0
 
-let product lst = fold_right ( * ) 1 lst
+let concat lst = fold_right (^) lst ""
 
-let filter' p lst = failwith "Unimplemented"
+let map f lst = fold_right (fun x res -> f x :: res) lst []
 
-let append l1 l2 = failwith "Unimplemented"
-
-(* the "left fold" distills the tail-recursive,
- * accumulator-based recursive pattern over lists  *)
+(* the "left fold" distills the tail-recursive accumulation pattern *)
 let rec fold_left f acc = function
   | [] -> acc
   | x :: xs -> fold_left f (f acc x) xs
 
 (* applications of the left fold *)
-let sum' lst = fold_left (+) 0 lst 
+let sum' lst = fold_left (+) 0 lst
 
-let product' lst = fold_left ( * ) 1 lst 
+let length lst = fold_left (fun acc _ -> acc + 1) 0 lst
 
-let reverse lst = failwith "Unimplemented"
+let reverse lst = fold_left (fun acc x -> x::acc) [] lst
 
-let count_freq lst = failwith "Unimplemented"
-
-(* binary tree from before *)
-type ('k,'v) bin_tree = Nil
-                      | Node of 'k * 'v
-                                * ('k,'v) bin_tree
-                                * ('k,'v) bin_tree
-
-let t = Node (10, "ten",
-              Node(5, "five",
-                   Node (1, "one", Nil, Nil),
-                   Node (7, "seven", Nil, Nil)),
-              Node(15, "fifteen",
-                   Node (12, "twelve", Nil, Nil),
-                   Node (18, "eighteen", Nil, Nil)))
-
-(* map for trees *)
-let rec tree_map f = failwith "Unimplemented"
-
-(* fold for trees *)
-let rec tree_fold f y = failwith "Unimplemented"
+let map' f lst = fold_left (fun acc x -> f x :: acc) [] lst
+               |> List.rev
 
 (* closures *)
-let adder x = let n = x in
-              fun y -> n + y
+let dist_between (x1,y1) (x2,y2) =
+  sqrt ((x2-.x1)**2. +. (y2-.y1)**2.0)
 
-let make_counter init = let c = ref init in
-                        fun () -> c := !c + 1 ; !c
+let dist_from_origin = dist_between (0.,0.)
+
+let adder = let n = 42 in
+            fun x -> x + n
+
+let make_adder n = fun x -> x + n
+
+let add5  = make_adder 5
+let add10 = make_adder 10
+
+let make_counter () =
+  let count = ref 0 in
+  fun () -> count := !count + 1 ; !count
 
