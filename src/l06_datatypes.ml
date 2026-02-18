@@ -61,8 +61,8 @@ let tic_tac_toe_play p (r,c) board =
 
 type t1 = Foo | Bar 
 type t2 = Lah | Dee | Dah
-type t3 = t1 * t2
-type t4 = Unit | Box of t3 | Jug of bool * t3
+type t3 = { f1: t1; f2: t2; f3: t1 }
+type t4 = Unit | Box of t1 | Trunk of bool * t3
 
 (* shape ADT *)
 
